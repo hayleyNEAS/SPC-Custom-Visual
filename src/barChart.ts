@@ -218,10 +218,6 @@ export class BarChart implements IVisual {
             .append('svg')
             .classed('barChart', true);
 
-        /*this.barContainer = this.svg
-            .append('g')
-            .classed('barContainer', true);*/
-
         this.xAxis = this.svg
             .append('g')
             .classed('xAxis', true);
@@ -310,9 +306,11 @@ export class BarChart implements IVisual {
         this.yAxis
             .attr('transform', 'translate(' + (yShift) + ',0)')
 
-        
+        //Y Grid lines
+        this.svg.selectAll('.horizontalGrid').remove(); //removes previously drawn gridlines so they dont duplicate
+
         this.yGridLines
-            .data(yScale.ticks(4))
+            .data(yScale.ticks())
             .enter()
             .append('line')
             .attr("class", "horizontalGrid")
@@ -321,7 +319,7 @@ export class BarChart implements IVisual {
             .attr("y1", function(d){ return yScale(d);})
             .attr("y2", function(d){ return yScale(d);})
             .attr("fill", "none")
-            .attr("stroke", "#EEE")
+            .attr("stroke", "#EEEEEE")
             .attr("stroke-width", 1)
             
            
@@ -379,30 +377,6 @@ export class BarChart implements IVisual {
                 .x(function (d) { return xScale(d.category) } )
                 .y(function (d) { return yScale(horizontal) })
             )
-/*
-        this.chartSelection = this.barContainer
-            .selectAll('.bar')
-            .data(this.dataPoints);
-
-        const chartSelectionMerged = this.chartSelection
-            .enter()
-            .append('circle')
-            .merge(<any>this.chartSelection);
-
-        chartSelectionMerged.classed('bar', true);
-
-        chartSelectionMerged
-            .attr("r", 10.)
-            //.attr("height", d => height - yScale(<number>d.value))
-            .attr("cy", d => yScale(<number>d.value))
-            .attr("cx", d => xScale(d.category))
-            .style("fill", (dataPoint: BarChartDataPoint) => dataPoint.color)
-            .style("stroke", (dataPoint: BarChartDataPoint) => dataPoint.strokeColor)
-            .style("stroke-width", (dataPoint: BarChartDataPoint) => `${dataPoint.strokeWidth}px`);
-
-        this.chartSelection
-            .exit()
-            .remove();*/
 
     }
 

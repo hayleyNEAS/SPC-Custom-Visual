@@ -6906,7 +6906,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _double__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(7802);
 /* harmony import */ var _jsonComparer__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(9289);
 /* harmony import */ var _pixelConverter__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(4732);
-/* harmony import */ var _prototype__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(7281);
+/* harmony import */ var _prototype__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(2010);
 /* harmony import */ var _textSizeDefaults__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(1285);
 /* harmony import */ var _valueType__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(3434);
 
@@ -7425,7 +7425,7 @@ function toPoint(px) {
 
 /***/ }),
 
-/***/ 7281:
+/***/ 2010:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -9150,9 +9150,6 @@ class BarChart {
         this.svg = (0,d3_selection__WEBPACK_IMPORTED_MODULE_5__/* ["default"] */ .Z)(options.element)
             .append('svg')
             .classed('barChart', true);
-        /*this.barContainer = this.svg
-            .append('g')
-            .classed('barContainer', true);*/
         this.xAxis = this.svg
             .append('g')
             .classed('xAxis', true);
@@ -9217,8 +9214,10 @@ class BarChart {
         }
         this.yAxis
             .attr('transform', 'translate(' + (yShift) + ',0)');
+        //Y Grid lines
+        this.svg.selectAll('.horizontalGrid').remove(); //removes previously drawn gridlines so they dont duplicate
         this.yGridLines
-            .data(yScale.ticks(4))
+            .data(yScale.ticks())
             .enter()
             .append('line')
             .attr("class", "horizontalGrid")
@@ -9227,7 +9226,7 @@ class BarChart {
             .attr("y1", function (d) { return yScale(d); })
             .attr("y2", function (d) { return yScale(d); })
             .attr("fill", "none")
-            .attr("stroke", "#EEE")
+            .attr("stroke", "#EEEEEE")
             .attr("stroke-width", 1);
         let parseDate = (0,d3_time_format__WEBPACK_IMPORTED_MODULE_8__/* .timeParse */ .Z1)("%Y-%m-%d");
         //Set up the X Axis
@@ -9267,30 +9266,6 @@ class BarChart {
             .attr("d", d3__WEBPACK_IMPORTED_MODULE_0__/* .line */ .jvg()
             .x(function (d) { return xScale(d.category); })
             .y(function (d) { return yScale(horizontal); }));
-        /*
-                this.chartSelection = this.barContainer
-                    .selectAll('.bar')
-                    .data(this.dataPoints);
-        
-                const chartSelectionMerged = this.chartSelection
-                    .enter()
-                    .append('circle')
-                    .merge(<any>this.chartSelection);
-        
-                chartSelectionMerged.classed('bar', true);
-        
-                chartSelectionMerged
-                    .attr("r", 10.)
-                    //.attr("height", d => height - yScale(<number>d.value))
-                    .attr("cy", d => yScale(<number>d.value))
-                    .attr("cx", d => xScale(d.category))
-                    .style("fill", (dataPoint: BarChartDataPoint) => dataPoint.color)
-                    .style("stroke", (dataPoint: BarChartDataPoint) => dataPoint.strokeColor)
-                    .style("stroke-width", (dataPoint: BarChartDataPoint) => `${dataPoint.strokeWidth}px`);
-        
-                this.chartSelection
-                    .exit()
-                    .remove();*/
     }
     static wordBreak(textNodes, allowedWidth, maxHeight) {
         textNodes.each(function () {
@@ -12754,7 +12729,7 @@ function parseSvg(value) {
 
 /***/ }),
 
-/***/ 906:
+/***/ 9906:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -14978,7 +14953,7 @@ function empty() {
 
 /***/ }),
 
-/***/ 788:
+/***/ 4788:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -15013,7 +14988,7 @@ var slice = Array.prototype.slice;
 
 /***/ }),
 
-/***/ 925:
+/***/ 5925:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -15055,14 +15030,14 @@ Linear.prototype = {
 
 /***/ }),
 
-/***/ 285:
+/***/ 8285:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   jv: () => (/* reexport safe */ _line_js__WEBPACK_IMPORTED_MODULE_0__.Z)
 /* harmony export */ });
-/* harmony import */ var _line_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(281);
+/* harmony import */ var _line_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7281);
 
 
 
@@ -15120,18 +15095,18 @@ Linear.prototype = {
 
 /***/ }),
 
-/***/ 281:
+/***/ 7281:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Z: () => (/* export default binding */ __WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _array_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(788);
+/* harmony import */ var _array_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(4788);
 /* harmony import */ var _constant_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(309);
-/* harmony import */ var _curve_linear_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(925);
-/* harmony import */ var _path_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(229);
-/* harmony import */ var _point_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(810);
+/* harmony import */ var _curve_linear_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5925);
+/* harmony import */ var _path_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8229);
+/* harmony import */ var _point_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(6810);
 
 
 
@@ -15194,14 +15169,14 @@ Linear.prototype = {
 
 /***/ }),
 
-/***/ 229:
+/***/ 8229:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   d: () => (/* binding */ withPath)
 /* harmony export */ });
-/* harmony import */ var d3_path__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(906);
+/* harmony import */ var d3_path__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9906);
 
 
 function withPath(shape) {
@@ -15225,7 +15200,7 @@ function withPath(shape) {
 
 /***/ }),
 
-/***/ 810:
+/***/ 6810:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -18269,7 +18244,7 @@ function defaultConstrain(transform, extent, translateExtent) {
 /* harmony export */   jvg: () => (/* reexport safe */ d3_shape__WEBPACK_IMPORTED_MODULE_1__.jv)
 /* harmony export */ });
 /* harmony import */ var d3_brush__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9961);
-/* harmony import */ var d3_shape__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(285);
+/* harmony import */ var d3_shape__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8285);
 /* harmony import */ var d3_transition__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(3399);
 /* harmony import */ var d3_zoom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(5180);
 
