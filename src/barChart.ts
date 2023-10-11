@@ -271,7 +271,8 @@ export class BarChart implements IVisual {
         //Set up the Y Axis
         this.yAxis
             .style("font-size", Math.min(height, width) * BarChart.Config.yAxisFontMultiplier)
-            .style("fill", this.formattingSettings.enableYAxis.fill.value.value);
+            .style("fill", this.formattingSettings.enableYAxis.fill.value.value)
+            .attr("stroke-width", 0);
 
         let yScale = scaleLinear()
             .domain([0, <number>options.dataViews[0].categorical.values[0].maxLocal])
@@ -280,7 +281,7 @@ export class BarChart implements IVisual {
         let yTicks = 4;
 
         let yAxis = axisLeft(yScale)
-            .tickSize(1)
+            .tickSize(0) // removes tickmarks
             .ticks(yTicks)
             ;
         
@@ -329,7 +330,8 @@ export class BarChart implements IVisual {
         
         this.xAxis
             .style("font-size", Math.min(height, width) * BarChart.Config.xAxisFontMultiplier)
-            .style("fill", this.formattingSettings.enableAxis.fill.value.value);
+            .style("fill", this.formattingSettings.enableAxis.fill.value.value)
+            .attr("stroke-width", 0);
     
         let xScale = scaleBand()
             .domain(this.dataPoints.map(d => d.category))
@@ -337,7 +339,7 @@ export class BarChart implements IVisual {
             .padding(0.5);
 
         let xAxis = axisBottom(xScale)
-            .tickSize(1)
+            .tickSize(0) //removes the tickmarks
             ;
 
         this.xAxis
@@ -348,9 +350,6 @@ export class BarChart implements IVisual {
                 this.host.colorPalette,
                 this.formattingSettings.enableAxis.fill.value.value
             ));
-
-        const textNodes = this.xAxis.selectAll("text")
-        BarChart.wordBreak(textNodes, xScale.bandwidth(), height);
         
         //Create data line
         this.line
@@ -379,20 +378,6 @@ export class BarChart implements IVisual {
             )
 
     }
-
-    private static wordBreak(
-        textNodes: Selection<any, SVGElement>,
-        allowedWidth: number,
-        maxHeight: number
-    ) {
-        textNodes.each(function () {
-            textMeasurementService.wordBreak(
-                this,
-                allowedWidth,
-                maxHeight);
-        });
-    }
-
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);

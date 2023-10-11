@@ -57,7 +57,6 @@ export declare class BarChart implements IVisual {
      *                                        the visual had queried.
      */
     update(options: VisualUpdateOptions): void;
-    private static wordBreak;
     getFormattingModel(): powerbi.visuals.FormattingModel;
 }
 export { BarChart as Visual };

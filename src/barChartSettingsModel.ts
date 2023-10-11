@@ -27,7 +27,7 @@ class EnableAxisCardSettings extends FormattingSettingsCard {
     });
 
     name: string = "enableAxis";
-    displayName: string = "Enable x-axis";
+    displayName: string = "X-axis";
     slices: Array<FormattingSettingsSlice> = [this.show, this.fill];
 }
 
@@ -51,7 +51,7 @@ class EnableYAxisCardSettings extends FormattingSettingsCard {
     });
 
     name: string = "enableYAxis";
-    displayName: string = "Enable y-axis";
+    displayName: string = "Y-axis";
     slices: Array<FormattingSettingsSlice> = [this.show, this.fill];
 }
 
