@@ -234,7 +234,7 @@ export class BarChart implements IVisual {
             .classed('line', true)
         
         this.lineMean = this.svg
-            .append('path')
+            .append('line')
             .classed('line', true)
     }
 
@@ -368,14 +368,14 @@ export class BarChart implements IVisual {
             .reduce((a,b)=>a+b,0)/this.dataPoints.length
 
         this.lineMean
-            .datum(this.dataPoints)
+            .attr("class", "mean")
+            .attr("x1", yShift)
+            .attr("x2", width)
+            .attr("y1", function(d){ return yScale(horizontal);})
+            .attr("y2", function(d){ return yScale(horizontal);})
             .attr("fill", "none")
             .attr("stroke", "black")
             .attr("stroke-width", 1.5)
-            .attr("d", d3.line<BarChartDataPoint>()
-                .x(function (d) { return xScale(d.category) } )
-                .y(function (d) { return yScale(horizontal) })
-            )
 
     }
 
