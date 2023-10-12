@@ -50,7 +50,7 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
     let barChartDataPoints: BarChartDataPoint[] = []
     let dataViews = options.dataViews;
 
-    if (!dataViews
+    if (!dataViews //checks data exists
         || !dataViews[0]
         || !dataViews[0].categorical
         || !dataViews[0].categorical.categories
@@ -64,12 +64,9 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
     let category = categorical.categories[0];
     let dataValue = categorical.values[0];
 
-
     let colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
 
     const strokeColor: string = getColumnStrokeColor(colorPalette);
-
-
     const strokeWidth: number = getColumnStrokeWidth(colorPalette.isHighContrast);
 
     for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
@@ -85,7 +82,7 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
             strokeWidth,
             selectionId,
             value: dataValue.values[i],
-            category: `${category.values[i]}`,
+            category: <string>category.values[i] //new Date(<any>category.values[i]),
         });
     }
 
@@ -238,6 +235,47 @@ export class BarChart implements IVisual {
             .classed('line', true)
     }
 
+    private parseDateLabel(label: string, index: number){
+        let formatter = d3.timeParse('%Y');
+        let parsed = formatter(label);
+        if(parsed){
+            return parsed.getFullYear().toString()
+        }
+        
+        formatter = d3.timeParse('%Y Qtr %q');
+        parsed = formatter(label);
+        if(parsed){
+            if(parsed.getMonth() == 0 ){
+                return parsed.getFullYear().toString()
+            } else {return ''}
+        }
+
+        formatter = d3.timeParse('%Y Qtr %q %B');
+        parsed = formatter(label);
+        if(parsed){
+            if(parsed.getMonth() == 0 ){
+                return parsed.getFullYear().toString()
+            } else {return ''}
+        }
+
+        
+        formatter = d3.timeParse('%Y Qtr %q %B %-d');
+        parsed = formatter(label);
+        if(parsed){
+            if(parsed.getMonth() == 0 && parsed.getDay() == 0){
+                return parsed.getFullYear().toString()
+            } else {return ''}
+        }
+
+        formatter = d3.timeParse('%B');
+        parsed = formatter(label);
+        if(parsed){
+            return label.slice(0,3)
+        }
+
+        return label
+    }
+
     /**
      * Updates the state of the visual. Every sequential databinding and resize will call update.
      *
@@ -340,6 +378,9 @@ export class BarChart implements IVisual {
 
         let xAxis = axisBottom(xScale)
             .tickSize(0) //removes the tickmarks
+            //.tickValues(xScale.domain().filter(function(d, i){ return i==0}))
+            .tickFormat(this.parseDateLabel)
+            //.tickValues(xScale.domain().filter(function(d, i){ return d.includes("Qtr 1")}))
             ;
 
         this.xAxis

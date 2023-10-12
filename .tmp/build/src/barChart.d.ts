@@ -48,6 +48,7 @@ export declare class BarChart implements IVisual {
      *                                             which contains services.
      */
     constructor(options: VisualConstructorOptions);
+    private parseDateLabel;
     /**
      * Updates the state of the visual. Every sequential databinding and resize will call update.
      *

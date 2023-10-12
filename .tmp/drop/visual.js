@@ -852,7 +852,7 @@ try {
 function createSelectorDataPoints(options, host) {
     let barChartDataPoints = [];
     let dataViews = options.dataViews;
-    if (!dataViews
+    if (!dataViews //checks data exists
         || !dataViews[0]
         || !dataViews[0].categorical
         || !dataViews[0].categorical.categories
@@ -877,7 +877,7 @@ function createSelectorDataPoints(options, host) {
             strokeWidth,
             selectionId,
             value: dataValue.values[i],
-            category: `${category.values[i]}`,
+            category: category.values[i] //new Date(<any>category.values[i]),
         });
     }
     return barChartDataPoints;
@@ -979,6 +979,49 @@ class BarChart {
             .append('line')
             .classed('line', true);
     }
+    parseDateLabel(label, index) {
+        let formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y');
+        let parsed = formatter(label);
+        if (parsed) {
+            return parsed.getFullYear().toString();
+        }
+        formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q');
+        parsed = formatter(label);
+        if (parsed) {
+            if (parsed.getMonth() == 0) {
+                return parsed.getFullYear().toString();
+            }
+            else {
+                return '';
+            }
+        }
+        formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q %B');
+        parsed = formatter(label);
+        if (parsed) {
+            if (parsed.getMonth() == 0) {
+                return parsed.getFullYear().toString();
+            }
+            else {
+                return '';
+            }
+        }
+        formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q %B %-d');
+        parsed = formatter(label);
+        if (parsed) {
+            if (parsed.getMonth() == 0 && parsed.getDay() == 0) {
+                return parsed.getFullYear().toString();
+            }
+            else {
+                return '';
+            }
+        }
+        formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%B');
+        parsed = formatter(label);
+        if (parsed) {
+            return label.slice(0, 3);
+        }
+        return label;
+    }
     /**
      * Updates the state of the visual. Every sequential databinding and resize will call update.
      *
@@ -1055,7 +1098,8 @@ class BarChart {
             .padding(0.5);
         let xAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_7__/* .axisBottom */ .LL)(xScale)
             .tickSize(0) //removes the tickmarks
-        ;
+            //.tickValues(xScale.domain().filter(function(d, i){ return i==0}))
+            .tickFormat(this.parseDateLabel);
         this.xAxis
             .attr('transform', 'translate(0, ' + (height + 2) + ')')
             .call(xAxis)
@@ -7059,6 +7103,22 @@ function defaultLocale(definition) {
 
 /***/ }),
 
+/***/ 809:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Z1: () => (/* reexport safe */ _defaultLocale_js__WEBPACK_IMPORTED_MODULE_0__.Z1)
+/* harmony export */ });
+/* harmony import */ var _defaultLocale_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2138);
+
+
+
+
+
+
+/***/ }),
+
 /***/ 7238:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
@@ -10041,12 +10101,14 @@ function defaultConstrain(transform, extent, translateExtent) {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Z1g: () => (/* reexport safe */ d3_time_format__WEBPACK_IMPORTED_MODULE_2__.Z1),
 /* harmony export */   jvg: () => (/* reexport safe */ d3_shape__WEBPACK_IMPORTED_MODULE_1__.jv)
 /* harmony export */ });
 /* harmony import */ var d3_brush__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9961);
 /* harmony import */ var d3_shape__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8285);
-/* harmony import */ var d3_transition__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(3399);
-/* harmony import */ var d3_zoom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(5180);
+/* harmony import */ var d3_time_format__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(809);
+/* harmony import */ var d3_transition__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(3399);
+/* harmony import */ var d3_zoom__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(5180);
 
 
 

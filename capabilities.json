@@ -3,7 +3,7 @@
         {
             "displayName": "Time Data",
             "name": "category",
-            "kind": "GroupingOrMeasure"
+            "kind": "Grouping"
         },
         {
             "displayName": "Measure Data",
