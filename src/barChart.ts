@@ -37,7 +37,7 @@ import { MarginPadding } from "powerbi-visuals-utils-formattingmodel/lib/Formatt
 
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
 
-export interface BarChartDataPoint {
+export interface SPCChartDataPoint {
     value: PrimitiveValue;
     category: string;
     difference: number;
@@ -47,8 +47,8 @@ export interface BarChartDataPoint {
     selectionId: ISelectionId;
 }
 
-function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHost): BarChartDataPoint[] {
-    let barChartDataPoints: BarChartDataPoint[] = []
+function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHost): SPCChartDataPoint[] {
+    let SPCChartDataPoints: SPCChartDataPoint[] = []
     let dataViews = options.dataViews;
 
     if (!dataViews //checks data exists
@@ -58,7 +58,7 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
         || !dataViews[0].categorical.categories[0].source
         || !dataViews[0].categorical.values
     ) {
-        return barChartDataPoints;
+        return SPCChartDataPoints;
     }
 
     let categorical = dataViews[0].categorical;
@@ -77,7 +77,7 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
             .withCategory(category, i)
             .createSelectionId();
 
-        barChartDataPoints.push({
+        SPCChartDataPoints.push({
             color,
             strokeColor,
             strokeWidth,
@@ -88,7 +88,7 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
         });
     }
 
-    return barChartDataPoints;
+    return SPCChartDataPoints;
 }
 
 function getColumnColorByIndex(
@@ -169,20 +169,24 @@ function getYAxisTextFillColor(
     ).solid.color;
 }
 
-export class BarChart implements IVisual {
+export class SPCChart implements IVisual {
     private svg: Selection<any>;
+    private tooltip: Selection<any>;
+
     private host: IVisualHost;
     //private barContainer: Selection<SVGElement>;
     private xAxis: Selection<SVGElement>;
     private yAxis: Selection<SVGElement>;
     private yGridLines: Selection<SVGElement>;
     
-    private line: Selection<SVGElement>;
+    private lineData: Selection<SVGElement>;
     private lineMean: Selection<SVGElement>;
     private lineUCL: Selection<SVGElement>;
     private lineLCL: Selection<SVGElement>;
 
-    private dataPoints: BarChartDataPoint[];
+    private dataMarkers: Selection<SVGElement>;
+
+    private dataPoints: SPCChartDataPoint[];
     private formattingSettings: BarChartSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
 
@@ -203,7 +207,7 @@ export class BarChart implements IVisual {
     };
 
     /**
-     * Creates instance of BarChart. This method is only called once.
+     * Creates instance of SPCChart. This method is only called once.
      *
      * @constructor
      * @param {VisualConstructorOptions} options - Contains references to the element that will
@@ -217,7 +221,7 @@ export class BarChart implements IVisual {
 
         this.svg = d3Select(options.element)
             .append('svg')
-            .classed('barChart', true);
+            .classed('SPCChart', true);
 
         this.xAxis = this.svg
             .append('g')
@@ -230,9 +234,13 @@ export class BarChart implements IVisual {
         this.yGridLines = this.svg
             .selectAll("line.horizontalGrid");
 
-        this.line = this.svg
+        this.lineData = this.svg
             .append('path')
             .classed('line', true)
+        
+        this.dataMarkers = this.svg
+            .append('svg')
+            .classed('markers', true)
         
         this.lineMean = this.svg
             .append('line')
@@ -304,7 +312,7 @@ export class BarChart implements IVisual {
 
         let width = options.viewport.width;
         let height = options.viewport.height;
-        let margins = BarChart.Config.margins;
+        let margins = SPCChart.Config.margins;
 
         let yShift = 0;
 
@@ -332,22 +340,25 @@ export class BarChart implements IVisual {
         let LCL = meanLine - 2.66*avgDiff
         //Set up the Y Axis
         this.yAxis
-            .style("font-size", Math.min(height, width) * BarChart.Config.yAxisFontMultiplier)
+            .style("font-size", Math.min(height, width) * SPCChart.Config.yAxisFontMultiplier)
             .style("fill", this.formattingSettings.enableYAxis.fill.value.value)
             .attr("stroke-width", 0);
 
         let yScale = scaleLinear()
-            .domain([Math.min(0,<number>options.dataViews[0].categorical.values[0].minLocal,LCL), Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, UCL)*1.1])
+            .domain([Math.min(0,<number>options.dataViews[0].categorical.values[0].minLocal,LCL)*1.1, 
+                     Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, UCL)*1.1])
             .range([height, 0]);
 
-        let yTicks = 4;
+        let yTicks = 5;
 
         let yAxis = axisLeft(yScale)
             .tickSize(0) // removes tickmarks
             .ticks(yTicks)
+            .tickFormat(d3.format(".2s")) //format in SI units
             ;
         
         this.yAxis
+            .transition().duration(500)
             .call(yAxis)
             .attr("color", getYAxisTextFillColor(
                 colorObjects,
@@ -358,7 +369,8 @@ export class BarChart implements IVisual {
         let maxW = 0;
 
         this.yAxis
-            .selectAll("text").each( function (this:SVGGraphicsElement){
+            .selectAll("text")
+            .each( function (this:SVGGraphicsElement){
             if(this.getBBox().width > maxW) maxW = this.getBBox().width;
         });
 
@@ -367,13 +379,15 @@ export class BarChart implements IVisual {
         } 
         
         this.yAxis
+            .style('font-family', 'inherit')
+            .style('font-size', 11) //TODO make this a drop down
             .attr('transform', 'translate(' + (yShift) + ',0)')
 
         //Y Grid lines
         this.svg.selectAll('.horizontalGrid').remove(); //removes previously drawn gridlines so they dont duplicate
 
         this.yGridLines
-            .data(yScale.ticks())
+            .data(yScale.ticks(yTicks))
             .enter()
             .append('line')
             .attr("class", "horizontalGrid")
@@ -389,7 +403,7 @@ export class BarChart implements IVisual {
         //Set up the X Axis
         
         this.xAxis
-            .style("font-size", Math.min(height, width) * BarChart.Config.xAxisFontMultiplier)
+            .style("font-size", Math.min(height, width) * SPCChart.Config.xAxisFontMultiplier)
             .style("fill", this.formattingSettings.enableAxis.fill.value.value)
             .attr("stroke-width", 0);
     
@@ -404,6 +418,7 @@ export class BarChart implements IVisual {
             ;
 
         this.xAxis
+            .transition().duration(500)
             .attr('transform', 'translate(0, ' + (height + 2) + ')')
             .call(xAxis)
             .attr("color", getAxisTextFillColor(
@@ -413,17 +428,27 @@ export class BarChart implements IVisual {
             ));
         
         //Create data line
-        this.line
+        this.lineData
             .datum(this.dataPoints)
             .attr("fill", "none")
             .attr("stroke", "steelblue")
             .attr("stroke-width", 2)
             .attr("stroke-linejoin", "round")
-            .attr("d", d3.line<BarChartDataPoint>()
+            .attr("d", d3.line<SPCChartDataPoint>()
                 .x(function (d) { return xScale(d.category) })
                 .y(function (d) { return yScale(<number>d.value) })
             )
         
+        this.dataMarkers
+            .selectAll('dot')
+            .data(this.dataPoints)
+            .enter()
+            .append("circle")
+            .attr("cx", function(d) { return xScale(d.category) } )
+            .attr("cy", function(d) { return yScale(<number>d.value) } )
+            .attr("r", 3)
+            .attr("fill", "steelblue") //TODO get colour to change based on data values
+            
         //Create mean line
         this.lineMean
             .attr("class", "mean")
@@ -447,6 +472,7 @@ export class BarChart implements IVisual {
             .attr("fill", "none")
             .attr("stroke", "black")
             .attr("stroke-width", 2)
+            
         this.lineLCL
             .style("stroke-dasharray", ("5,5"))
             .style("stroke-linecap", "round")
@@ -467,4 +493,4 @@ export class BarChart implements IVisual {
 
 }
 
-export {BarChart as Visual};
+export {SPCChart as Visual};

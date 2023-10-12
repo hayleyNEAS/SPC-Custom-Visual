@@ -1,7 +1,7 @@
 import powerbi from "powerbi-visuals-api";
 import { dataViewWildcard } from "powerbi-visuals-utils-dataviewutils";
 import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
-import { BarChartDataPoint } from "./barChart";
+import { SPCChartDataPoint } from "./barChart";
 
 import FormattingSettingsCard = formattingSettings.Card;
 import FormattingSettingsSlice = formattingSettings.Slice;
@@ -83,7 +83,7 @@ export class BarChartSettingsModel extends FormattingSettingsModel {
      * populate colorSelector object categories formatting properties
      * @param dataPoints 
      */
-    populateColorSelector(dataPoints: BarChartDataPoint[]) {
+    populateColorSelector(dataPoints: SPCChartDataPoint[]) {
         let slices = this.colorSelector.slices;
         if (dataPoints) {
             dataPoints.forEach(dataPoint => {

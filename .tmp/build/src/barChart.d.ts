@@ -6,7 +6,7 @@ import IVisual = powerbi.extensibility.IVisual;
 import PrimitiveValue = powerbi.PrimitiveValue;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
-export interface BarChartDataPoint {
+export interface SPCChartDataPoint {
     value: PrimitiveValue;
     category: string;
     difference: number;
@@ -15,16 +15,18 @@ export interface BarChartDataPoint {
     strokeWidth: number;
     selectionId: ISelectionId;
 }
-export declare class BarChart implements IVisual {
+export declare class SPCChart implements IVisual {
     private svg;
+    private tooltip;
     private host;
     private xAxis;
     private yAxis;
     private yGridLines;
-    private line;
+    private lineData;
     private lineMean;
     private lineUCL;
     private lineLCL;
+    private dataMarkers;
     private dataPoints;
     private formattingSettings;
     private formattingSettingsService;
@@ -43,7 +45,7 @@ export declare class BarChart implements IVisual {
         yAxisFontMultiplier: number;
     };
     /**
-     * Creates instance of BarChart. This method is only called once.
+     * Creates instance of SPCChart. This method is only called once.
      *
      * @constructor
      * @param {VisualConstructorOptions} options - Contains references to the element that will
@@ -63,4 +65,4 @@ export declare class BarChart implements IVisual {
     update(options: VisualUpdateOptions): void;
     getFormattingModel(): powerbi.visuals.FormattingModel;
 }
-export { BarChart as Visual };
+export { SPCChart as Visual };

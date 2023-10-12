@@ -1,5 +1,5 @@
 import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
-import { BarChartDataPoint } from "./barChart";
+import { SPCChartDataPoint } from "./barChart";
 import FormattingSettingsCard = formattingSettings.Card;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
@@ -44,6 +44,6 @@ export declare class BarChartSettingsModel extends FormattingSettingsModel {
      * populate colorSelector object categories formatting properties
      * @param dataPoints
      */
-    populateColorSelector(dataPoints: BarChartDataPoint[]): void;
+    populateColorSelector(dataPoints: SPCChartDataPoint[]): void;
 }
 export {};
