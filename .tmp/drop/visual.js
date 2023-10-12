@@ -829,17 +829,15 @@ try {
 /* harmony export */ });
 /* unused harmony export BarChart */
 /* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(5036);
-/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(7808);
+/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(7808);
 /* harmony import */ var d3_selection__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(3838);
 /* harmony import */ var d3_axis__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(924);
-/* harmony import */ var d3_time_format__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(2138);
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8976);
 /* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5666);
 /* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(446);
 /* harmony import */ var _barChartSettingsModel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2446);
 /* harmony import */ var _objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(6363);
-
 
 
 
@@ -877,6 +875,7 @@ function createSelectorDataPoints(options, host) {
             strokeWidth,
             selectionId,
             value: dataValue.values[i],
+            difference: Math.abs(dataValue.values[i] - dataValue.values[i - 1]),
             category: category.values[i] //new Date(<any>category.values[i]),
         });
     }
@@ -932,6 +931,8 @@ class BarChart {
     yGridLines;
     line;
     lineMean;
+    lineUCL;
+    lineLCL;
     dataPoints;
     formattingSettings;
     formattingSettingsService;
@@ -976,6 +977,12 @@ class BarChart {
             .append('path')
             .classed('line', true);
         this.lineMean = this.svg
+            .append('line')
+            .classed('line', true);
+        this.lineUCL = this.svg
+            .append('line')
+            .classed('line', true);
+        this.lineLCL = this.svg
             .append('line')
             .classed('line', true);
     }
@@ -1031,7 +1038,7 @@ class BarChart {
      *                                        the visual had queried.
      */
     update(options) {
-        //Set up the charting opbject 
+        //Set up the charting object 
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(_barChartSettingsModel__WEBPACK_IMPORTED_MODULE_2__/* .BarChartSettingsModel */ .f, options.dataViews);
         this.dataPoints = createSelectorDataPoints(options, this.host);
         this.formattingSettings.populateColorSelector(this.dataPoints);
@@ -1046,13 +1053,23 @@ class BarChart {
             height -= margins.bottom;
         }
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
+        //Set up variables 
+        let meanLine = this.dataPoints
+            .map((d) => d.value)
+            .reduce((a, b) => a + b, 0) / this.dataPoints.length;
+        let avgDiff = this.dataPoints
+            .map((d) => d.value)
+            .map((a, b) => Math.abs(b - a))
+            .reduce((a, b) => a + b, 0) / this.dataPoints.length;
+        let UCL = meanLine + 2.66 * avgDiff;
+        let LCL = meanLine - 2.66 * avgDiff;
         //Set up the Y Axis
         this.yAxis
             .style("font-size", Math.min(height, width) * BarChart.Config.yAxisFontMultiplier)
             .style("fill", this.formattingSettings.enableYAxis.fill.value.value)
             .attr("stroke-width", 0);
         let yScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_6__/* ["default"] */ .Z)()
-            .domain([0, options.dataViews[0].categorical.values[0].maxLocal])
+            .domain([Math.min(0, options.dataViews[0].categorical.values[0].minLocal, LCL), Math.max(options.dataViews[0].categorical.values[0].maxLocal, UCL) * 1.1])
             .range([height, 0]);
         let yTicks = 4;
         let yAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_7__/* .axisLeft */ .y4)(yScale)
@@ -1086,19 +1103,17 @@ class BarChart {
             .attr("fill", "none")
             .attr("stroke", "#EEEEEE")
             .attr("stroke-width", 1);
-        let parseDate = (0,d3_time_format__WEBPACK_IMPORTED_MODULE_8__/* .timeParse */ .Z1)("%Y-%m-%d");
         //Set up the X Axis
         this.xAxis
             .style("font-size", Math.min(height, width) * BarChart.Config.xAxisFontMultiplier)
             .style("fill", this.formattingSettings.enableAxis.fill.value.value)
             .attr("stroke-width", 0);
-        let xScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_9__/* ["default"] */ .Z)()
+        let xScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_8__/* ["default"] */ .Z)()
             .domain(this.dataPoints.map(d => d.category))
             .rangeRound([yShift, width])
             .padding(0.5);
         let xAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_7__/* .axisBottom */ .LL)(xScale)
             .tickSize(0) //removes the tickmarks
-            //.tickValues(xScale.domain().filter(function(d, i){ return i==0}))
             .tickFormat(this.parseDateLabel);
         this.xAxis
             .attr('transform', 'translate(0, ' + (height + 2) + ')')
@@ -1109,23 +1124,44 @@ class BarChart {
             .datum(this.dataPoints)
             .attr("fill", "none")
             .attr("stroke", "steelblue")
-            .attr("stroke-width", 3)
+            .attr("stroke-width", 2)
+            .attr("stroke-linejoin", "round")
             .attr("d", d3__WEBPACK_IMPORTED_MODULE_0__/* .line */ .jvg()
             .x(function (d) { return xScale(d.category); })
             .y(function (d) { return yScale(d.value); }));
         //Create mean line
-        let horizontal = this.dataPoints
-            .map((d) => d.value)
-            .reduce((a, b) => a + b, 0) / this.dataPoints.length;
         this.lineMean
             .attr("class", "mean")
             .attr("x1", yShift)
             .attr("x2", width)
-            .attr("y1", function (d) { return yScale(horizontal); })
-            .attr("y2", function (d) { return yScale(horizontal); })
+            .attr("y1", function (d) { return yScale(meanLine); })
+            .attr("y2", function (d) { return yScale(meanLine); })
             .attr("fill", "none")
             .attr("stroke", "black")
             .attr("stroke-width", 1.5);
+        //Create limit lines        
+        this.lineUCL
+            .style("stroke-dasharray", ("5,5"))
+            .style("stroke-linecap", "round")
+            .attr("class", "mean")
+            .attr("x1", yShift)
+            .attr("x2", width)
+            .attr("y1", function (d) { return yScale(UCL); })
+            .attr("y2", function (d) { return yScale(UCL); })
+            .attr("fill", "none")
+            .attr("stroke", "black")
+            .attr("stroke-width", 2);
+        this.lineLCL
+            .style("stroke-dasharray", ("5,5"))
+            .style("stroke-linecap", "round")
+            .attr("class", "mean")
+            .attr("x1", yShift)
+            .attr("x2", width)
+            .attr("y1", function (d) { return yScale(LCL); })
+            .attr("y2", function (d) { return yScale(LCL); })
+            .attr("fill", "none")
+            .attr("stroke", "black")
+            .attr("stroke-width", 2);
     }
     getFormattingModel() {
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);

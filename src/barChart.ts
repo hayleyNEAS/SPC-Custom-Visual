@@ -40,6 +40,7 @@ type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
 export interface BarChartDataPoint {
     value: PrimitiveValue;
     category: string;
+    difference: number;
     color: string;
     strokeColor: string;
     strokeWidth: number;
@@ -82,6 +83,7 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
             strokeWidth,
             selectionId,
             value: dataValue.values[i],
+            difference: Math.abs(<number>dataValue.values[i] - <number>dataValue.values[i-1]),
             category: <string>category.values[i] //new Date(<any>category.values[i]),
         });
     }
@@ -177,6 +179,8 @@ export class BarChart implements IVisual {
     
     private line: Selection<SVGElement>;
     private lineMean: Selection<SVGElement>;
+    private lineUCL: Selection<SVGElement>;
+    private lineLCL: Selection<SVGElement>;
 
     private dataPoints: BarChartDataPoint[];
     private formattingSettings: BarChartSettingsModel;
@@ -233,6 +237,14 @@ export class BarChart implements IVisual {
         this.lineMean = this.svg
             .append('line')
             .classed('line', true)
+        
+        this.lineUCL = this.svg
+            .append('line')
+            .classed('line', true)
+        
+        this.lineLCL = this.svg
+            .append('line')
+            .classed('line', true)
     }
 
     private parseDateLabel(label: string, index: number){
@@ -285,7 +297,7 @@ export class BarChart implements IVisual {
      *                                        the visual had queried.
      */
     public update(options: VisualUpdateOptions) {
-        //Set up the charting opbject 
+        //Set up the charting object 
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(BarChartSettingsModel, options.dataViews);
         this.dataPoints = createSelectorDataPoints(options, this.host);
         this.formattingSettings.populateColorSelector(this.dataPoints);
@@ -306,6 +318,18 @@ export class BarChart implements IVisual {
             
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
 
+        //Set up variables 
+        let meanLine = this.dataPoints
+        .map((d) => <number>d.value)
+        .reduce((a,b)=>a+b,0)/this.dataPoints.length
+
+        let avgDiff = this.dataPoints
+            .map((d) => <number>d.value)
+            .map((a,b)=> Math.abs(b-a))
+            .reduce((a,b)=>a+b,0)/this.dataPoints.length
+
+        let UCL = meanLine + 2.66*avgDiff
+        let LCL = meanLine - 2.66*avgDiff
         //Set up the Y Axis
         this.yAxis
             .style("font-size", Math.min(height, width) * BarChart.Config.yAxisFontMultiplier)
@@ -313,7 +337,7 @@ export class BarChart implements IVisual {
             .attr("stroke-width", 0);
 
         let yScale = scaleLinear()
-            .domain([0, <number>options.dataViews[0].categorical.values[0].maxLocal])
+            .domain([Math.min(0,<number>options.dataViews[0].categorical.values[0].minLocal,LCL), Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, UCL)*1.1])
             .range([height, 0]);
 
         let yTicks = 4;
@@ -361,9 +385,7 @@ export class BarChart implements IVisual {
             .attr("stroke", "#EEEEEE")
             .attr("stroke-width", 1)
             
-           
-        let parseDate = timeParse("%Y-%m-%d");  
-        
+                  
         //Set up the X Axis
         
         this.xAxis
@@ -378,9 +400,7 @@ export class BarChart implements IVisual {
 
         let xAxis = axisBottom(xScale)
             .tickSize(0) //removes the tickmarks
-            //.tickValues(xScale.domain().filter(function(d, i){ return i==0}))
             .tickFormat(this.parseDateLabel)
-            //.tickValues(xScale.domain().filter(function(d, i){ return d.includes("Qtr 1")}))
             ;
 
         this.xAxis
@@ -397,26 +417,47 @@ export class BarChart implements IVisual {
             .datum(this.dataPoints)
             .attr("fill", "none")
             .attr("stroke", "steelblue")
-            .attr("stroke-width", 3)
+            .attr("stroke-width", 2)
+            .attr("stroke-linejoin", "round")
             .attr("d", d3.line<BarChartDataPoint>()
                 .x(function (d) { return xScale(d.category) })
                 .y(function (d) { return yScale(<number>d.value) })
             )
         
         //Create mean line
-        let horizontal = this.dataPoints
-            .map((d) => <number>d.value)
-            .reduce((a,b)=>a+b,0)/this.dataPoints.length
-
         this.lineMean
             .attr("class", "mean")
             .attr("x1", yShift)
             .attr("x2", width)
-            .attr("y1", function(d){ return yScale(horizontal);})
-            .attr("y2", function(d){ return yScale(horizontal);})
+            .attr("y1", function(d){ return yScale(meanLine);})
+            .attr("y2", function(d){ return yScale(meanLine);})
             .attr("fill", "none")
             .attr("stroke", "black")
             .attr("stroke-width", 1.5)
+
+        //Create limit lines        
+        this.lineUCL
+            .style("stroke-dasharray", ("5,5"))
+            .style("stroke-linecap", "round")
+            .attr("class", "mean")
+            .attr("x1", yShift)
+            .attr("x2", width)
+            .attr("y1", function(d){ return yScale(UCL);})
+            .attr("y2", function(d){ return yScale(UCL);})
+            .attr("fill", "none")
+            .attr("stroke", "black")
+            .attr("stroke-width", 2)
+        this.lineLCL
+            .style("stroke-dasharray", ("5,5"))
+            .style("stroke-linecap", "round")
+            .attr("class", "mean")
+            .attr("x1", yShift)
+            .attr("x2", width)
+            .attr("y1", function(d){ return yScale(LCL);})
+            .attr("y2", function(d){ return yScale(LCL);})
+            .attr("fill", "none")
+            .attr("stroke", "black")
+            .attr("stroke-width", 2)
 
     }
 

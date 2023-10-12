@@ -1,7 +1,7 @@
 {
     "dataRoles": [
         {
-            "displayName": "Time Data",
+            "displayName": "Time Hierarchy",
             "name": "category",
             "kind": "Grouping"
         },

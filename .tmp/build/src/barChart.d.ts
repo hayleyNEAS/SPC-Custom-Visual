@@ -9,6 +9,7 @@ import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructor
 export interface BarChartDataPoint {
     value: PrimitiveValue;
     category: string;
+    difference: number;
     color: string;
     strokeColor: string;
     strokeWidth: number;
@@ -22,6 +23,8 @@ export declare class BarChart implements IVisual {
     private yGridLines;
     private line;
     private lineMean;
+    private lineUCL;
+    private lineLCL;
     private dataPoints;
     private formattingSettings;
     private formattingSettingsService;
