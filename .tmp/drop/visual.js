@@ -871,11 +871,11 @@ function createSelectorDataPoints(options, host) {
             .createSelectionId();
         SPCChartDataPoints.push({
             color,
+            markerSize: 0,
             strokeColor,
             strokeWidth,
             selectionId,
             value: dataValue.values[i],
-            difference: Math.abs(dataValue.values[i] - dataValue.values[i - 1]),
             category: category.values[i] //new Date(<any>category.values[i]),
         });
     }
@@ -979,8 +979,7 @@ class SPCChart {
             .append('path')
             .classed('line', true);
         this.dataMarkers = this.svg
-            .append('svg')
-            .classed('markers', true);
+            .selectAll('dot.Markers');
         this.lineMean = this.svg
             .append('line')
             .classed('line', true);
@@ -1068,6 +1067,17 @@ class SPCChart {
             .reduce((a, b) => a + b, 0) / this.dataPoints.length;
         let UCL = meanLine + 2.66 * avgDiff;
         let LCL = meanLine - 2.66 * avgDiff;
+        //SPC Marker Colors Rules
+        for (let i = 0, len = this.dataPoints.length; i < len; i++) {
+            if (this.dataPoints[i].value > UCL) {
+                this.dataPoints[i].color = 'red';
+                this.dataPoints[i].markerSize = 3;
+            }
+            if (this.dataPoints[i].value < LCL) {
+                this.dataPoints[i].color = 'red';
+                this.dataPoints[i].markerSize = 3;
+            }
+        }
         //Set up the Y Axis
         this.yAxis
             .style("font-size", Math.min(height, width) * SPCChart.Config.yAxisFontMultiplier)
@@ -1142,15 +1152,16 @@ class SPCChart {
             .attr("d", d3__WEBPACK_IMPORTED_MODULE_0__/* .line */ .jvg()
             .x(function (d) { return xScale(d.category); })
             .y(function (d) { return yScale(d.value); }));
+        this.svg.selectAll('.markers').remove();
         this.dataMarkers
-            .selectAll('dot')
             .data(this.dataPoints)
             .enter()
             .append("circle")
+            .attr("class", "markers")
             .attr("cx", function (d) { return xScale(d.category); })
             .attr("cy", function (d) { return yScale(d.value); })
-            .attr("r", 3)
-            .attr("fill", "steelblue"); //TODO get colour to change based on data values
+            .attr("r", function (d) { return d.markerSize; })
+            .attr("fill", function (d) { return d.color; }); //TODO get colour to change based on data values
         //Create mean line
         this.lineMean
             .attr("class", "mean")

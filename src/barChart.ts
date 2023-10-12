@@ -40,8 +40,8 @@ type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
 export interface SPCChartDataPoint {
     value: PrimitiveValue;
     category: string;
-    difference: number;
     color: string;
+    markerSize: number;
     strokeColor: string;
     strokeWidth: number;
     selectionId: ISelectionId;
@@ -79,11 +79,11 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
 
         SPCChartDataPoints.push({
             color,
+            markerSize: 0,
             strokeColor,
             strokeWidth,
             selectionId,
             value: dataValue.values[i],
-            difference: Math.abs(<number>dataValue.values[i] - <number>dataValue.values[i-1]),
             category: <string>category.values[i] //new Date(<any>category.values[i]),
         });
     }
@@ -239,8 +239,7 @@ export class SPCChart implements IVisual {
             .classed('line', true)
         
         this.dataMarkers = this.svg
-            .append('svg')
-            .classed('markers', true)
+            .selectAll('dot.Markers')
         
         this.lineMean = this.svg
             .append('line')
@@ -338,6 +337,18 @@ export class SPCChart implements IVisual {
 
         let UCL = meanLine + 2.66*avgDiff
         let LCL = meanLine - 2.66*avgDiff
+
+        //SPC Marker Colors Rules
+        for(let i = 0, len = this.dataPoints.length; i < len; i++) {
+            if(<number>this.dataPoints[i].value > UCL){
+                this.dataPoints[i].color = 'red'
+                this.dataPoints[i].markerSize = 3
+            }
+            if(<number>this.dataPoints[i].value < LCL){
+                this.dataPoints[i].color = 'red'
+                this.dataPoints[i].markerSize = 3
+            }
+        }
         //Set up the Y Axis
         this.yAxis
             .style("font-size", Math.min(height, width) * SPCChart.Config.yAxisFontMultiplier)
@@ -439,15 +450,16 @@ export class SPCChart implements IVisual {
                 .y(function (d) { return yScale(<number>d.value) })
             )
         
+        this.svg.selectAll('.markers').remove();
         this.dataMarkers
-            .selectAll('dot')
             .data(this.dataPoints)
             .enter()
             .append("circle")
+            .attr("class", "markers")
             .attr("cx", function(d) { return xScale(d.category) } )
             .attr("cy", function(d) { return yScale(<number>d.value) } )
-            .attr("r", 3)
-            .attr("fill", "steelblue") //TODO get colour to change based on data values
+            .attr("r", function(d) {return d.markerSize})
+            .attr("fill", function(d) {return d.color}) //TODO get colour to change based on data values
             
         //Create mean line
         this.lineMean

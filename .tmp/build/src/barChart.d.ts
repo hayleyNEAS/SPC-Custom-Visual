@@ -9,8 +9,8 @@ import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructor
 export interface SPCChartDataPoint {
     value: PrimitiveValue;
     category: string;
-    difference: number;
     color: string;
+    markerSize: number;
     strokeColor: string;
     strokeWidth: number;
     selectionId: ISelectionId;
