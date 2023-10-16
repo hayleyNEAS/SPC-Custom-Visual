@@ -1057,7 +1057,6 @@ class SPCChart {
         let width = options.viewport.width;
         let height = options.viewport.height;
         let margins = SPCChart.Config.margins;
-        let yShift = 0;
         this.svg
             .attr("width", width)
             .attr("height", height);
@@ -1127,6 +1126,7 @@ class SPCChart {
             .transition().duration(500)
             .call(yAxis)
             .attr("color", getYAxisTextFillColor(colorObjects, this.host.colorPalette, this.formattingSettings.enableYAxis.fill.value.value));
+        let yShift = 0;
         let maxW = 0;
         this.yAxis
             .selectAll("text")
@@ -1135,7 +1135,10 @@ class SPCChart {
                 maxW = this.getBBox().width;
         });
         if (this.formattingSettings.enableYAxis.show.value) {
-            yShift = maxW + 40; //longest "word" plus 10 pixels
+            yShift = maxW + 10; //longest "word" plus 10 pixels
+        }
+        if (this.formattingSettings.enableYAxis.time.value) {
+            yShift = maxW + 10; //longest "word" plus 10 pixels
         }
         this.yAxis
             .style('font-family', 'inherit')

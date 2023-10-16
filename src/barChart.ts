@@ -324,8 +324,6 @@ export class SPCChart implements IVisual {
         let height = options.viewport.height;
         let margins = SPCChart.Config.margins;
 
-        let yShift = 0;
-
         this.svg
             .attr("width", width)
             .attr("height", height);
@@ -404,7 +402,10 @@ export class SPCChart implements IVisual {
                 this.host.colorPalette,
                 this.formattingSettings.enableYAxis.fill.value.value
             ));
-
+        
+        
+            //TO DO maxW doesnt seem to calculate when you expect
+        let yShift = 0;
         let maxW = 0;
 
         this.yAxis
@@ -414,7 +415,11 @@ export class SPCChart implements IVisual {
         });
 
         if (this.formattingSettings.enableYAxis.show.value) {
-            yShift = maxW + 40; //longest "word" plus 10 pixels
+            yShift = maxW + 10; //longest "word" plus 10 pixels
+        } 
+
+        if (this.formattingSettings.enableYAxis.time.value) {
+            yShift = maxW + 10; //longest "word" plus 10 pixels
         } 
         
         this.yAxis
