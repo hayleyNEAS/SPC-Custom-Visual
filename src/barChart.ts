@@ -202,8 +202,8 @@ export class SPCChart implements IVisual {
             bottom: 25,
             left: 30,
         },
-        xAxisFontMultiplier: 0.04,
-        yAxisFontMultiplier: 0.04,
+        //xAxisFontMultiplier: 0.04,
+        //yAxisFontMultiplier: 0.04,
     };
 
     /**
@@ -351,7 +351,6 @@ export class SPCChart implements IVisual {
         }
         //Set up the Y Axis
         this.yAxis
-            .style("font-size", Math.min(height, width) * SPCChart.Config.yAxisFontMultiplier)
             .style("fill", this.formattingSettings.enableYAxis.fill.value.value)
             .attr("stroke-width", 0);
 
@@ -414,7 +413,8 @@ export class SPCChart implements IVisual {
         //Set up the X Axis
         
         this.xAxis
-            .style("font-size", Math.min(height, width) * SPCChart.Config.xAxisFontMultiplier)
+            //.style('font-family', 'inherit')
+            .style("font-size", 11)
             .style("fill", this.formattingSettings.enableAxis.fill.value.value)
             .attr("stroke-width", 0);
     
@@ -441,6 +441,7 @@ export class SPCChart implements IVisual {
         //Create data line
         this.lineData
             .datum(this.dataPoints)
+            .style("stroke-linecap", "round")
             .attr("fill", "none")
             .attr("stroke", "steelblue")
             .attr("stroke-width", 2)
@@ -463,6 +464,7 @@ export class SPCChart implements IVisual {
             
         //Create mean line
         this.lineMean
+            .style("stroke-linecap", "round")
             .attr("class", "mean")
             .attr("x1", yShift)
             .attr("x2", width)

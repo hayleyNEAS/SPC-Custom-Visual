@@ -19,6 +19,7 @@ declare class EnableAxisCardSettings extends FormattingSettingsCard {
 declare class EnableYAxisCardSettings extends FormattingSettingsCard {
     show: formattingSettings.ToggleSwitch;
     fill: formattingSettings.ColorPicker;
+    time: formattingSettings.ToggleSwitch;
     name: string;
     displayName: string;
     slices: Array<FormattingSettingsSlice>;

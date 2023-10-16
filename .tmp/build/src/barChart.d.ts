@@ -41,8 +41,6 @@ export declare class SPCChart implements IVisual {
             bottom: number;
             left: number;
         };
-        xAxisFontMultiplier: number;
-        yAxisFontMultiplier: number;
     };
     /**
      * Creates instance of SPCChart. This method is only called once.

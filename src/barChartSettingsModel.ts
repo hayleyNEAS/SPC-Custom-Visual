@@ -50,9 +50,16 @@ class EnableYAxisCardSettings extends FormattingSettingsCard {
         value: { value: "#ff0000" }
     });
 
+    // Option for formatting y axis as time
+    time = new formattingSettings.ToggleSwitch({
+        name: "time",
+        displayName: "Format as HH:mm:ss",
+        value: false
+    });
+
     name: string = "enableYAxis";
     displayName: string = "Y-axis";
-    slices: Array<FormattingSettingsSlice> = [this.show, this.fill];
+    slices: Array<FormattingSettingsSlice> = [this.show, this.fill, this.time];
 }
 
 /**

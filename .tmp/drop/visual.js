@@ -949,8 +949,8 @@ class SPCChart {
             bottom: 25,
             left: 30,
         },
-        xAxisFontMultiplier: 0.04,
-        yAxisFontMultiplier: 0.04,
+        //xAxisFontMultiplier: 0.04,
+        //yAxisFontMultiplier: 0.04,
     };
     /**
      * Creates instance of SPCChart. This method is only called once.
@@ -1080,7 +1080,6 @@ class SPCChart {
         }
         //Set up the Y Axis
         this.yAxis
-            .style("font-size", Math.min(height, width) * SPCChart.Config.yAxisFontMultiplier)
             .style("fill", this.formattingSettings.enableYAxis.fill.value.value)
             .attr("stroke-width", 0);
         let yScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_6__/* ["default"] */ .Z)()
@@ -1127,7 +1126,8 @@ class SPCChart {
             .attr("stroke-width", 1);
         //Set up the X Axis
         this.xAxis
-            .style("font-size", Math.min(height, width) * SPCChart.Config.xAxisFontMultiplier)
+            //.style('font-family', 'inherit')
+            .style("font-size", 11)
             .style("fill", this.formattingSettings.enableAxis.fill.value.value)
             .attr("stroke-width", 0);
         let xScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_8__/* ["default"] */ .Z)()
@@ -1145,6 +1145,7 @@ class SPCChart {
         //Create data line
         this.lineData
             .datum(this.dataPoints)
+            .style("stroke-linecap", "round")
             .attr("fill", "none")
             .attr("stroke", "steelblue")
             .attr("stroke-width", 2)
@@ -1164,6 +1165,7 @@ class SPCChart {
             .attr("fill", function (d) { return d.color; }); //TODO get colour to change based on data values
         //Create mean line
         this.lineMean
+            .style("stroke-linecap", "round")
             .attr("class", "mean")
             .attr("x1", yShift)
             .attr("x2", width)
@@ -1256,9 +1258,15 @@ class EnableYAxisCardSettings extends FormattingSettingsCard {
         displayName: "Color",
         value: { value: "#ff0000" }
     });
+    // Option for formatting y axis as time
+    time = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
+        name: "time",
+        displayName: "Format as HH:mm:ss",
+        value: false
+    });
     name = "enableYAxis";
     displayName = "Y-axis";
-    slices = [this.show, this.fill];
+    slices = [this.show, this.fill, this.time];
 }
 /**
  * Color Selector Formatting Card
@@ -7190,7 +7198,7 @@ function defaultLocale(definition) {
 
 /***/ }),
 
-/***/ 809:
+/***/ 4809:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -10195,7 +10203,7 @@ function defaultConstrain(transform, extent, translateExtent) {
 /* harmony import */ var d3_brush__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9961);
 /* harmony import */ var d3_format__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(103);
 /* harmony import */ var d3_shape__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8285);
-/* harmony import */ var d3_time_format__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(809);
+/* harmony import */ var d3_time_format__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(4809);
 /* harmony import */ var d3_transition__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(3399);
 /* harmony import */ var d3_zoom__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(5180);
 
