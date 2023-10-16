@@ -295,6 +295,17 @@ export class SPCChart implements IVisual {
         return label
     }
 
+    private parseYLabel(label: number){
+        //let formatter = d3.timeParse('%Y');
+        //let parsed = formatter(label);
+        
+        //if( this.formattingSettings.enableYAxis.time.value ){
+         //   return 'test'
+       // }
+
+        return 'ff'
+    }
+
     /**
      * Updates the state of the visual. Every sequential databinding and resize will call update.
      *
@@ -361,12 +372,30 @@ export class SPCChart implements IVisual {
 
         let yTicks = 5;
 
-        let yAxis = axisLeft(yScale)
-            .tickSize(0) // removes tickmarks
-            .ticks(yTicks)
-            .tickFormat(d3.format(".2s")) //format in SI units
+        let yAxis = axisLeft(yScale);
+        if(this.formattingSettings.enableYAxis.time.value){
+            yAxis = axisLeft(yScale)
+                .tickSize(0) // removes tickmarks
+                .ticks(yTicks).tickFormat(function (d) {
+                    let sign = ''
+                    if (<number>d < 0) {sign = '-', d = Math.abs(<number>d)}
+                    let minutes = Math.floor(<number>d/60);
+                    let hours = Math.floor(minutes/60);
+                    if(hours > 1){minutes = minutes%60}
+                    let seconds = <number>d%60;
+                    return sign + String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0')
+                })
+                ;
+        } else {
+            yAxis = axisLeft(yScale)
+                .tickSize(0) // removes tickmarks
+                .ticks(yTicks)
+                .tickFormat(d3.format(".2s")) //format in SI units
+                ;
+            //
             ;
-        
+            };
+
         this.yAxis
             .transition().duration(500)
             .call(yAxis)
@@ -385,13 +414,25 @@ export class SPCChart implements IVisual {
         });
 
         if (this.formattingSettings.enableYAxis.show.value) {
-            yShift = maxW + 10; //longest "word" plus 10 pixels
+            yShift = maxW + 40; //longest "word" plus 10 pixels
         } 
         
         this.yAxis
             .style('font-family', 'inherit')
             .style('font-size', 11) //TODO make this a drop down
             .attr('transform', 'translate(' + (yShift) + ',0)')
+
+            /*
+        this.yAxis
+            .selectAll('text')
+            .each(
+                function(d) {
+                    d = (<number>d).toFixed();
+                    let minutes = Math.floor(<number>d/60);
+                    let seconds = <number>d%60;
+                    return "test"//minutes + ":" + seconds;
+                }
+            )*/
 
         //Y Grid lines
         this.svg.selectAll('.horizontalGrid').remove(); //removes previously drawn gridlines so they dont duplicate
@@ -460,7 +501,7 @@ export class SPCChart implements IVisual {
             .attr("cx", function(d) { return xScale(d.category) } )
             .attr("cy", function(d) { return yScale(<number>d.value) } )
             .attr("r", function(d) {return d.markerSize})
-            .attr("fill", function(d) {return d.color}) //TODO get colour to change based on data values
+            .attr("fill", function(d) {return d.color}) 
             
         //Create mean line
         this.lineMean

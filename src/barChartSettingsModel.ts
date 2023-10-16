@@ -23,7 +23,7 @@ class EnableAxisCardSettings extends FormattingSettingsCard {
     fill = new formattingSettings.ColorPicker({
         name: "fill",
         displayName: "Color",
-        value: { value: "#000000" }
+        value: { value: "#777777" }
     });
 
     name: string = "enableAxis";
@@ -47,7 +47,7 @@ class EnableYAxisCardSettings extends FormattingSettingsCard {
     fill = new formattingSettings.ColorPicker({
         name: "fill",
         displayName: "Color",
-        value: { value: "#ff0000" }
+        value: { value: "#777777" }
     });
 
     // Option for formatting y axis as time
