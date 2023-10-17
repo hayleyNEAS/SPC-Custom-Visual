@@ -2,57 +2,6 @@ var barChart690B60A9B92A4B3F9CD47387F807847E_DEBUG;
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 2581:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   p: () => (/* binding */ createDataViewWildcardSelector)
-/* harmony export */ });
-/*
-*  Power BI Visualizations
-*
-*  Copyright (c) Microsoft Corporation
-*  All rights reserved.
-*  MIT License
-*
-*  Permission is hereby granted, free of charge, to any person obtaining a copy
-*  of this software and associated documentation files (the ""Software""), to deal
-*  in the Software without restriction, including without limitation the rights
-*  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-*  copies of the Software, and to permit persons to whom the Software is
-*  furnished to do so, subject to the following conditions:
-*
-*  The above copyright notice and this permission notice shall be included in
-*  all copies or substantial portions of the Software.
-*
-*  THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-*  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-*  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-*  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-*  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-*  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-*  THE SOFTWARE.
-*/
-function createDataViewWildcardSelector(dataViewWildcardMatchingOption) {
-    if (dataViewWildcardMatchingOption == null) {
-        dataViewWildcardMatchingOption = 0 /* DataViewWildcardMatchingOption.InstancesAndTotals */;
-    }
-    const selector = {
-        data: [
-            {
-                dataViewWildcard: {
-                    matchingOption: dataViewWildcardMatchingOption
-                }
-            }
-        ]
-    };
-    return selector;
-}
-//# sourceMappingURL=dataViewWildcard.js.map
-
-/***/ }),
-
 /***/ 5666:
 /***/ ((module) => {
 
@@ -862,45 +811,30 @@ function createSelectorDataPoints(options, host) {
     let category = categorical.categories[0];
     let dataValue = categorical.values[0];
     let colorPalette = host.colorPalette;
-    const strokeColor = getColumnStrokeColor(colorPalette);
-    const strokeWidth = getColumnStrokeWidth(colorPalette.isHighContrast);
+    //const strokeColor: string = getColumnStrokeColor(colorPalette);
+    //const strokeWidth: number = getColumnStrokeWidth(colorPalette.isHighContrast);
     for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
-        const color = getColumnColorByIndex(category, i, colorPalette);
+        const color = 'blue'; //getColumnColorByIndex(category, i, colorPalette);
         const selectionId = host.createSelectionIdBuilder()
             .withCategory(category, i)
             .createSelectionId();
+        let diff = 0;
+        if (i > 0) {
+            diff = Math.abs(dataValue.values[i] - dataValue.values[i - 1]);
+        }
+        console.log(category.values);
         SPCChartDataPoints.push({
             color,
             markerSize: 0,
-            strokeColor,
-            strokeWidth,
+            strokeColor: 'steelblue',
+            strokeWidth: 2,
             selectionId,
             value: dataValue.values[i],
-            category: category.values[i] //new Date(<any>category.values[i]),
+            difference: diff,
+            category: category.values[i]
         });
     }
     return SPCChartDataPoints;
-}
-function getColumnColorByIndex(category, index, colorPalette) {
-    if (colorPalette.isHighContrast) {
-        return colorPalette.background.value;
-    }
-    const defaultColor = {
-        solid: {
-            color: colorPalette.getColor(`${category.values[index]}`).value,
-        }
-    };
-    return (0,_objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_3__/* .getCategoricalObjectValue */ .b)(category, index, 'colorSelector', 'fill', defaultColor).solid.color;
-}
-function getColumnStrokeColor(colorPalette) {
-    return colorPalette.isHighContrast
-        ? colorPalette.foreground.value
-        : null;
-}
-function getColumnStrokeWidth(isHighContrast) {
-    return isHighContrast
-        ? 2
-        : 0;
 }
 function getAxisTextFillColor(objects, colorPalette, defaultColor) {
     if (colorPalette.isHighContrast) {
@@ -931,6 +865,7 @@ class SPCChart {
     yAxis;
     yGridLines;
     lineData;
+    lineData_Diff;
     lineMean;
     lineUCL;
     lineLCL;
@@ -945,12 +880,10 @@ class SPCChart {
         transparentOpacity: 1,
         margins: {
             top: 0,
-            right: 0,
+            right: 30,
             bottom: 25,
             left: 30,
         },
-        //xAxisFontMultiplier: 0.04,
-        //yAxisFontMultiplier: 0.04,
     };
     /**
      * Creates instance of SPCChart. This method is only called once.
@@ -973,9 +906,10 @@ class SPCChart {
         this.yAxis = this.svg
             .append('g')
             .classed('yAxis', true);
-        this.yGridLines = this.svg
-            .selectAll("line.horizontalGrid");
         this.lineData = this.svg
+            .append('path')
+            .classed('line', true);
+        this.lineData_Diff = this.svg
             .append('path')
             .classed('line', true);
         this.dataMarkers = this.svg
@@ -1019,7 +953,7 @@ class SPCChart {
         formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q %B %-d');
         parsed = formatter(label);
         if (parsed) {
-            if (parsed.getMonth() == 0 && parsed.getDay() == 0) {
+            if (parsed.getMonth() == 0 && parsed.getDate() == 1) {
                 return parsed.getFullYear().toString();
             }
             else {
@@ -1053,10 +987,12 @@ class SPCChart {
         //Set up the charting object 
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(_barChartSettingsModel__WEBPACK_IMPORTED_MODULE_2__/* .BarChartSettingsModel */ .f, options.dataViews);
         this.dataPoints = createSelectorDataPoints(options, this.host);
-        this.formattingSettings.populateColorSelector(this.dataPoints);
+        // this.formattingSettings.populateColorSelector(this.dataPoints);
         let width = options.viewport.width;
         let height = options.viewport.height;
         let margins = SPCChart.Config.margins;
+        let widthChartStart = 0;
+        let widthChartEnd = 0.99 * width;
         this.svg
             .attr("width", width)
             .attr("height", height);
@@ -1069,9 +1005,9 @@ class SPCChart {
             .map((d) => d.value)
             .reduce((a, b) => a + b, 0) / this.dataPoints.length;
         let avgDiff = this.dataPoints
-            .map((d) => d.value)
-            .map((a, b) => Math.abs(b - a))
+            .map((d) => d.difference)
             .reduce((a, b) => a + b, 0) / this.dataPoints.length;
+        let nPoints = this.dataPoints.length;
         let UCL = meanLine + 2.66 * avgDiff;
         let LCL = meanLine - 2.66 * avgDiff;
         //SPC Marker Colors Rules
@@ -1086,26 +1022,24 @@ class SPCChart {
             }
         }
         //Set up the Y Axis
-        this.yAxis
-            .style("fill", this.formattingSettings.enableYAxis.fill.value.value)
-            .attr("stroke-width", 0);
         let yScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_6__/* ["default"] */ .Z)()
-            .domain([Math.min(0, options.dataViews[0].categorical.values[0].minLocal, LCL) * 1.1,
-            Math.max(options.dataViews[0].categorical.values[0].maxLocal, UCL) * 1.1])
+            .domain([Math.min(options.dataViews[0].categorical.values[0].minLocal) * 0.9,
+            Math.max(options.dataViews[0].categorical.values[0].maxLocal) * 1.1])
             .range([height, 0]);
         let yTicks = 5;
-        let yAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_7__/* .axisLeft */ .y4)(yScale);
+        let yAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_7__/* .axisLeft */ .y4)(yScale)
+            .tickSizeInner(-widthChartEnd);
         if (this.formattingSettings.enableYAxis.time.value) {
-            yAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_7__/* .axisLeft */ .y4)(yScale)
-                .tickSize(0) // removes tickmarks
-                .ticks(yTicks).tickFormat(function (d) {
+            yAxis = yAxis
+                .ticks(yTicks)
+                .tickFormat(function (d) {
                 let sign = '';
                 if (d < 0) {
                     sign = '-', d = Math.abs(d);
                 }
                 let minutes = Math.floor(d / 60);
                 let hours = Math.floor(minutes / 60);
-                if (hours > 1) {
+                if (hours > 0) {
                     minutes = minutes % 60;
                 }
                 let seconds = d % 60;
@@ -1113,19 +1047,21 @@ class SPCChart {
             });
         }
         else {
-            yAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_7__/* .axisLeft */ .y4)(yScale)
-                .tickSize(0) // removes tickmarks
-                .ticks(yTicks)
-                .tickFormat(d3__WEBPACK_IMPORTED_MODULE_0__/* .format */ .WUZ(".2s")) //format in SI units
-            ;
-            //
+            yAxis = yAxis
+                .ticks(yTicks, "s"); //format n=yTicks ticks into SI units
             ;
         }
         ;
-        this.yAxis
-            .transition().duration(500)
+        let yAxisObject = this.yAxis
             .call(yAxis)
+            .transition().duration(500)
             .attr("color", getYAxisTextFillColor(colorObjects, this.host.colorPalette, this.formattingSettings.enableYAxis.fill.value.value));
+        yAxisObject.selectAll('.yAxis line')
+            .attr('stroke', this.formattingSettings.enableYAxis.fill.value.value)
+            .attr('opacity', 0.2);
+        yAxisObject.selectAll('.yAxis path')
+            .attr('opacity', 0);
+        //TO DO maxW doesnt seem to calculate when you expect
         let yShift = 0;
         let maxW = 0;
         this.yAxis
@@ -1140,60 +1076,33 @@ class SPCChart {
         if (this.formattingSettings.enableYAxis.time.value) {
             yShift = maxW + 10; //longest "word" plus 10 pixels
         }
+        widthChartStart = yShift + (width - widthChartEnd);
         this.yAxis
             .style('font-family', 'inherit')
             .style('font-size', 11) //TODO make this a drop down
             .attr('transform', 'translate(' + (yShift) + ',0)');
-        /*
-    this.yAxis
-        .selectAll('text')
-        .each(
-            function(d) {
-                d = (<number>d).toFixed();
-                let minutes = Math.floor(<number>d/60);
-                let seconds = <number>d%60;
-                return "test"//minutes + ":" + seconds;
-            }
-        )*/
-        //Y Grid lines
-        this.svg.selectAll('.horizontalGrid').remove(); //removes previously drawn gridlines so they dont duplicate
-        this.yGridLines
-            .data(yScale.ticks(yTicks))
-            .enter()
-            .append('line')
-            .attr("class", "horizontalGrid")
-            .attr("x1", yShift)
-            .attr("x2", width)
-            .attr("y1", function (d) { return yScale(d); })
-            .attr("y2", function (d) { return yScale(d); })
-            .attr("fill", "none")
-            .attr("stroke", "#EEEEEE")
-            .attr("stroke-width", 1);
         //Set up the X Axis
         this.xAxis
-            //.style('font-family', 'inherit')
-            .style("font-size", 11)
-            .style("fill", this.formattingSettings.enableAxis.fill.value.value)
-            .attr("stroke-width", 0);
-        let xScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_8__/* ["default"] */ .Z)()
+            .style("font-size", 11);
+        let xScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_8__/* .point */ .x)()
             .domain(this.dataPoints.map(d => d.category))
-            .rangeRound([yShift, width])
-            .padding(0.5);
+            .range([widthChartStart, widthChartEnd]);
         let xAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_7__/* .axisBottom */ .LL)(xScale)
-            .tickSize(0) //removes the tickmarks
             .tickFormat(this.parseDateLabel);
-        this.xAxis
-            .transition().duration(500)
+        let xAxisObject = this.xAxis
             .attr('transform', 'translate(0, ' + (height + 2) + ')')
             .call(xAxis)
+            .transition().duration(500)
             .attr("color", getAxisTextFillColor(colorObjects, this.host.colorPalette, this.formattingSettings.enableAxis.fill.value.value));
+        xAxisObject.selectAll('.xAxis path, line')
+            .attr('opacity', 0);
         //Create data line
         this.lineData
             .datum(this.dataPoints)
             .style("stroke-linecap", "round")
             .attr("fill", "none")
-            .attr("stroke", "steelblue")
-            .attr("stroke-width", 2)
+            .attr("stroke", function (d) { return d[0].strokeColor; })
+            .attr("stroke-width", function (d) { return d[0].strokeWidth; })
             .attr("stroke-linejoin", "round")
             .attr("d", d3__WEBPACK_IMPORTED_MODULE_0__/* .line */ .jvg()
             .x(function (d) { return xScale(d.category); })
@@ -1208,24 +1117,36 @@ class SPCChart {
             .attr("cy", function (d) { return yScale(d.value); })
             .attr("r", function (d) { return d.markerSize; })
             .attr("fill", function (d) { return d.color; });
+        /*
+    this.lineData_Diff
+        .datum(this.dataPoints)
+        .style("stroke-linecap", "round")
+        .attr("fill", "none")
+        .attr("stroke", "purple")
+        .attr("stroke-width", 2)
+        .attr("stroke-linejoin", "round")
+        .attr("d", d3.line<SPCChartDataPoint>()
+            .x(function (d) { return xScale(d.category) })
+            .y(function (d) { return yScale(<number>d.difference) })
+        )*/
         //Create mean line
         this.lineMean
             .style("stroke-linecap", "round")
             .attr("class", "mean")
-            .attr("x1", yShift)
-            .attr("x2", width)
+            .attr("x1", widthChartStart)
+            .attr("x2", widthChartEnd)
             .attr("y1", function (d) { return yScale(meanLine); })
             .attr("y2", function (d) { return yScale(meanLine); })
             .attr("fill", "none")
             .attr("stroke", "black")
             .attr("stroke-width", 1.5);
-        //Create limit lines        
+        //Create limit lines   
         this.lineUCL
             .style("stroke-dasharray", ("5,5"))
             .style("stroke-linecap", "round")
             .attr("class", "mean")
-            .attr("x1", yShift)
-            .attr("x2", width)
+            .attr("x1", widthChartStart)
+            .attr("x2", widthChartEnd)
             .attr("y1", function (d) { return yScale(UCL); })
             .attr("y2", function (d) { return yScale(UCL); })
             .attr("fill", "none")
@@ -1235,8 +1156,8 @@ class SPCChart {
             .style("stroke-dasharray", ("5,5"))
             .style("stroke-linecap", "round")
             .attr("class", "mean")
-            .attr("x1", yShift)
-            .attr("x2", width)
+            .attr("x1", widthChartStart)
+            .attr("x2", widthChartEnd)
             .attr("y1", function (d) { return yScale(LCL); })
             .attr("y2", function (d) { return yScale(LCL); })
             .attr("fill", "none")
@@ -1259,9 +1180,7 @@ class SPCChart {
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   f: () => (/* binding */ BarChartSettingsModel)
 /* harmony export */ });
-/* harmony import */ var powerbi_visuals_utils_dataviewutils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2581);
 /* harmony import */ var powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4969);
-
 
 var FormattingSettingsCard = powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .Card */ .Zb;
 var FormattingSettingsModel = powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .Model */ .Hn;
@@ -1316,7 +1235,7 @@ class EnableYAxisCardSettings extends FormattingSettingsCard {
 /**
  * Color Selector Formatting Card
  */
-class ColorSelectorCardSettings extends FormattingSettingsCard {
+class ColorSelectorCardSettings extends (/* unused pure expression or super */ null && (FormattingSettingsCard)) {
     name = "colorSelector";
     displayName = "Data Colors";
     // slices will be populated in barChart settings model `populateColorSelector` method
@@ -1330,27 +1249,8 @@ class BarChartSettingsModel extends FormattingSettingsModel {
     // Create formatting settings model formatting cards
     enableAxis = new EnableAxisCardSettings();
     enableYAxis = new EnableYAxisCardSettings();
-    colorSelector = new ColorSelectorCardSettings();
-    cards = [this.enableAxis, this.enableYAxis, this.colorSelector];
-    /**
-     * populate colorSelector object categories formatting properties
-     * @param dataPoints
-     */
-    populateColorSelector(dataPoints) {
-        let slices = this.colorSelector.slices;
-        if (dataPoints) {
-            dataPoints.forEach(dataPoint => {
-                slices.push(new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
-                    name: "fill",
-                    displayName: dataPoint.category,
-                    value: { value: dataPoint.color },
-                    selector: powerbi_visuals_utils_dataviewutils__WEBPACK_IMPORTED_MODULE_1__/* .createDataViewWildcardSelector */ .p(0 /* dataViewWildcard.DataViewWildcardMatchingOption.InstancesAndTotals */),
-                    altConstantSelector: dataPoint.selectionId.getSelector(),
-                    instanceKind: 3 /* powerbi.VisualEnumerationInstanceKinds.ConstantOrRule */
-                }));
-            });
-        }
-    }
+    //colorSelector = new ColorSelectorCardSettings();
+    cards = [this.enableAxis, this.enableYAxis];
 }
 
 
@@ -1361,9 +1261,9 @@ class BarChartSettingsModel extends FormattingSettingsModel {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   N: () => (/* binding */ getValue),
-/* harmony export */   b: () => (/* binding */ getCategoricalObjectValue)
+/* harmony export */   N: () => (/* binding */ getValue)
 /* harmony export */ });
+/* unused harmony export getCategoricalObjectValue */
 /**
  * Gets property value for a particular object.
  *
@@ -3886,24 +3786,6 @@ FormatSpecifier.prototype.toString = function() {
 
 /***/ }),
 
-/***/ 103:
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   WU: () => (/* reexport safe */ _defaultLocale_js__WEBPACK_IMPORTED_MODULE_0__.WU)
-/* harmony export */ });
-/* harmony import */ var _defaultLocale_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5386);
-
-
-
-
-
-
-
-
-/***/ }),
-
 /***/ 2150:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
@@ -4886,9 +4768,9 @@ function pathRound(digits = 3) {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   Z: () => (/* binding */ band)
+/* harmony export */   x: () => (/* binding */ point)
 /* harmony export */ });
-/* unused harmony export point */
+/* unused harmony export default */
 /* harmony import */ var d3_array__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5162);
 /* harmony import */ var _init_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(4182);
 /* harmony import */ var _ordinal_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8973);
@@ -10241,16 +10123,14 @@ function defaultConstrain(transform, extent, translateExtent) {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   WUZ: () => (/* reexport safe */ d3_format__WEBPACK_IMPORTED_MODULE_1__.WU),
-/* harmony export */   Z1g: () => (/* reexport safe */ d3_time_format__WEBPACK_IMPORTED_MODULE_3__.Z1),
-/* harmony export */   jvg: () => (/* reexport safe */ d3_shape__WEBPACK_IMPORTED_MODULE_2__.jv)
+/* harmony export */   Z1g: () => (/* reexport safe */ d3_time_format__WEBPACK_IMPORTED_MODULE_2__.Z1),
+/* harmony export */   jvg: () => (/* reexport safe */ d3_shape__WEBPACK_IMPORTED_MODULE_1__.jv)
 /* harmony export */ });
 /* harmony import */ var d3_brush__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9961);
-/* harmony import */ var d3_format__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(103);
-/* harmony import */ var d3_shape__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8285);
-/* harmony import */ var d3_time_format__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(4809);
-/* harmony import */ var d3_transition__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(3399);
-/* harmony import */ var d3_zoom__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(5180);
+/* harmony import */ var d3_shape__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8285);
+/* harmony import */ var d3_time_format__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(4809);
+/* harmony import */ var d3_transition__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(3399);
+/* harmony import */ var d3_zoom__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(5180);
 
 
 

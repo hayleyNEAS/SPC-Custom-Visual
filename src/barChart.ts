@@ -1,5 +1,5 @@
 import {
-    scaleBand, scaleLinear
+    scaleBand, scaleLinear, scalePoint
 } from "d3-scale";
 
 import {
@@ -39,6 +39,7 @@ type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
 
 export interface SPCChartDataPoint {
     value: PrimitiveValue;
+    difference: number;
     category: string;
     color: string;
     markerSize: number;
@@ -67,65 +68,37 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
 
     let colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
 
-    const strokeColor: string = getColumnStrokeColor(colorPalette);
-    const strokeWidth: number = getColumnStrokeWidth(colorPalette.isHighContrast);
+    //const strokeColor: string = getColumnStrokeColor(colorPalette);
+    //const strokeWidth: number = getColumnStrokeWidth(colorPalette.isHighContrast);
 
     for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
-        const color: string = getColumnColorByIndex(category, i, colorPalette);
+        const color: string = 'blue'//getColumnColorByIndex(category, i, colorPalette);
 
         const selectionId: ISelectionId = host.createSelectionIdBuilder()
             .withCategory(category, i)
             .createSelectionId();
 
+        let diff = 0
+        if(i > 0){
+            diff = Math.abs(<number>dataValue.values[i] - <number>dataValue.values[i-1])
+        }
+
+        console.log(category.values)
         SPCChartDataPoints.push({
             color,
             markerSize: 0,
-            strokeColor,
-            strokeWidth,
+            strokeColor: 'steelblue',
+            strokeWidth: 2,
             selectionId,
             value: dataValue.values[i],
-            category: <string>category.values[i] //new Date(<any>category.values[i]),
+            difference: diff,
+            category: <string>category.values[i] 
         });
     }
 
     return SPCChartDataPoints;
 }
 
-function getColumnColorByIndex(
-    category: DataViewCategoryColumn,
-    index: number,
-    colorPalette: ISandboxExtendedColorPalette,
-): string {
-    if (colorPalette.isHighContrast) {
-        return colorPalette.background.value;
-    }
-
-    const defaultColor: Fill = {
-        solid: {
-            color: colorPalette.getColor(`${category.values[index]}`).value,
-        }
-    };
-
-    return getCategoricalObjectValue<Fill>(
-        category,
-        index,
-        'colorSelector',
-        'fill',
-        defaultColor
-    ).solid.color;
-}
-
-function getColumnStrokeColor(colorPalette: ISandboxExtendedColorPalette): string {
-    return colorPalette.isHighContrast
-        ? colorPalette.foreground.value
-        : null;
-}
-
-function getColumnStrokeWidth(isHighContrast: boolean): number {
-    return isHighContrast
-        ? 2
-        : 0;
-}
 
 function getAxisTextFillColor(
     objects: DataViewObjects,
@@ -180,6 +153,7 @@ export class SPCChart implements IVisual {
     private yGridLines: Selection<SVGElement>;
     
     private lineData: Selection<SVGElement>;
+    private lineData_Diff: Selection<SVGElement>;
     private lineMean: Selection<SVGElement>;
     private lineUCL: Selection<SVGElement>;
     private lineLCL: Selection<SVGElement>;
@@ -198,12 +172,10 @@ export class SPCChart implements IVisual {
         transparentOpacity: 1,
         margins: {
             top: 0,
-            right: 0,
+            right: 30,
             bottom: 25,
             left: 30,
         },
-        //xAxisFontMultiplier: 0.04,
-        //yAxisFontMultiplier: 0.04,
     };
 
     /**
@@ -231,10 +203,11 @@ export class SPCChart implements IVisual {
             .append('g')
             .classed('yAxis', true);
 
-        this.yGridLines = this.svg
-            .selectAll("line.horizontalGrid");
-
         this.lineData = this.svg
+            .append('path')
+            .classed('line', true)
+
+        this.lineData_Diff = this.svg
             .append('path')
             .classed('line', true)
         
@@ -281,7 +254,7 @@ export class SPCChart implements IVisual {
         formatter = d3.timeParse('%Y Qtr %q %B %-d');
         parsed = formatter(label);
         if(parsed){
-            if(parsed.getMonth() == 0 && parsed.getDay() == 0){
+            if(parsed.getMonth() == 0 && parsed.getDate() == 1){
                 return parsed.getFullYear().toString()
             } else {return ''}
         }
@@ -318,11 +291,13 @@ export class SPCChart implements IVisual {
         //Set up the charting object 
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(BarChartSettingsModel, options.dataViews);
         this.dataPoints = createSelectorDataPoints(options, this.host);
-        this.formattingSettings.populateColorSelector(this.dataPoints);
+       // this.formattingSettings.populateColorSelector(this.dataPoints);
 
         let width = options.viewport.width;
         let height = options.viewport.height;
         let margins = SPCChart.Config.margins;
+        let widthChartStart = 0;
+        let widthChartEnd = 0.99*width;
 
         this.svg
             .attr("width", width)
@@ -336,13 +311,15 @@ export class SPCChart implements IVisual {
 
         //Set up variables 
         let meanLine = this.dataPoints
-        .map((d) => <number>d.value)
-        .reduce((a,b)=>a+b,0)/this.dataPoints.length
+            .map((d) => <number>d.value)
+            .reduce((a,b)=>a+b,0)/this.dataPoints.length
 
         let avgDiff = this.dataPoints
-            .map((d) => <number>d.value)
-            .map((a,b)=> Math.abs(b-a))
+            .map((d) => <number>d.difference)
             .reduce((a,b)=>a+b,0)/this.dataPoints.length
+        
+        let nPoints = this.dataPoints.length
+
 
         let UCL = meanLine + 2.66*avgDiff
         let LCL = meanLine - 2.66*avgDiff
@@ -358,52 +335,57 @@ export class SPCChart implements IVisual {
                 this.dataPoints[i].markerSize = 3
             }
         }
-        //Set up the Y Axis
-        this.yAxis
-            .style("fill", this.formattingSettings.enableYAxis.fill.value.value)
-            .attr("stroke-width", 0);
 
+        //Set up the Y Axis
         let yScale = scaleLinear()
-            .domain([Math.min(0,<number>options.dataViews[0].categorical.values[0].minLocal,LCL)*1.1, 
-                     Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, UCL)*1.1])
+            .domain([Math.min(<number>options.dataViews[0].categorical.values[0].minLocal)*0.9, 
+                     Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal)*1.1])
             .range([height, 0]);
 
         let yTicks = 5;
 
-        let yAxis = axisLeft(yScale);
+        let yAxis = axisLeft(yScale)
+            .tickSizeInner(-widthChartEnd);
+
         if(this.formattingSettings.enableYAxis.time.value){
-            yAxis = axisLeft(yScale)
-                .tickSize(0) // removes tickmarks
-                .ticks(yTicks).tickFormat(function (d) {
+            yAxis = yAxis
+                .ticks(yTicks)
+                .tickFormat(function (d) {
                     let sign = ''
                     if (<number>d < 0) {sign = '-', d = Math.abs(<number>d)}
                     let minutes = Math.floor(<number>d/60);
                     let hours = Math.floor(minutes/60);
-                    if(hours > 1){minutes = minutes%60}
+                    if(hours > 0){
+                        minutes = minutes%60
+                    }
                     let seconds = <number>d%60;
                     return sign + String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0')
                 })
                 ;
         } else {
-            yAxis = axisLeft(yScale)
-                .tickSize(0) // removes tickmarks
-                .ticks(yTicks)
-                .tickFormat(d3.format(".2s")) //format in SI units
-                ;
-            //
+            yAxis = yAxis
+                .ticks(yTicks, "s"); //format n=yTicks ticks into SI units
             ;
             };
 
-        this.yAxis
-            .transition().duration(500)
+        let yAxisObject = this.yAxis 
             .call(yAxis)
+            .transition().duration(500)
             .attr("color", getYAxisTextFillColor(
                 colorObjects,
                 this.host.colorPalette,
                 this.formattingSettings.enableYAxis.fill.value.value
-            ));
+            ))
+            ;
         
-        
+        yAxisObject.selectAll('.yAxis line')
+            .attr('stroke', this.formattingSettings.enableYAxis.fill.value.value)
+            .attr('opacity', 0.2)
+            ;
+        yAxisObject.selectAll('.yAxis path')
+            .attr('opacity', 0)
+            ;
+
             //TO DO maxW doesnt seem to calculate when you expect
         let yShift = 0;
         let maxW = 0;
@@ -421,76 +403,49 @@ export class SPCChart implements IVisual {
         if (this.formattingSettings.enableYAxis.time.value) {
             yShift = maxW + 10; //longest "word" plus 10 pixels
         } 
+
+        widthChartStart = yShift + (width - widthChartEnd)
         
         this.yAxis
             .style('font-family', 'inherit')
             .style('font-size', 11) //TODO make this a drop down
             .attr('transform', 'translate(' + (yShift) + ',0)')
 
-            /*
-        this.yAxis
-            .selectAll('text')
-            .each(
-                function(d) {
-                    d = (<number>d).toFixed();
-                    let minutes = Math.floor(<number>d/60);
-                    let seconds = <number>d%60;
-                    return "test"//minutes + ":" + seconds;
-                }
-            )*/
-
-        //Y Grid lines
-        this.svg.selectAll('.horizontalGrid').remove(); //removes previously drawn gridlines so they dont duplicate
-
-        this.yGridLines
-            .data(yScale.ticks(yTicks))
-            .enter()
-            .append('line')
-            .attr("class", "horizontalGrid")
-            .attr("x1", yShift)
-            .attr("x2", width)
-            .attr("y1", function(d){ return yScale(d);})
-            .attr("y2", function(d){ return yScale(d);})
-            .attr("fill", "none")
-            .attr("stroke", "#EEEEEE")
-            .attr("stroke-width", 1)
-            
-                  
         //Set up the X Axis
         
         this.xAxis
-            //.style('font-family', 'inherit')
             .style("font-size", 11)
-            .style("fill", this.formattingSettings.enableAxis.fill.value.value)
-            .attr("stroke-width", 0);
+            ;
     
-        let xScale = scaleBand()
+        let xScale = scalePoint()
             .domain(this.dataPoints.map(d => d.category))
-            .rangeRound([yShift, width])
-            .padding(0.5);
+            .range([widthChartStart, widthChartEnd])
+            ;
 
         let xAxis = axisBottom(xScale)
-            .tickSize(0) //removes the tickmarks
             .tickFormat(this.parseDateLabel)
             ;
 
-        this.xAxis
-            .transition().duration(500)
+        let xAxisObject = this.xAxis
             .attr('transform', 'translate(0, ' + (height + 2) + ')')
             .call(xAxis)
+            .transition().duration(500)
             .attr("color", getAxisTextFillColor(
                 colorObjects,
                 this.host.colorPalette,
                 this.formattingSettings.enableAxis.fill.value.value
             ));
         
+        xAxisObject.selectAll('.xAxis path, line')
+            .attr('opacity', 0)
+            ;
         //Create data line
         this.lineData
             .datum(this.dataPoints)
             .style("stroke-linecap", "round")
             .attr("fill", "none")
-            .attr("stroke", "steelblue")
-            .attr("stroke-width", 2)
+            .attr("stroke", function (d) {return d[0].strokeColor} )
+            .attr("stroke-width", function (d) {return d[0].strokeWidth })
             .attr("stroke-linejoin", "round")
             .attr("d", d3.line<SPCChartDataPoint>()
                 .x(function (d) { return xScale(d.category) })
@@ -508,25 +463,37 @@ export class SPCChart implements IVisual {
             .attr("r", function(d) {return d.markerSize})
             .attr("fill", function(d) {return d.color}) 
             
+            /*
+        this.lineData_Diff
+            .datum(this.dataPoints)
+            .style("stroke-linecap", "round")
+            .attr("fill", "none")
+            .attr("stroke", "purple")
+            .attr("stroke-width", 2)
+            .attr("stroke-linejoin", "round")
+            .attr("d", d3.line<SPCChartDataPoint>()
+                .x(function (d) { return xScale(d.category) })
+                .y(function (d) { return yScale(<number>d.difference) })
+            )*/
         //Create mean line
         this.lineMean
             .style("stroke-linecap", "round")
             .attr("class", "mean")
-            .attr("x1", yShift)
-            .attr("x2", width)
+            .attr("x1", widthChartStart)
+            .attr("x2", widthChartEnd)
             .attr("y1", function(d){ return yScale(meanLine);})
             .attr("y2", function(d){ return yScale(meanLine);})
             .attr("fill", "none")
             .attr("stroke", "black")
             .attr("stroke-width", 1.5)
 
-        //Create limit lines        
+        //Create limit lines   
         this.lineUCL
             .style("stroke-dasharray", ("5,5"))
             .style("stroke-linecap", "round")
             .attr("class", "mean")
-            .attr("x1", yShift)
-            .attr("x2", width)
+            .attr("x1", widthChartStart)
+            .attr("x2", widthChartEnd)
             .attr("y1", function(d){ return yScale(UCL);})
             .attr("y2", function(d){ return yScale(UCL);})
             .attr("fill", "none")
@@ -537,8 +504,8 @@ export class SPCChart implements IVisual {
             .style("stroke-dasharray", ("5,5"))
             .style("stroke-linecap", "round")
             .attr("class", "mean")
-            .attr("x1", yShift)
-            .attr("x2", width)
+            .attr("x1", widthChartStart)
+            .attr("x2", widthChartEnd)
             .attr("y1", function(d){ return yScale(LCL);})
             .attr("y2", function(d){ return yScale(LCL);})
             .attr("fill", "none")

@@ -83,13 +83,14 @@ export class BarChartSettingsModel extends FormattingSettingsModel {
     // Create formatting settings model formatting cards
     enableAxis = new EnableAxisCardSettings();
     enableYAxis = new EnableYAxisCardSettings();
-    colorSelector = new ColorSelectorCardSettings();
-    cards = [this.enableAxis, this.enableYAxis, this.colorSelector];
+    //colorSelector = new ColorSelectorCardSettings();
+    cards = [this.enableAxis, this.enableYAxis];
 
     /**
      * populate colorSelector object categories formatting properties
      * @param dataPoints 
      */
+    /*
     populateColorSelector(dataPoints: SPCChartDataPoint[]) {
         let slices = this.colorSelector.slices;
         if (dataPoints) {
@@ -105,4 +106,5 @@ export class BarChartSettingsModel extends FormattingSettingsModel {
             });
         }
     }
+    */
 }

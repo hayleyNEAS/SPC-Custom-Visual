@@ -8,6 +8,7 @@ import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 export interface SPCChartDataPoint {
     value: PrimitiveValue;
+    difference: number;
     category: string;
     color: string;
     markerSize: number;
@@ -23,6 +24,7 @@ export declare class SPCChart implements IVisual {
     private yAxis;
     private yGridLines;
     private lineData;
+    private lineData_Diff;
     private lineMean;
     private lineUCL;
     private lineLCL;
