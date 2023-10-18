@@ -796,6 +796,37 @@ try {
 
 
 
+function createSelectorData(options, host) {
+    let SPCChartDataPoints = createSelectorDataPoints(options, host);
+    let nPoints = SPCChartDataPoints.length;
+    let meanValue = SPCChartDataPoints
+        .map((d) => d.value)
+        .reduce((a, b) => a + b, 0) / nPoints;
+    let avgDiff = SPCChartDataPoints
+        .map((d) => d.difference)
+        .reduce((a, b) => a + b, 0) / (nPoints - 1);
+    let UCLValue = meanValue + 2.66 * avgDiff;
+    let LCLValue = meanValue - 2.66 * avgDiff;
+    //SPC Marker Colors Rules
+    for (let i = 0, len = nPoints; i < len; i++) {
+        if (SPCChartDataPoints[i].value > UCLValue) {
+            SPCChartDataPoints[i].color = 'red';
+            SPCChartDataPoints[i].markerSize = 3;
+        }
+        if (SPCChartDataPoints[i].value < LCLValue) {
+            SPCChartDataPoints[i].color = 'red';
+            SPCChartDataPoints[i].markerSize = 3;
+        }
+    }
+    return {
+        datapoints: SPCChartDataPoints,
+        meanValue,
+        UCLValue,
+        LCLValue,
+        strokeWidth: 2,
+        strokeColor: 'steelblue'
+    };
+}
 function createSelectorDataPoints(options, host) {
     let SPCChartDataPoints = [];
     let dataViews = options.dataViews;
@@ -811,10 +842,7 @@ function createSelectorDataPoints(options, host) {
     let category = categorical.categories[0];
     let dataValue = categorical.values[0];
     let colorPalette = host.colorPalette;
-    //const strokeColor: string = getColumnStrokeColor(colorPalette);
-    //const strokeWidth: number = getColumnStrokeWidth(colorPalette.isHighContrast);
     for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
-        const color = 'blue'; //getColumnColorByIndex(category, i, colorPalette);
         const selectionId = host.createSelectionIdBuilder()
             .withCategory(category, i)
             .createSelectionId();
@@ -822,12 +850,10 @@ function createSelectorDataPoints(options, host) {
         if (i > 0) {
             diff = Math.abs(dataValue.values[i] - dataValue.values[i - 1]);
         }
-        console.log(category.values);
+        //console.log(category.values)
         SPCChartDataPoints.push({
-            color,
+            color: 'steelblue',
             markerSize: 0,
-            strokeColor: 'steelblue',
-            strokeWidth: 2,
             selectionId,
             value: dataValue.values[i],
             difference: diff,
@@ -986,7 +1012,8 @@ class SPCChart {
     update(options) {
         //Set up the charting object 
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(_barChartSettingsModel__WEBPACK_IMPORTED_MODULE_2__/* .BarChartSettingsModel */ .f, options.dataViews);
-        this.dataPoints = createSelectorDataPoints(options, this.host);
+        let data = createSelectorData(options, this.host);
+        this.dataPoints = data.datapoints;
         // this.formattingSettings.populateColorSelector(this.dataPoints);
         let width = options.viewport.width;
         let height = options.viewport.height;
@@ -1000,32 +1027,11 @@ class SPCChart {
             height -= margins.bottom;
         }
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
-        //Set up variables 
-        let meanLine = this.dataPoints
-            .map((d) => d.value)
-            .reduce((a, b) => a + b, 0) / this.dataPoints.length;
-        let avgDiff = this.dataPoints
-            .map((d) => d.difference)
-            .reduce((a, b) => a + b, 0) / this.dataPoints.length;
-        let nPoints = this.dataPoints.length;
-        let UCL = meanLine + 2.66 * avgDiff;
-        let LCL = meanLine - 2.66 * avgDiff;
-        //SPC Marker Colors Rules
-        for (let i = 0, len = this.dataPoints.length; i < len; i++) {
-            if (this.dataPoints[i].value > UCL) {
-                this.dataPoints[i].color = 'red';
-                this.dataPoints[i].markerSize = 3;
-            }
-            if (this.dataPoints[i].value < LCL) {
-                this.dataPoints[i].color = 'red';
-                this.dataPoints[i].markerSize = 3;
-            }
-        }
         //Set up the Y Axis
         let yScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_6__/* ["default"] */ .Z)()
             .domain([Math.min(options.dataViews[0].categorical.values[0].minLocal) * 0.9,
             Math.max(options.dataViews[0].categorical.values[0].maxLocal) * 1.1])
-            .range([height, 0]);
+            .range([height, 5]);
         let yTicks = 5;
         let yAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_7__/* .axisLeft */ .y4)(yScale)
             .tickSizeInner(-widthChartEnd);
@@ -1101,8 +1107,8 @@ class SPCChart {
             .datum(this.dataPoints)
             .style("stroke-linecap", "round")
             .attr("fill", "none")
-            .attr("stroke", function (d) { return d[0].strokeColor; })
-            .attr("stroke-width", function (d) { return d[0].strokeWidth; })
+            .attr("stroke", function (d) { return data.strokeColor; })
+            .attr("stroke-width", function (d) { return data.strokeWidth; })
             .attr("stroke-linejoin", "round")
             .attr("d", d3__WEBPACK_IMPORTED_MODULE_0__/* .line */ .jvg()
             .x(function (d) { return xScale(d.category); })
@@ -1135,8 +1141,8 @@ class SPCChart {
             .attr("class", "mean")
             .attr("x1", widthChartStart)
             .attr("x2", widthChartEnd)
-            .attr("y1", function (d) { return yScale(meanLine); })
-            .attr("y2", function (d) { return yScale(meanLine); })
+            .attr("y1", function (d) { return yScale(data.meanValue); })
+            .attr("y2", function (d) { return yScale(data.meanValue); })
             .attr("fill", "none")
             .attr("stroke", "black")
             .attr("stroke-width", 1.5);
@@ -1147,8 +1153,8 @@ class SPCChart {
             .attr("class", "mean")
             .attr("x1", widthChartStart)
             .attr("x2", widthChartEnd)
-            .attr("y1", function (d) { return yScale(UCL); })
-            .attr("y2", function (d) { return yScale(UCL); })
+            .attr("y1", function (d) { return yScale(data.UCLValue); })
+            .attr("y2", function (d) { return yScale(data.UCLValue); })
             .attr("fill", "none")
             .attr("stroke", "black")
             .attr("stroke-width", 2);
@@ -1158,8 +1164,8 @@ class SPCChart {
             .attr("class", "mean")
             .attr("x1", widthChartStart)
             .attr("x2", widthChartEnd)
-            .attr("y1", function (d) { return yScale(LCL); })
-            .attr("y2", function (d) { return yScale(LCL); })
+            .attr("y1", function (d) { return yScale(data.LCLValue); })
+            .attr("y2", function (d) { return yScale(data.LCLValue); })
             .attr("fill", "none")
             .attr("stroke", "black")
             .attr("stroke-width", 2);

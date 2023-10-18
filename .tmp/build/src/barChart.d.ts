@@ -6,14 +6,20 @@ import IVisual = powerbi.extensibility.IVisual;
 import PrimitiveValue = powerbi.PrimitiveValue;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
+export interface SPCChartData {
+    datapoints: SPCChartDataPoint[];
+    meanValue: number;
+    UCLValue: number;
+    LCLValue: number;
+    strokeWidth: number;
+    strokeColor: string;
+}
 export interface SPCChartDataPoint {
     value: PrimitiveValue;
-    difference: number;
     category: string;
+    difference: number;
     color: string;
     markerSize: number;
-    strokeColor: string;
-    strokeWidth: number;
     selectionId: ISelectionId;
 }
 export declare class SPCChart implements IVisual {

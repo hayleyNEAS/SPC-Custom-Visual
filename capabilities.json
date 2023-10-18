@@ -27,6 +27,11 @@
                 "categories": {
                     "for": {
                         "in": "category"
+                    },
+                    "dataReductionAlgorithm": {
+                        "sample": {
+                            "count": 3000
+                        }
                     }
                 },
                 "values": {

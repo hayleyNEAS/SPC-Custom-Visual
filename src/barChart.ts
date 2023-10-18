@@ -37,15 +37,67 @@ import { MarginPadding } from "powerbi-visuals-utils-formattingmodel/lib/Formatt
 
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
 
+export interface SPCChartData {
+    datapoints: SPCChartDataPoint[];
+
+    meanValue: number;
+    UCLValue: number;
+    LCLValue: number;
+    
+    strokeWidth: number;
+    strokeColor: string;
+}
+
 export interface SPCChartDataPoint {
     value: PrimitiveValue;
-    difference: number;
     category: string;
-    color: string;
+    difference: number;
+    color: string; //for the marker
     markerSize: number;
-    strokeColor: string;
-    strokeWidth: number;
     selectionId: ISelectionId;
+}
+
+function createSelectorData(options: VisualUpdateOptions, host: IVisualHost): SPCChartData {
+    let SPCChartDataPoints = createSelectorDataPoints(options, host);
+
+    
+    let nPoints = SPCChartDataPoints.length
+
+    let meanValue = SPCChartDataPoints
+        .map((d) => <number>d.value)
+        .reduce((a,b)=>a+b,0)/nPoints
+
+    let avgDiff = SPCChartDataPoints
+        .map((d) => <number>d.difference)
+        .reduce((a,b)=>a+b,0)/(nPoints - 1)
+    
+
+
+    let UCLValue = meanValue + 2.66*avgDiff
+    let LCLValue = meanValue - 2.66*avgDiff
+
+    //SPC Marker Colors Rules
+    for(let i = 0, len = nPoints; i < len; i++) {
+        if(<number>SPCChartDataPoints[i].value > UCLValue){
+            SPCChartDataPoints[i].color = 'red'
+            SPCChartDataPoints[i].markerSize = 3
+        }
+        if(<number>SPCChartDataPoints[i].value < LCLValue){
+            SPCChartDataPoints[i].color = 'red'
+            SPCChartDataPoints[i].markerSize = 3
+        }
+    }
+    
+    return {
+        datapoints: SPCChartDataPoints,
+
+        meanValue,
+        UCLValue,
+        LCLValue,
+
+        strokeWidth:2,
+        strokeColor:'steelblue'
+    }
 }
 
 function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHost): SPCChartDataPoint[] {
@@ -68,12 +120,7 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
 
     let colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
 
-    //const strokeColor: string = getColumnStrokeColor(colorPalette);
-    //const strokeWidth: number = getColumnStrokeWidth(colorPalette.isHighContrast);
-
     for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
-        const color: string = 'blue'//getColumnColorByIndex(category, i, colorPalette);
-
         const selectionId: ISelectionId = host.createSelectionIdBuilder()
             .withCategory(category, i)
             .createSelectionId();
@@ -83,12 +130,10 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
             diff = Math.abs(<number>dataValue.values[i] - <number>dataValue.values[i-1])
         }
 
-        console.log(category.values)
+        //console.log(category.values)
         SPCChartDataPoints.push({
-            color,
+            color: 'steelblue',
             markerSize: 0,
-            strokeColor: 'steelblue',
-            strokeWidth: 2,
             selectionId,
             value: dataValue.values[i],
             difference: diff,
@@ -290,7 +335,8 @@ export class SPCChart implements IVisual {
     public update(options: VisualUpdateOptions) {
         //Set up the charting object 
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(BarChartSettingsModel, options.dataViews);
-        this.dataPoints = createSelectorDataPoints(options, this.host);
+        let data = createSelectorData(options, this.host);
+        this.dataPoints = data.datapoints;
        // this.formattingSettings.populateColorSelector(this.dataPoints);
 
         let width = options.viewport.width;
@@ -309,38 +355,11 @@ export class SPCChart implements IVisual {
             
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
 
-        //Set up variables 
-        let meanLine = this.dataPoints
-            .map((d) => <number>d.value)
-            .reduce((a,b)=>a+b,0)/this.dataPoints.length
-
-        let avgDiff = this.dataPoints
-            .map((d) => <number>d.difference)
-            .reduce((a,b)=>a+b,0)/this.dataPoints.length
-        
-        let nPoints = this.dataPoints.length
-
-
-        let UCL = meanLine + 2.66*avgDiff
-        let LCL = meanLine - 2.66*avgDiff
-
-        //SPC Marker Colors Rules
-        for(let i = 0, len = this.dataPoints.length; i < len; i++) {
-            if(<number>this.dataPoints[i].value > UCL){
-                this.dataPoints[i].color = 'red'
-                this.dataPoints[i].markerSize = 3
-            }
-            if(<number>this.dataPoints[i].value < LCL){
-                this.dataPoints[i].color = 'red'
-                this.dataPoints[i].markerSize = 3
-            }
-        }
-
         //Set up the Y Axis
         let yScale = scaleLinear()
             .domain([Math.min(<number>options.dataViews[0].categorical.values[0].minLocal)*0.9, 
                      Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal)*1.1])
-            .range([height, 0]);
+            .range([height, 5]);
 
         let yTicks = 5;
 
@@ -444,8 +463,8 @@ export class SPCChart implements IVisual {
             .datum(this.dataPoints)
             .style("stroke-linecap", "round")
             .attr("fill", "none")
-            .attr("stroke", function (d) {return d[0].strokeColor} )
-            .attr("stroke-width", function (d) {return d[0].strokeWidth })
+            .attr("stroke", function (d) {return data.strokeColor} )
+            .attr("stroke-width", function (d) {return data.strokeWidth })
             .attr("stroke-linejoin", "round")
             .attr("d", d3.line<SPCChartDataPoint>()
                 .x(function (d) { return xScale(d.category) })
@@ -481,8 +500,8 @@ export class SPCChart implements IVisual {
             .attr("class", "mean")
             .attr("x1", widthChartStart)
             .attr("x2", widthChartEnd)
-            .attr("y1", function(d){ return yScale(meanLine);})
-            .attr("y2", function(d){ return yScale(meanLine);})
+            .attr("y1", function(d){ return yScale(data.meanValue);})
+            .attr("y2", function(d){ return yScale(data.meanValue);})
             .attr("fill", "none")
             .attr("stroke", "black")
             .attr("stroke-width", 1.5)
@@ -494,8 +513,8 @@ export class SPCChart implements IVisual {
             .attr("class", "mean")
             .attr("x1", widthChartStart)
             .attr("x2", widthChartEnd)
-            .attr("y1", function(d){ return yScale(UCL);})
-            .attr("y2", function(d){ return yScale(UCL);})
+            .attr("y1", function(d){ return yScale(data.UCLValue);})
+            .attr("y2", function(d){ return yScale(data.UCLValue);})
             .attr("fill", "none")
             .attr("stroke", "black")
             .attr("stroke-width", 2)
@@ -506,8 +525,8 @@ export class SPCChart implements IVisual {
             .attr("class", "mean")
             .attr("x1", widthChartStart)
             .attr("x2", widthChartEnd)
-            .attr("y1", function(d){ return yScale(LCL);})
-            .attr("y2", function(d){ return yScale(LCL);})
+            .attr("y1", function(d){ return yScale(data.LCLValue);})
+            .attr("y2", function(d){ return yScale(data.LCLValue);})
             .attr("fill", "none")
             .attr("stroke", "black")
             .attr("stroke-width", 2)
