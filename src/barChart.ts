@@ -46,6 +46,8 @@ export interface SPCChartData {
     
     strokeWidth: number;
     strokeColor: string;
+
+    measureFormat: string;
 }
 
 export interface SPCChartDataPoint {
@@ -60,6 +62,20 @@ export interface SPCChartDataPoint {
 function createSelectorData(options: VisualUpdateOptions, host: IVisualHost): SPCChartData {
     let SPCChartDataPoints = createSelectorDataPoints(options, host);
 
+    let metadata = options.dataViews[0].metadata.columns
+    let measureFormat = ''
+    console.log(metadata)
+    for (let i = 0, len = metadata.length; i < len; i++){
+        let meta = metadata[i]
+        if(meta.isMeasure){
+            console.log(meta.format)
+            if(meta.format.includes('%')){
+                measureFormat = '%'
+            } else { 
+                measureFormat = 's' 
+            }
+        }
+    }
     
     let nPoints = SPCChartDataPoints.length
 
@@ -96,7 +112,9 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost): SP
         LCLValue,
 
         strokeWidth:2,
-        strokeColor:'steelblue'
+        strokeColor:'steelblue',
+
+        measureFormat
     }
 }
 
@@ -130,7 +148,7 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
             diff = Math.abs(<number>dataValue.values[i] - <number>dataValue.values[i-1])
         }
 
-        //console.log(category.values)
+        //console.log(dataViews[0].metadata.columns)
         SPCChartDataPoints.push({
             color: 'steelblue',
             markerSize: 0,
@@ -195,7 +213,6 @@ export class SPCChart implements IVisual {
     //private barContainer: Selection<SVGElement>;
     private xAxis: Selection<SVGElement>;
     private yAxis: Selection<SVGElement>;
-    private yGridLines: Selection<SVGElement>;
     
     private lineData: Selection<SVGElement>;
     private lineData_Diff: Selection<SVGElement>;
@@ -382,8 +399,9 @@ export class SPCChart implements IVisual {
                 })
                 ;
         } else {
+            console.log(data.measureFormat)
             yAxis = yAxis
-                .ticks(yTicks, "s"); //format n=yTicks ticks into SI units
+                .ticks(yTicks, data.measureFormat); //format n=yTicks ticks into SI units
             ;
             };
 

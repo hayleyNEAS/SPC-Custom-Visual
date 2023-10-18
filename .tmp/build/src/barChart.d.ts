@@ -13,6 +13,7 @@ export interface SPCChartData {
     LCLValue: number;
     strokeWidth: number;
     strokeColor: string;
+    measureFormat: string;
 }
 export interface SPCChartDataPoint {
     value: PrimitiveValue;
@@ -28,7 +29,6 @@ export declare class SPCChart implements IVisual {
     private host;
     private xAxis;
     private yAxis;
-    private yGridLines;
     private lineData;
     private lineData_Diff;
     private lineMean;

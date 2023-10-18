@@ -798,6 +798,21 @@ try {
 
 function createSelectorData(options, host) {
     let SPCChartDataPoints = createSelectorDataPoints(options, host);
+    let metadata = options.dataViews[0].metadata.columns;
+    let measureFormat = '';
+    console.log(metadata);
+    for (let i = 0, len = metadata.length; i < len; i++) {
+        let meta = metadata[i];
+        if (meta.isMeasure) {
+            console.log(meta.format);
+            if (meta.format.includes('%')) {
+                measureFormat = '%';
+            }
+            else {
+                measureFormat = 's';
+            }
+        }
+    }
     let nPoints = SPCChartDataPoints.length;
     let meanValue = SPCChartDataPoints
         .map((d) => d.value)
@@ -824,7 +839,8 @@ function createSelectorData(options, host) {
         UCLValue,
         LCLValue,
         strokeWidth: 2,
-        strokeColor: 'steelblue'
+        strokeColor: 'steelblue',
+        measureFormat
     };
 }
 function createSelectorDataPoints(options, host) {
@@ -850,7 +866,7 @@ function createSelectorDataPoints(options, host) {
         if (i > 0) {
             diff = Math.abs(dataValue.values[i] - dataValue.values[i - 1]);
         }
-        //console.log(category.values)
+        //console.log(dataViews[0].metadata.columns)
         SPCChartDataPoints.push({
             color: 'steelblue',
             markerSize: 0,
@@ -889,7 +905,6 @@ class SPCChart {
     //private barContainer: Selection<SVGElement>;
     xAxis;
     yAxis;
-    yGridLines;
     lineData;
     lineData_Diff;
     lineMean;
@@ -1053,8 +1068,9 @@ class SPCChart {
             });
         }
         else {
+            console.log(data.measureFormat);
             yAxis = yAxis
-                .ticks(yTicks, "s"); //format n=yTicks ticks into SI units
+                .ticks(yTicks, data.measureFormat); //format n=yTicks ticks into SI units
             ;
         }
         ;
