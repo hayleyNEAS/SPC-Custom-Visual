@@ -351,7 +351,7 @@ export class SPCChart implements IVisual {
      */
     public update(options: VisualUpdateOptions) {
         //Set up the charting object 
-        this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(BarChartSettingsModel, options.dataViews);
+        this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(BarChartSettingsModel, options.dataViews[0]);
         let data = createSelectorData(options, this.host);
         this.dataPoints = data.datapoints;
        // this.formattingSettings.populateColorSelector(this.dataPoints);
@@ -383,7 +383,7 @@ export class SPCChart implements IVisual {
         let yAxis = axisLeft(yScale)
             .tickSizeInner(-widthChartEnd);
 
-        if(this.formattingSettings.enableYAxis.time.value){
+        if(this.formattingSettings.enableYAxis.formatter.time.value){
             yAxis = yAxis
                 .ticks(yTicks)
                 .tickFormat(function (d) {
@@ -411,12 +411,12 @@ export class SPCChart implements IVisual {
             .attr("color", getYAxisTextFillColor(
                 colorObjects,
                 this.host.colorPalette,
-                this.formattingSettings.enableYAxis.fill.value.value
+                this.formattingSettings.enableYAxis.formatter.fill.value.value
             ))
             ;
         
         yAxisObject.selectAll('.yAxis line')
-            .attr('stroke', this.formattingSettings.enableYAxis.fill.value.value)
+            .attr('stroke', this.formattingSettings.enableYAxis.formatter.fill.value.value)
             .attr('opacity', 0.2)
             ;
         yAxisObject.selectAll('.yAxis path')
@@ -437,7 +437,7 @@ export class SPCChart implements IVisual {
             yShift = maxW + 10; //longest "word" plus 10 pixels
         } 
 
-        if (this.formattingSettings.enableYAxis.time.value) {
+        if (this.formattingSettings.enableYAxis.formatter.time.value) {
             yShift = maxW + 10; //longest "word" plus 10 pixels
         } 
 

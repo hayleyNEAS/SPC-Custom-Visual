@@ -85,6 +85,16 @@
                     "type": {
                         "bool": true
                     }
+                },
+                "time2": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "time3": {
+                    "type": {
+                        "bool": true
+                    }
                 }
             }
         }

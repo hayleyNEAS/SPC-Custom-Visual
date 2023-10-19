@@ -3,20 +3,22 @@ import { dataViewWildcard } from "powerbi-visuals-utils-dataviewutils";
 import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
 import { SPCChartDataPoint } from "./barChart";
 
-import FormattingSettingsCard = formattingSettings.Card;
+import SimpleCard = formattingSettings.SimpleCard;
+import CompCard = formattingSettings.CompositeCard;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
+import { CompositeSlice, Container } from "powerbi-visuals-utils-formattingmodel/lib/FormattingSettingsComponents";
 
 /**
  * Enable x-Axis Formatting Card
  */
-class EnableAxisCardSettings extends FormattingSettingsCard {
+class EnableAxisCardSettings extends SimpleCard {
     // Formatting property `show` toggle switch (formatting simple slice)
     show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayName: undefined,
         value: false,
-        topLevelToggle: true
+        //topLevelSlice: true
     });
 
     // Formatting property `fill` color picker (formatting simple slice)
@@ -34,19 +36,12 @@ class EnableAxisCardSettings extends FormattingSettingsCard {
 /**
  * Enable y-Axis Formatting Card
  */
-class EnableYAxisCardSettings extends FormattingSettingsCard {
-    // Formatting property `show` toggle switch (formatting simple slice)
-    show = new formattingSettings.ToggleSwitch({
-        name: "show",
-        displayName: undefined,
-        value: false,
-        topLevelToggle: true
-    });
+class YAxisFormatter extends SimpleCard {
 
     // Formatting property `fill` color picker (formatting simple slice)
     fill = new formattingSettings.ColorPicker({
         name: "fill",
-        displayName: "Color",
+        displayName: "Axis Font Color",
         value: { value: "#777777" }
     });
 
@@ -57,22 +52,28 @@ class EnableYAxisCardSettings extends FormattingSettingsCard {
         value: false
     });
 
+    
+    name: string = "YAxisFormatter";
+    displayName: string = "Y-Axis Formatter";
+    slices: Array<FormattingSettingsSlice> = [this.fill, this.time];
+}
+
+class EnableYAxisCardSettings extends CompCard {
+    // Formatting property `show` toggle switch (formatting simple slice)
+    show = new formattingSettings.ToggleSwitch({
+        name: "show",
+        displayName: undefined,
+        value: false,
+        //topLevelToggle: true
+    });
+    topLevelSlice = this.show;
+    formatter = new YAxisFormatter()
+
     name: string = "enableYAxis";
     displayName: string = "Y-axis";
-    slices: Array<FormattingSettingsSlice> = [this.show, this.fill, this.time];
+    groups = [this.formatter];
 }
 
-/**
- * Color Selector Formatting Card
- */
-
-class ColorSelectorCardSettings extends FormattingSettingsCard {
-    name: string = "colorSelector";
-    displayName: string = "Data Colors";
-
-    // slices will be populated in barChart settings model `populateColorSelector` method
-    slices: Array<FormattingSettingsSlice> = [];
-}
 
 /**
 * BarChart settings model class
@@ -85,6 +86,7 @@ export class BarChartSettingsModel extends FormattingSettingsModel {
     enableYAxis = new EnableYAxisCardSettings();
     //colorSelector = new ColorSelectorCardSettings();
     cards = [this.enableAxis, this.enableYAxis];
+
 
     /**
      * populate colorSelector object categories formatting properties
@@ -108,3 +110,4 @@ export class BarChartSettingsModel extends FormattingSettingsModel {
     }
     */
 }
+
