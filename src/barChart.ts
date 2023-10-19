@@ -35,10 +35,31 @@ import { getCategoricalObjectValue, getValue } from "./objectEnumerationUtility"
 import { MarginPadding } from "powerbi-visuals-utils-formattingmodel/lib/FormattingSettingsComponents";
 
 
+//import logo_variation_nochange from "./../assets/Variation_noChange.png"
+const variation_noChange = require("./../assets/Variation_noChange.png")
+const variation_ciHigh = require("./../assets/variation_ciHigh.png")
+
+function logoSelector(data: SPCChartData): any {
+    let dataPoints = data.datapoints
+    console.log("text")
+    console.log("value",(dataPoints[data.n-1]), data.n  )
+    if(<number>(dataPoints[data.n-1].value) > data.UCLValue){
+        console.log("high")
+        return variation_ciHigh
+    } else {
+        console.log("meh")
+        return variation_noChange
+    }
+}
+
+
+
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
 
 export interface SPCChartData {
     datapoints: SPCChartDataPoint[];
+
+    n: number;
 
     meanValue: number;
     UCLValue: number;
@@ -64,11 +85,9 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost): SP
 
     let metadata = options.dataViews[0].metadata.columns
     let measureFormat = ''
-    console.log(metadata)
     for (let i = 0, len = metadata.length; i < len; i++){
         let meta = metadata[i]
         if(meta.isMeasure){
-            console.log(meta.format)
             if(meta.format.includes('%')){
                 measureFormat = '%'
             } else { 
@@ -106,6 +125,8 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost): SP
     
     return {
         datapoints: SPCChartDataPoints,
+
+        n: SPCChartDataPoints.length,
 
         meanValue,
         UCLValue,
@@ -148,7 +169,7 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
             diff = Math.abs(<number>dataValue.values[i] - <number>dataValue.values[i-1])
         }
 
-        //console.log(dataViews[0].metadata.columns)
+        console.log(dataValue.values)
         SPCChartDataPoints.push({
             color: 'steelblue',
             markerSize: 0,
@@ -208,6 +229,7 @@ function getYAxisTextFillColor(
 export class SPCChart implements IVisual {
     private svg: Selection<any>;
     private tooltip: Selection<any>;
+    private logo: Selection<any>;
 
     private host: IVisualHost;
     //private barContainer: Selection<SVGElement>;
@@ -256,6 +278,9 @@ export class SPCChart implements IVisual {
         this.svg = d3Select(options.element)
             .append('svg')
             .classed('SPCChart', true);
+        
+        this.logo = this.svg
+            .append('image')
 
         this.xAxis = this.svg
             .append('g')
@@ -369,6 +394,7 @@ export class SPCChart implements IVisual {
         if (this.formattingSettings.enableAxis.show.value) {
             height -= margins.bottom;
         }
+
             
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
 
@@ -399,7 +425,6 @@ export class SPCChart implements IVisual {
                 })
                 ;
         } else {
-            console.log(data.measureFormat)
             yAxis = yAxis
                 .ticks(yTicks, data.measureFormat); //format n=yTicks ticks into SI units
             ;
@@ -423,7 +448,6 @@ export class SPCChart implements IVisual {
             .attr('opacity', 0)
             ;
 
-            //TO DO maxW doesnt seem to calculate when you expect
         let yShift = 0;
         let maxW = 0;
 
@@ -447,6 +471,15 @@ export class SPCChart implements IVisual {
             .style('font-family', 'inherit')
             .style('font-size', 11) //TODO make this a drop down
             .attr('transform', 'translate(' + (yShift) + ',0)')
+
+        // Move logo 
+        let logo = logoSelector(data)
+        this.logo 
+            .attr('href', logo)
+            .attr('width', 50)
+            .attr('height', 50)
+            .attr('x', widthChartStart)
+            .attr('y', 0)
 
         //Set up the X Axis
         

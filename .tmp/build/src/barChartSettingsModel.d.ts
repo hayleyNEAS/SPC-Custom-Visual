@@ -3,6 +3,18 @@ import SimpleCard = formattingSettings.SimpleCard;
 import CompCard = formattingSettings.CompositeCard;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
+declare class SPCSetUP extends SimpleCard {
+    direction: formattingSettings.ItemDropdown;
+    name: string;
+    displayName?: string;
+    slices: Array<FormattingSettingsSlice>;
+}
+declare class SPC extends CompCard {
+    setUp: SPCSetUP;
+    name: string;
+    displayName: string;
+    groups: SPCSetUP[];
+}
 /**
  * Enable x-Axis Formatting Card
  */
@@ -36,8 +48,9 @@ declare class EnableYAxisCardSettings extends CompCard {
 *
 */
 export declare class BarChartSettingsModel extends FormattingSettingsModel {
+    SPCSettings: SPC;
     enableAxis: EnableAxisCardSettings;
     enableYAxis: EnableYAxisCardSettings;
-    cards: (EnableAxisCardSettings | EnableYAxisCardSettings)[];
+    cards: (SPC | EnableAxisCardSettings | EnableYAxisCardSettings)[];
 }
 export {};

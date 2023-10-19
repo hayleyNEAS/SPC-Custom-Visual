@@ -8,6 +8,7 @@ import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 export interface SPCChartData {
     datapoints: SPCChartDataPoint[];
+    n: number;
     meanValue: number;
     UCLValue: number;
     LCLValue: number;
@@ -26,6 +27,7 @@ export interface SPCChartDataPoint {
 export declare class SPCChart implements IVisual {
     private svg;
     private tooltip;
+    private logo;
     private host;
     private xAxis;
     private yAxis;

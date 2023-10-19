@@ -7,8 +7,26 @@ import SimpleCard = formattingSettings.SimpleCard;
 import CompCard = formattingSettings.CompositeCard;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
-import { CompositeSlice, Container } from "powerbi-visuals-utils-formattingmodel/lib/FormattingSettingsComponents";
 
+class SPCSetUP extends SimpleCard {
+    direction = new formattingSettings.ItemDropdown({
+        items: [{value: 1, displayName: "Up"}, {value: 0, displayName: "No Direction"}, {value: -1, displayName: "Down"}],
+        name: "direction",
+        displayName: "Direction of improvement",
+        value: {value: 0, displayName: "No Direction"}
+    })
+    name: string = "SPCSetUp";
+    displayName?: string = "SPC Set Up";
+    slices: Array<FormattingSettingsSlice> = [this.direction];
+}
+
+class SPC extends CompCard {
+    setUp = new SPCSetUP()
+
+    name: string = "SPCSettings";
+    displayName: string = 'SPC Settings';
+    groups = [this.setUp]
+}
 /**
  * Enable x-Axis Formatting Card
  */
@@ -82,32 +100,17 @@ class EnableYAxisCardSettings extends CompCard {
 export class BarChartSettingsModel extends FormattingSettingsModel {
 
     // Create formatting settings model formatting cards
+    SPCSettings = new SPC();
     enableAxis = new EnableAxisCardSettings();
     enableYAxis = new EnableYAxisCardSettings();
     //colorSelector = new ColorSelectorCardSettings();
-    cards = [this.enableAxis, this.enableYAxis];
+    cards = [this.SPCSettings, this.enableAxis, this.enableYAxis];
 
 
     /**
      * populate colorSelector object categories formatting properties
      * @param dataPoints 
      */
-    /*
-    populateColorSelector(dataPoints: SPCChartDataPoint[]) {
-        let slices = this.colorSelector.slices;
-        if (dataPoints) {
-            dataPoints.forEach(dataPoint => {
-                slices.push(new formattingSettings.ColorPicker({
-                    name: "fill",
-                    displayName: dataPoint.category,
-                    value: { value: dataPoint.color },
-                    selector: dataViewWildcard.createDataViewWildcardSelector(dataViewWildcard.DataViewWildcardMatchingOption.InstancesAndTotals),
-                    altConstantSelector: dataPoint.selectionId.getSelector(),
-                    instanceKind: powerbi.VisualEnumerationInstanceKinds.ConstantOrRule
-                }));
-            });
-        }
-    }
-    */
+
 }
 
