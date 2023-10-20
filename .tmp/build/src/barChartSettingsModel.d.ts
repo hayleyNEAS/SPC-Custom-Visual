@@ -3,17 +3,35 @@ import SimpleCard = formattingSettings.SimpleCard;
 import CompCard = formattingSettings.CompositeCard;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
-declare class SPCSetUP extends SimpleCard {
+declare class SPCSetUp extends SimpleCard {
     direction: formattingSettings.ItemDropdown;
     name: string;
     displayName?: string;
     slices: Array<FormattingSettingsSlice>;
 }
+declare class LogoOptions extends SimpleCard {
+    show: formattingSettings.ToggleSwitch;
+    name: string;
+    displayName?: string;
+    slices: Array<FormattingSettingsSlice>;
+}
+declare class MarkerOptions extends SimpleCard {
+    showMarker: formattingSettings.ToggleSwitch;
+    topLevelSlice: formattingSettings.ToggleSwitch;
+    outlier: formattingSettings.ColorPicker;
+    run: formattingSettings.ColorPicker;
+    oneside: formattingSettings.ColorPicker;
+    name: string;
+    displayName?: string;
+    slices: Array<FormattingSettingsSlice>;
+}
 declare class SPC extends CompCard {
-    setUp: SPCSetUP;
+    spcSetUp: SPCSetUp;
+    logoOptions: LogoOptions;
+    markerOptions: MarkerOptions;
     name: string;
     displayName: string;
-    groups: SPCSetUP[];
+    groups: (SPCSetUp | MarkerOptions | LogoOptions)[];
 }
 /**
  * Enable x-Axis Formatting Card

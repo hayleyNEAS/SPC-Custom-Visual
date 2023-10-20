@@ -38,17 +38,26 @@ import { MarginPadding } from "powerbi-visuals-utils-formattingmodel/lib/Formatt
 //import logo_variation_nochange from "./../assets/Variation_noChange.png"
 const variation_noChange = require("./../assets/Variation_noChange.png")
 const variation_ciHigh = require("./../assets/variation_ciHigh.png")
+const variation_ccHigh = require("./../assets/variation_ccHigh.png")
+const variation_ciLow = require("./../assets/variation_ciLow.png")
+const variation_ccLow = require("./../assets/variation_ccLow.png")
 
 function logoSelector(data: SPCChartData): any {
-    let dataPoints = data.datapoints
-    console.log("text")
-    console.log("value",(dataPoints[data.n-1]), data.n  )
-    if(<number>(dataPoints[data.n-1].value) > data.UCLValue){
-        console.log("high")
-        return variation_ciHigh
-    } else {
-        console.log("meh")
-        return variation_noChange
+    //let dataPoints = data.datapoints
+    console.log(data)
+    if(data.direction > 0) {
+          if(data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1){return variation_ciHigh
+        } if(data.outlier ==-1 || data.run ==-1 || data.shift ==-1 || data.twoInThree ==-1){return variation_ccLow
+        } else {
+            return variation_noChange
+        }
+    } if (data.direction < 0) {
+          if(data.outlier ==-1 || data.run ==-1 || data.shift ==-1 || data.twoInThree ==-1){return variation_ccHigh
+        } if(data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1){return variation_ciLow
+        } else {return variation_noChange
+        }
+    } if (data.direction = 0) {
+        console.log("no direction")
     }
 }
 
@@ -60,6 +69,8 @@ export interface SPCChartData {
     datapoints: SPCChartDataPoint[];
 
     n: number;
+    direction: number;
+    target: number;
 
     meanValue: number;
     UCLValue: number;
@@ -69,6 +80,11 @@ export interface SPCChartData {
     strokeColor: string;
 
     measureFormat: string;
+
+    outlier: number;
+    run: number;
+    shift: number;
+    twoInThree: number;
 }
 
 export interface SPCChartDataPoint {
@@ -80,8 +96,10 @@ export interface SPCChartDataPoint {
     selectionId: ISelectionId;
 }
 
-function createSelectorData(options: VisualUpdateOptions, host: IVisualHost): SPCChartData {
+function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, formatSettings: BarChartSettingsModel): SPCChartData {
     let SPCChartDataPoints = createSelectorDataPoints(options, host);
+    
+    let direction = <number>formatSettings.SPCSettings.spcSetUp.direction.value.value
 
     let metadata = options.dataViews[0].metadata.columns
     let measureFormat = ''
@@ -103,30 +121,76 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost): SP
         .reduce((a,b)=>a+b,0)/nPoints
 
     let avgDiff = SPCChartDataPoints
-        .map((d) => <number>d.difference)
+        .map((d) => <number>Math.abs(d.difference))
         .reduce((a,b)=>a+b,0)/(nPoints - 1)
     
-
-
     let UCLValue = meanValue + 2.66*avgDiff
     let LCLValue = meanValue - 2.66*avgDiff
 
-    //SPC Marker Colors Rules
-    for(let i = 0, len = nPoints; i < len; i++) {
-        if(<number>SPCChartDataPoints[i].value > UCLValue){
-            SPCChartDataPoints[i].color = 'red'
-            SPCChartDataPoints[i].markerSize = 3
-        }
-        if(<number>SPCChartDataPoints[i].value < LCLValue){
-            SPCChartDataPoints[i].color = 'red'
-            SPCChartDataPoints[i].markerSize = 3
+    
+
+
+    let outlier = 0
+    let run = 0
+    let shift = 0
+    //SPC Marker Colors Rules        
+        //find group of 7
+    for(let i = 0; i < nPoints; i++) {
+        let p = 7
+        if(i > p){
+            let lastest7 = SPCChartDataPoints.slice(i-p+1, i+1)
+            console.log(lastest7)
+            //run of 7
+            let runOfNumbers = lastest7
+                .map((d)=>Math.sign(d.difference))
+                .reduce((a,b) => a+b,0)
+            if( runOfNumbers == p) {
+                lastest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.run.value.value)
+                lastest7.forEach(d => d.markerSize = 3)
+                let run = 1
+            } if ( runOfNumbers == -1*p) {
+                lastest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.run.value.value)
+                lastest7.forEach(d => d.markerSize = 3)
+                let run = -1
+            } 
+            //oneside of mean 
+            let shift7 = lastest7
+                .map((d)=>Math.sign(<number>d.value - meanValue))
+                .reduce((a,b) => a+b, 0)
+            if ( shift7 == p){
+                lastest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.oneside.value.value)
+                lastest7.forEach(d => d.markerSize = 3)
+                let shift = 1
+            } if ( shift7 == -1*p) {
+                lastest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.oneside.value.value)
+                lastest7.forEach(d => d.markerSize = 3)
+                let shift = -1
+            }
         }
     }
+
+        //SPC Marker Colors Rules 
+            //find outliers
+        for(let i = 0, len = nPoints; i < len; i++) {
+            if(<number>SPCChartDataPoints[i].value > UCLValue){
+                SPCChartDataPoints[i].color = formatSettings.SPCSettings.markerOptions.outlier.value.value
+                SPCChartDataPoints[i].markerSize = 3
+                let outlier = 1
+            }
+            if(<number>SPCChartDataPoints[i].value < LCLValue){
+                SPCChartDataPoints[i].color = formatSettings.SPCSettings.markerOptions.outlier.value.value
+                SPCChartDataPoints[i].markerSize = 3
+                let outlier = -1
+            } 
+            
+        }
     
     return {
         datapoints: SPCChartDataPoints,
 
         n: SPCChartDataPoints.length,
+        direction,
+        target: null,
 
         meanValue,
         UCLValue,
@@ -135,7 +199,12 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost): SP
         strokeWidth:2,
         strokeColor:'steelblue',
 
-        measureFormat
+        measureFormat,
+
+        outlier,
+        run,
+        shift,
+        twoInThree: 0
     }
 }
 
@@ -166,10 +235,9 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
 
         let diff = 0
         if(i > 0){
-            diff = Math.abs(<number>dataValue.values[i] - <number>dataValue.values[i-1])
+            diff = <number>dataValue.values[i] - <number>dataValue.values[i-1]
         }
 
-        console.log(dataValue.values)
         SPCChartDataPoints.push({
             color: 'steelblue',
             markerSize: 0,
@@ -184,8 +252,10 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
 }
 
 
-function getAxisTextFillColor(
+function getFillColor(
     objects: DataViewObjects,
+    objectString: string,
+    propString: string,
     colorPalette: ISandboxExtendedColorPalette,
     defaultColor: string
 ): string {
@@ -195,8 +265,8 @@ function getAxisTextFillColor(
 
     return getValue<Fill>(
         objects,
-        "enableAxis",
-        "fill",
+        objectString,
+        propString,
         {
             solid: {
                 color: defaultColor,
@@ -377,7 +447,9 @@ export class SPCChart implements IVisual {
     public update(options: VisualUpdateOptions) {
         //Set up the charting object 
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(BarChartSettingsModel, options.dataViews[0]);
-        let data = createSelectorData(options, this.host);
+        
+        let data = createSelectorData(options, this.host, this.formattingSettings);
+
         this.dataPoints = data.datapoints;
        // this.formattingSettings.populateColorSelector(this.dataPoints);
 
@@ -500,8 +572,10 @@ export class SPCChart implements IVisual {
             .attr('transform', 'translate(0, ' + (height + 2) + ')')
             .call(xAxis)
             .transition().duration(500)
-            .attr("color", getAxisTextFillColor(
+            .attr("color", getFillColor(
                 colorObjects,
+                'enableAxis',
+                'fill',
                 this.host.colorPalette,
                 this.formattingSettings.enableAxis.fill.value.value
             ));

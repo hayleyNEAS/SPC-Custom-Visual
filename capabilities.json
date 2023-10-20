@@ -55,7 +55,45 @@
                                          {"value":  "0", "displayName": "No Direction"}, 
                                          {"value": "-1", "displayName": "Down"}]
                     }
+                },
+                "show": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showMarker": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "outlier": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "run": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "oneside": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
                 }
+
             }
         },
         "enableAxis": {

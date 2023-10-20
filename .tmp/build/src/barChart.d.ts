@@ -9,12 +9,18 @@ import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructor
 export interface SPCChartData {
     datapoints: SPCChartDataPoint[];
     n: number;
+    direction: number;
+    target: number;
     meanValue: number;
     UCLValue: number;
     LCLValue: number;
     strokeWidth: number;
     strokeColor: string;
     measureFormat: string;
+    outlier: number;
+    run: number;
+    shift: number;
+    twoInThree: number;
 }
 export interface SPCChartDataPoint {
     value: PrimitiveValue;

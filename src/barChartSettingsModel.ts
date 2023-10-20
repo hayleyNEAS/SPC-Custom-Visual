@@ -8,7 +8,7 @@ import CompCard = formattingSettings.CompositeCard;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
 
-class SPCSetUP extends SimpleCard {
+class SPCSetUp extends SimpleCard {
     direction = new formattingSettings.ItemDropdown({
         items: [{value: 1, displayName: "Up"}, {value: 0, displayName: "No Direction"}, {value: -1, displayName: "Down"}],
         name: "direction",
@@ -20,12 +20,58 @@ class SPCSetUP extends SimpleCard {
     slices: Array<FormattingSettingsSlice> = [this.direction];
 }
 
+class LogoOptions extends SimpleCard {
+    show = new formattingSettings.ToggleSwitch({
+        name: "show",
+        displayName: undefined,
+        value: false
+    });
+    name: string = "logoOptions";
+    displayName?: string = "Logo Options";
+    slices: Array<FormattingSettingsSlice> = [this.show];
+}
+
+
+class MarkerOptions extends SimpleCard {
+    showMarker = new formattingSettings.ToggleSwitch({
+        name: "showMarker",
+        displayName: undefined,
+        value: true
+    });
+    topLevelSlice = this.showMarker;
+
+    outlier = new formattingSettings.ColorPicker({
+        name: "outlier",
+        displayName: "Outlier Color",
+        value: { value: "#777777" }
+    });
+
+    run = new formattingSettings.ColorPicker({
+        name: "run",
+        displayName: "Run Color",
+        value: { value: "purple" }
+    });
+
+    
+    oneside = new formattingSettings.ColorPicker({
+        name: "oneside",
+        displayName: "Oneside of Mean Color",
+        value: { value: "orange" }
+    });
+
+    name: string = "markerOptions";
+    displayName?: string = "Marker Options";
+    slices: Array<FormattingSettingsSlice> = [this.outlier, this.run, this.oneside];
+}
+
 class SPC extends CompCard {
-    setUp = new SPCSetUP()
+    spcSetUp = new SPCSetUp();
+    logoOptions = new LogoOptions();
+    markerOptions = new MarkerOptions();
 
     name: string = "SPCSettings";
     displayName: string = 'SPC Settings';
-    groups = [this.setUp]
+    groups = [this.spcSetUp, this.logoOptions, this.markerOptions]
 }
 /**
  * Enable x-Axis Formatting Card
