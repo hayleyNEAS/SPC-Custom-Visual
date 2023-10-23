@@ -15,9 +15,17 @@ class SPCSetUp extends SimpleCard {
         displayName: "Direction of improvement",
         value: {value: 0, displayName: "No Direction"}
     })
+
+    target = new formattingSettings.TextInput({
+        name: "target",
+        displayName: "Target",
+        value: "7",
+        placeholder: "Target"
+
+    })
     name: string = "SPCSetUp";
     displayName?: string = "SPC Set Up";
-    slices: Array<FormattingSettingsSlice> = [this.direction];
+    slices: Array<FormattingSettingsSlice> = [this.direction, this.target];
 }
 
 class LogoOptions extends SimpleCard {
@@ -56,7 +64,8 @@ class LineOptions extends SimpleCard{
     lowerCL = new formattingSettings.ColorPicker({
         name: "lowerCL",
         displayName: "Lower Control Limit Color",
-        value: { value: "#777777" }
+        value: { value: "#777777" },
+        isNoFillItemSupported: true
     });
 
     showSubControl = new formattingSettings.ToggleSwitch({

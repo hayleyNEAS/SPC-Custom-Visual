@@ -54,6 +54,7 @@ export declare class SPCChart implements IVisual {
     private lineUpperZoneB;
     private lineLowerZoneA;
     private lineLowerZoneB;
+    private lineTarget;
     private dataMarkers;
     private dataPoints;
     private formattingSettings;

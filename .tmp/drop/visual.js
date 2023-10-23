@@ -10,11 +10,12 @@ var barChart690B60A9B92A4B3F9CD47387F807847E_DEBUG;
 /* harmony export */   DP: () => (/* binding */ CompositeCard),
 /* harmony export */   Hn: () => (/* binding */ Model),
 /* harmony export */   Zh: () => (/* binding */ ToggleSwitch),
+/* harmony export */   oi: () => (/* binding */ TextInput),
 /* harmony export */   sF: () => (/* binding */ SimpleCard),
 /* harmony export */   zH: () => (/* binding */ ColorPicker),
 /* harmony export */   zt: () => (/* binding */ ItemDropdown)
 /* harmony export */ });
-/* unused harmony exports CardGroupEntity, Group, SimpleSlice, AlignmentGroup, NumUpDown, Slider, DatePicker, AutoDropdown, DurationPicker, ErrorRangeControl, FieldPicker, ItemFlagsSelection, AutoFlagsSelection, TextInput, TextArea, FontPicker, GradientBar, ImageUpload, ListEditor, ReadOnlyText, ShapeMapSelector, CompositeSlice, FontControl, MarginPadding, Container, ContainerItem */
+/* unused harmony exports CardGroupEntity, Group, SimpleSlice, AlignmentGroup, NumUpDown, Slider, DatePicker, AutoDropdown, DurationPicker, ErrorRangeControl, FieldPicker, ItemFlagsSelection, AutoFlagsSelection, TextArea, FontPicker, GradientBar, ImageUpload, ListEditor, ReadOnlyText, ShapeMapSelector, CompositeSlice, FontControl, MarginPadding, Container, ContainerItem */
 /* harmony import */ var _utils_FormattingSettingsUtils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3827);
 /**
  * Powerbi utils components classes for custom visual formatting pane objects
@@ -185,7 +186,7 @@ class AutoFlagsSelection extends (/* unused pure expression or super */ null && 
         this.type = "FlagsSelection" /* visuals.FormattingComponent.FlagsSelection */;
     }
 }
-class TextInput extends (/* unused pure expression or super */ null && (SimpleSlice)) {
+class TextInput extends SimpleSlice {
     constructor(object) {
         super(object);
         this.type = "TextInput" /* visuals.FormattingComponent.TextInput */;
@@ -1623,6 +1624,7 @@ class SPCChart {
     lineUpperZoneB;
     lineLowerZoneA;
     lineLowerZoneB;
+    lineTarget;
     dataMarkers;
     dataPoints;
     formattingSettings;
@@ -1689,6 +1691,9 @@ class SPCChart {
             .append('line')
             .classed('line', true);
         this.lineLowerZoneB = this.svg
+            .append('line')
+            .classed('line', true);
+        this.lineTarget = this.svg
             .append('line')
             .classed('line', true);
     }
@@ -1949,6 +1954,22 @@ class SPCChart {
             this.lineLCL
                 .attr("stroke-width", 0);
         }
+        //Create target line
+        // if(this.formattingSettings.SPCSettings.lineOptions.showControl.value){
+        console.log(this.formattingSettings.SPCSettings.spcSetUp.target.value.valueOf());
+        let targetLine = Number(this.formattingSettings.SPCSettings.spcSetUp.target.value.valueOf());
+        console.log(targetLine);
+        this.lineTarget
+            .style("stroke-linecap", "round")
+            .attr("class", "ControlLimit")
+            .attr("x1", widthChartStart)
+            .attr("x2", widthChartEnd)
+            .attr("y1", function (d) { return yScale(targetLine); })
+            .attr("y2", function (d) { return yScale(targetLine); })
+            .attr("fill", "none")
+            .attr("stroke", "red")
+            .attr("stroke-width", 2);
+        //}
         //Create Zone lines 
         if (this.formattingSettings.SPCSettings.lineOptions.showSubControl.value) {
             this.lineUpperZoneA
@@ -2035,9 +2056,15 @@ class SPCSetUp extends SimpleCard {
         displayName: "Direction of improvement",
         value: { value: 0, displayName: "No Direction" }
     });
+    target = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .TextInput */ .oi({
+        name: "target",
+        displayName: "Target",
+        value: "7",
+        placeholder: "Target"
+    });
     name = "SPCSetUp";
     displayName = "SPC Set Up";
-    slices = [this.direction];
+    slices = [this.direction, this.target];
 }
 class LogoOptions extends SimpleCard {
     show = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
@@ -2070,7 +2097,8 @@ class LineOptions extends SimpleCard {
     lowerCL = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
         name: "lowerCL",
         displayName: "Lower Control Limit Color",
-        value: { value: "#777777" }
+        value: { value: "#777777" },
+        isNoFillItemSupported: true
     });
     showSubControl = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
         name: "showSubControl",

@@ -5,6 +5,7 @@ import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
 declare class SPCSetUp extends SimpleCard {
     direction: formattingSettings.ItemDropdown;
+    target: formattingSettings.TextInput;
     name: string;
     displayName?: string;
     slices: Array<FormattingSettingsSlice>;

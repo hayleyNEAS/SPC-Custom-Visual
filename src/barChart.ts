@@ -372,6 +372,7 @@ export class SPCChart implements IVisual {
     private lineUpperZoneB: Selection<SVGElement>;
     private lineLowerZoneA: Selection<SVGElement>;
     private lineLowerZoneB: Selection<SVGElement>;
+    private lineTarget: Selection<SVGElement>;
 
     private dataMarkers: Selection<SVGElement>;
 
@@ -457,6 +458,10 @@ export class SPCChart implements IVisual {
             .classed('line', true)
         
         this.lineLowerZoneB = this.svg
+            .append('line')
+            .classed('line', true)
+        
+        this.lineTarget = this.svg
             .append('line')
             .classed('line', true)
     }
@@ -759,6 +764,26 @@ export class SPCChart implements IVisual {
             this.lineLCL
                 .attr("stroke-width", 0)
         }
+
+        //Create target line
+       // if(this.formattingSettings.SPCSettings.lineOptions.showControl.value){
+        console.log(this.formattingSettings.SPCSettings.spcSetUp.target.value.valueOf() )
+        let targetLine = Number(this.formattingSettings.SPCSettings.spcSetUp.target.value.valueOf())
+        console.log(targetLine)
+            this.lineTarget
+                .style("stroke-linecap", "round")
+                .attr("class", "ControlLimit")
+                .attr("x1", widthChartStart)
+                .attr("x2", widthChartEnd)
+                .attr("y1", function(d){ return yScale(targetLine);})
+                .attr("y2", function(d){ return yScale(targetLine);})
+                .attr("fill", "none")
+                .attr("stroke", "red")
+                .attr("stroke-width", 2)
+                
+
+        //}
+        
         //Create Zone lines 
         if(this.formattingSettings.SPCSettings.lineOptions.showSubControl.value){
         this.lineUpperZoneA
