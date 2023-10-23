@@ -61,6 +61,13 @@
                         "bool": true
                     }
                 },
+                "location": {
+                    "type": {
+                        "enumeration" : [{"value": "-1", "displayName": "Left"}, 
+                                         {"value":  "0", "displayName": "Middle"}, 
+                                         {"value":  "1", "displayName": "Right"}]
+                    }
+                },
                 "showControl": {
                     "type": {
                         "bool": true

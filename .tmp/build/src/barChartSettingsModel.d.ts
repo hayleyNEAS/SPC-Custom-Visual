@@ -11,6 +11,8 @@ declare class SPCSetUp extends SimpleCard {
 }
 declare class LogoOptions extends SimpleCard {
     show: formattingSettings.ToggleSwitch;
+    topLevelSlice: formattingSettings.ToggleSwitch;
+    location: formattingSettings.ItemDropdown;
     name: string;
     displayName?: string;
     slices: Array<FormattingSettingsSlice>;

@@ -622,13 +622,27 @@ export class SPCChart implements IVisual {
             .attr('transform', 'translate(' + (yShift) + ',0)')
 
         // Move logo 
+        let logoX = widthChartStart
+        if(this.formattingSettings.SPCSettings.logoOptions.location.value.value == -1){
+            logoX = widthChartStart
+        } if(this.formattingSettings.SPCSettings.logoOptions.location.value.value == 0){
+            logoX = (widthChartEnd - widthChartStart)/2 + widthChartStart - 25
+        } if(this.formattingSettings.SPCSettings.logoOptions.location.value.value == 1){
+            logoX = widthChartEnd - 50
+        } 
         let logo = logoSelector(data)
-        this.logo 
-            .attr('href', logo)
-            .attr('width', 50)
-            .attr('height', 50)
-            .attr('x', widthChartStart)
-            .attr('y', 0)
+        if(this.formattingSettings.SPCSettings.logoOptions.show.value){
+            this.logo 
+                .attr('href', logo)
+                .attr('width', 50)
+                .attr('height', 50)
+                .attr('x', logoX)
+                .attr('y', 0)
+        } else {
+            this.logo 
+                .attr('width', 0)
+                .attr('height', 0)
+        }
 
         //Set up the X Axis
         

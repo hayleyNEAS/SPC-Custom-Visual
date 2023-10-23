@@ -26,9 +26,18 @@ class LogoOptions extends SimpleCard {
         displayName: undefined,
         value: false
     });
+    topLevelSlice = this.show;
+
+    location = new formattingSettings.ItemDropdown({
+        items: [{value: -1, displayName: "Left"}, {value: 0, displayName: "Middle"}, {value: 1, displayName: "Right"}],
+        name: "location",
+        displayName: "Location of Logo",
+        value: {value: -1, displayName: "Left"}
+    })
+
     name: string = "logoOptions";
     displayName?: string = "Logo Options";
-    slices: Array<FormattingSettingsSlice> = [this.show];
+    slices: Array<FormattingSettingsSlice> = [this.location];
 }
 
 class LineOptions extends SimpleCard{
