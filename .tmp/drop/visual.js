@@ -1430,6 +1430,7 @@ function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
 function createSelectorData(options, host, formatSettings) {
     let SPCChartDataPoints = createSelectorDataPoints(options, host);
     let direction = formatSettings.SPCSettings.spcSetUp.direction.value.value;
+    let target = Number(formatSettings.SPCSettings.spcSetUp.target.value.valueOf());
     let metadata = options.dataViews[0].metadata.columns;
     let measureFormat = '';
     for (let i = 0, len = metadata.length; i < len; i++) {
@@ -1532,7 +1533,7 @@ function createSelectorData(options, host, formatSettings) {
         datapoints: SPCChartDataPoints,
         n: SPCChartDataPoints.length,
         direction,
-        target: null,
+        target,
         meanValue,
         UCLValue,
         LCLValue,
@@ -1873,6 +1874,19 @@ class SPCChart {
             .attr("color", getFillColor(colorObjects, 'enableAxis', 'fill', this.host.colorPalette, this.formattingSettings.enableAxis.fill.value.value));
         xAxisObject.selectAll('.xAxis path, line')
             .attr('opacity', 0);
+        //Create target line
+        // if(this.formattingSettings.SPCSettings.lineOptions.showControl.value){
+        this.lineTarget
+            .style("stroke-linecap", "round")
+            .attr("class", "target")
+            .attr("x1", widthChartStart)
+            .attr("x2", widthChartEnd)
+            .attr("y1", function (d) { return yScale(data.target); })
+            .attr("y2", function (d) { return yScale(data.target); })
+            .attr("fill", "none")
+            .attr("stroke", "red")
+            .attr("stroke-width", 2);
+        //}
         //Create data line
         this.lineData
             .datum(this.dataPoints)
@@ -1954,22 +1968,6 @@ class SPCChart {
             this.lineLCL
                 .attr("stroke-width", 0);
         }
-        //Create target line
-        // if(this.formattingSettings.SPCSettings.lineOptions.showControl.value){
-        console.log(this.formattingSettings.SPCSettings.spcSetUp.target.value.valueOf());
-        let targetLine = Number(this.formattingSettings.SPCSettings.spcSetUp.target.value.valueOf());
-        console.log(targetLine);
-        this.lineTarget
-            .style("stroke-linecap", "round")
-            .attr("class", "ControlLimit")
-            .attr("x1", widthChartStart)
-            .attr("x2", widthChartEnd)
-            .attr("y1", function (d) { return yScale(targetLine); })
-            .attr("y2", function (d) { return yScale(targetLine); })
-            .attr("fill", "none")
-            .attr("stroke", "red")
-            .attr("stroke-width", 2);
-        //}
         //Create Zone lines 
         if (this.formattingSettings.SPCSettings.lineOptions.showSubControl.value) {
             this.lineUpperZoneA
