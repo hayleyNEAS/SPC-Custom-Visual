@@ -15,12 +15,23 @@ declare class LogoOptions extends SimpleCard {
     displayName?: string;
     slices: Array<FormattingSettingsSlice>;
 }
+declare class LineOptions extends SimpleCard {
+    showControl: formattingSettings.ToggleSwitch;
+    upperCL: formattingSettings.ColorPicker;
+    lowerCL: formattingSettings.ColorPicker;
+    showSubControl: formattingSettings.ToggleSwitch;
+    showMean: formattingSettings.ToggleSwitch;
+    name: string;
+    displayName?: string;
+    slices: Array<FormattingSettingsSlice>;
+}
 declare class MarkerOptions extends SimpleCard {
     showMarker: formattingSettings.ToggleSwitch;
     topLevelSlice: formattingSettings.ToggleSwitch;
     outlier: formattingSettings.ColorPicker;
     run: formattingSettings.ColorPicker;
     oneside: formattingSettings.ColorPicker;
+    twoInThree: formattingSettings.ColorPicker;
     name: string;
     displayName?: string;
     slices: Array<FormattingSettingsSlice>;
@@ -28,10 +39,11 @@ declare class MarkerOptions extends SimpleCard {
 declare class SPC extends CompCard {
     spcSetUp: SPCSetUp;
     logoOptions: LogoOptions;
+    lineOptions: LineOptions;
     markerOptions: MarkerOptions;
     name: string;
     displayName: string;
-    groups: (SPCSetUp | MarkerOptions | LogoOptions)[];
+    groups: (SPCSetUp | MarkerOptions | LogoOptions | LineOptions)[];
 }
 /**
  * Enable x-Axis Formatting Card

@@ -1382,7 +1382,6 @@ const variation_ciLow = __webpack_require__(4837);
 const variation_ccLow = __webpack_require__(1069);
 function logoSelector(data) {
     //let dataPoints = data.datapoints
-    console.log(data);
     if (data.direction > 0) {
         if (data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1) {
             return variation_ciHigh;
@@ -1396,10 +1395,10 @@ function logoSelector(data) {
     }
     if (data.direction < 0) {
         if (data.outlier == -1 || data.run == -1 || data.shift == -1 || data.twoInThree == -1) {
-            return variation_ccHigh;
+            return variation_ciLow;
         }
         if (data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1) {
-            return variation_ciLow;
+            return variation_ccHigh;
         }
         else {
             return variation_noChange;
@@ -1407,6 +1406,24 @@ function logoSelector(data) {
     }
     if (data.direction = 0) {
         console.log("no direction");
+    }
+}
+function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
+    if (Direction = 1) {
+        if (value > Upper_Zone_A) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+    else {
+        if (value < Lower_Zone_A) {
+            return 1;
+        }
+        else {
+            0;
+        }
     }
 }
 function createSelectorData(options, host, formatSettings) {
@@ -1434,44 +1451,62 @@ function createSelectorData(options, host, formatSettings) {
         .reduce((a, b) => a + b, 0) / (nPoints - 1);
     let UCLValue = meanValue + 2.66 * avgDiff;
     let LCLValue = meanValue - 2.66 * avgDiff;
+    let Upper_Zone_A = meanValue + 2.66 * avgDiff * 2 / 3;
+    let Lower_Zone_A = meanValue - 2.66 * avgDiff * 2 / 3;
+    let Upper_Zone_B = meanValue + 2.66 * avgDiff * 1 / 3;
+    let Lower_Zone_B = meanValue - 2.66 * avgDiff * 1 / 3;
     let outlier = 0;
     let run = 0;
     let shift = 0;
+    let twoInThree = 0;
     //SPC Marker Colors Rules        
     //find group of 7
     for (let i = 0; i < nPoints; i++) {
+        if (i > 3) { //two in three rules 
+            let latest3 = SPCChartDataPoints.slice(i - 3 + 1, i + 1);
+            let twoInThreeCheck = latest3
+                .map((d) => twoInThreeRule(d.value, Upper_Zone_A, Lower_Zone_A, direction))
+                .reduce((a, b) => a + b, 0);
+            if (Math.abs(twoInThreeCheck) >= 2) {
+                latest3.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.twoInThree.value.value);
+                latest3.forEach(d => d.markerSize = 3);
+                latest3.forEach(d => d.twoInThree = 1);
+            }
+        }
         let p = 7;
         if (i > p) {
-            let lastest7 = SPCChartDataPoints.slice(i - p + 1, i + 1);
-            console.log(lastest7);
+            let latest7 = SPCChartDataPoints.slice(i - p + 1, i + 1);
             //run of 7
-            let runOfNumbers = lastest7
+            let runOfNumbers = latest7
                 .map((d) => Math.sign(d.difference))
                 .reduce((a, b) => a + b, 0);
             if (runOfNumbers == p) {
-                lastest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.run.value.value);
-                lastest7.forEach(d => d.markerSize = 3);
-                let run = 1;
+                latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.run.value.value);
+                latest7.forEach(d => d.markerSize = 3);
+                latest7.forEach(d => d.run = 1);
             }
             if (runOfNumbers == -1 * p) {
-                lastest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.run.value.value);
-                lastest7.forEach(d => d.markerSize = 3);
-                let run = -1;
+                latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.run.value.value);
+                latest7.forEach(d => d.markerSize = 3);
+                latest7.forEach(d => d.run = -1);
             }
             //oneside of mean 
-            let shift7 = lastest7
+            let shift7 = latest7
                 .map((d) => Math.sign(d.value - meanValue))
                 .reduce((a, b) => a + b, 0);
             if (shift7 == p) {
-                lastest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.oneside.value.value);
-                lastest7.forEach(d => d.markerSize = 3);
-                let shift = 1;
+                latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.oneside.value.value);
+                latest7.forEach(d => d.markerSize = 3);
+                latest7.forEach(d => d.shift = 1);
             }
             if (shift7 == -1 * p) {
-                lastest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.oneside.value.value);
-                lastest7.forEach(d => d.markerSize = 3);
-                let shift = -1;
+                latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.oneside.value.value);
+                latest7.forEach(d => d.markerSize = 3);
+                latest7.forEach(d => d.shift = -1);
             }
+        }
+        if (i > 15) {
+            let latest15 = SPCChartDataPoints.slice(i - 15 + 1, i + 1);
         }
     }
     //SPC Marker Colors Rules 
@@ -1480,14 +1515,18 @@ function createSelectorData(options, host, formatSettings) {
         if (SPCChartDataPoints[i].value > UCLValue) {
             SPCChartDataPoints[i].color = formatSettings.SPCSettings.markerOptions.outlier.value.value;
             SPCChartDataPoints[i].markerSize = 3;
-            let outlier = 1;
+            SPCChartDataPoints[i].outlier = 1;
         }
         if (SPCChartDataPoints[i].value < LCLValue) {
             SPCChartDataPoints[i].color = formatSettings.SPCSettings.markerOptions.outlier.value.value;
             SPCChartDataPoints[i].markerSize = 3;
-            let outlier = -1;
+            SPCChartDataPoints[i].outlier = -1;
         }
     }
+    outlier = SPCChartDataPoints[nPoints - 1].outlier;
+    run = SPCChartDataPoints[nPoints - 1].run;
+    shift = SPCChartDataPoints[nPoints - 1].shift;
+    twoInThree = SPCChartDataPoints[nPoints - 1].twoInThree;
     return {
         datapoints: SPCChartDataPoints,
         n: SPCChartDataPoints.length,
@@ -1496,13 +1535,17 @@ function createSelectorData(options, host, formatSettings) {
         meanValue,
         UCLValue,
         LCLValue,
+        Upper_Zone_A,
+        Upper_Zone_B,
+        Lower_Zone_A,
+        Lower_Zone_B,
         strokeWidth: 2,
         strokeColor: 'steelblue',
         measureFormat,
         outlier,
         run,
         shift,
-        twoInThree: 0
+        twoInThree
     };
 }
 function createSelectorDataPoints(options, host) {
@@ -1534,7 +1577,11 @@ function createSelectorDataPoints(options, host) {
             selectionId,
             value: dataValue.values[i],
             difference: diff,
-            category: category.values[i]
+            category: category.values[i],
+            outlier: 0,
+            run: 0,
+            shift: 0,
+            twoInThree: 0
         });
     }
     return SPCChartDataPoints;
@@ -1572,6 +1619,10 @@ class SPCChart {
     lineMean;
     lineUCL;
     lineLCL;
+    lineUpperZoneA;
+    lineUpperZoneB;
+    lineLowerZoneA;
+    lineLowerZoneB;
     dataMarkers;
     dataPoints;
     formattingSettings;
@@ -1603,14 +1654,14 @@ class SPCChart {
         this.svg = (0,d3_selection__WEBPACK_IMPORTED_MODULE_5__/* ["default"] */ .Z)(options.element)
             .append('svg')
             .classed('SPCChart', true);
-        this.logo = this.svg
-            .append('image');
         this.xAxis = this.svg
             .append('g')
             .classed('xAxis', true);
         this.yAxis = this.svg
             .append('g')
             .classed('yAxis', true);
+        this.logo = this.svg
+            .append('image');
         this.lineData = this.svg
             .append('path')
             .classed('line', true);
@@ -1626,6 +1677,18 @@ class SPCChart {
             .append('line')
             .classed('line', true);
         this.lineLCL = this.svg
+            .append('line')
+            .classed('line', true);
+        this.lineUpperZoneA = this.svg
+            .append('line')
+            .classed('line', true);
+        this.lineUpperZoneB = this.svg
+            .append('line')
+            .classed('line', true);
+        this.lineLowerZoneA = this.svg
+            .append('line')
+            .classed('line', true);
+        this.lineLowerZoneB = this.svg
             .append('line')
             .classed('line', true);
     }
@@ -1822,39 +1885,110 @@ class SPCChart {
             .y(function (d) { return yScale(<number>d.difference) })
         )*/
         //Create mean line
-        this.lineMean
-            .style("stroke-linecap", "round")
-            .attr("class", "mean")
-            .attr("x1", widthChartStart)
-            .attr("x2", widthChartEnd)
-            .attr("y1", function (d) { return yScale(data.meanValue); })
-            .attr("y2", function (d) { return yScale(data.meanValue); })
-            .attr("fill", "none")
-            .attr("stroke", "black")
-            .attr("stroke-width", 1.5);
+        if (this.formattingSettings.SPCSettings.lineOptions.showMean.value) {
+            this.lineMean
+                .style("stroke-linecap", "round")
+                .attr("class", "mean")
+                .attr("x1", widthChartStart)
+                .attr("x2", widthChartEnd)
+                .attr("y1", function (d) { return yScale(data.meanValue); })
+                .attr("y2", function (d) { return yScale(data.meanValue); })
+                .attr("fill", "none")
+                .attr("stroke", "black")
+                .attr("stroke-width", 1.5);
+        }
+        else {
+            this.lineMean
+                .attr("stroke-width", 0);
+        }
         //Create limit lines   
-        this.lineUCL
-            .style("stroke-dasharray", ("5,5"))
-            .style("stroke-linecap", "round")
-            .attr("class", "mean")
-            .attr("x1", widthChartStart)
-            .attr("x2", widthChartEnd)
-            .attr("y1", function (d) { return yScale(data.UCLValue); })
-            .attr("y2", function (d) { return yScale(data.UCLValue); })
-            .attr("fill", "none")
-            .attr("stroke", "black")
-            .attr("stroke-width", 2);
-        this.lineLCL
-            .style("stroke-dasharray", ("5,5"))
-            .style("stroke-linecap", "round")
-            .attr("class", "mean")
-            .attr("x1", widthChartStart)
-            .attr("x2", widthChartEnd)
-            .attr("y1", function (d) { return yScale(data.LCLValue); })
-            .attr("y2", function (d) { return yScale(data.LCLValue); })
-            .attr("fill", "none")
-            .attr("stroke", "black")
-            .attr("stroke-width", 2);
+        if (this.formattingSettings.SPCSettings.lineOptions.showControl.value) {
+            this.lineUCL
+                .style("stroke-dasharray", ("5,5"))
+                .style("stroke-linecap", "round")
+                .attr("class", "ControlLimit")
+                .attr("x1", widthChartStart)
+                .attr("x2", widthChartEnd)
+                .attr("y1", function (d) { return yScale(data.UCLValue); })
+                .attr("y2", function (d) { return yScale(data.UCLValue); })
+                .attr("fill", "none")
+                .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value)
+                .attr("stroke-width", 2);
+            this.lineLCL
+                .style("stroke-dasharray", ("5,5"))
+                .style("stroke-linecap", "round")
+                .attr("class", "ControlLimit")
+                .attr("x1", widthChartStart)
+                .attr("x2", widthChartEnd)
+                .attr("y1", function (d) { return yScale(data.LCLValue); })
+                .attr("y2", function (d) { return yScale(data.LCLValue); })
+                .attr("fill", "none")
+                .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value)
+                .attr("stroke-width", 2);
+        }
+        else {
+            this.lineUCL
+                .attr("stroke-width", 0);
+            this.lineLCL
+                .attr("stroke-width", 0);
+        }
+        //Create Zone lines 
+        if (this.formattingSettings.SPCSettings.lineOptions.showSubControl.value) {
+            this.lineUpperZoneA
+                .style("stroke-dasharray", ("5,5"))
+                .style("stroke-linecap", "round")
+                .attr("class", "subControl")
+                .attr("x1", widthChartStart)
+                .attr("x2", widthChartEnd)
+                .attr("y1", function (d) { return yScale(data.Upper_Zone_A); })
+                .attr("y2", function (d) { return yScale(data.Upper_Zone_A); })
+                .attr("fill", "none")
+                .attr("stroke", "black")
+                .attr("stroke-width", 1);
+            this.lineUpperZoneB
+                .style("stroke-dasharray", ("5,5"))
+                .style("stroke-linecap", "round")
+                .attr("class", "subControl")
+                .attr("x1", widthChartStart)
+                .attr("x2", widthChartEnd)
+                .attr("y1", function (d) { return yScale(data.Upper_Zone_B); })
+                .attr("y2", function (d) { return yScale(data.Upper_Zone_B); })
+                .attr("fill", "none")
+                .attr("stroke", "black")
+                .attr("stroke-width", 1);
+            this.lineLowerZoneA
+                .style("stroke-dasharray", ("5,5"))
+                .style("stroke-linecap", "round")
+                .attr("class", "subControl")
+                .attr("x1", widthChartStart)
+                .attr("x2", widthChartEnd)
+                .attr("y1", function (d) { return yScale(data.Lower_Zone_A); })
+                .attr("y2", function (d) { return yScale(data.Lower_Zone_A); })
+                .attr("fill", "none")
+                .attr("stroke", "black")
+                .attr("stroke-width", 1);
+            this.lineLowerZoneB
+                .style("stroke-dasharray", ("5,5"))
+                .style("stroke-linecap", "round")
+                .attr("class", "subControl")
+                .attr("x1", widthChartStart)
+                .attr("x2", widthChartEnd)
+                .attr("y1", function (d) { return yScale(data.Lower_Zone_B); })
+                .attr("y2", function (d) { return yScale(data.Lower_Zone_B); })
+                .attr("fill", "none")
+                .attr("stroke", "black")
+                .attr("stroke-width", 1);
+        }
+        else {
+            this.lineUpperZoneA
+                .attr("stroke-width", 0);
+            this.lineUpperZoneB
+                .attr("stroke-width", 0);
+            this.lineLowerZoneA
+                .attr("stroke-width", 0);
+            this.lineLowerZoneB
+                .attr("stroke-width", 0);
+        }
     }
     getFormattingModel() {
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
@@ -1898,6 +2032,36 @@ class LogoOptions extends SimpleCard {
     displayName = "Logo Options";
     slices = [this.show];
 }
+class LineOptions extends SimpleCard {
+    showControl = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
+        name: "showControl",
+        displayName: "Show Control Limits",
+        value: true
+    });
+    upperCL = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
+        name: "upperCL",
+        displayName: "Upper Control Limit Color",
+        value: { value: "#777777" }
+    });
+    lowerCL = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
+        name: "lowerCL",
+        displayName: "Lower Control Limit Color",
+        value: { value: "#777777" }
+    });
+    showSubControl = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
+        name: "showSubControl",
+        displayName: "Show Sub-Control Limits",
+        value: true
+    });
+    showMean = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
+        name: "showMean",
+        displayName: "Show Average",
+        value: true
+    });
+    name = "lineOptions";
+    displayName = "Line Options";
+    slices = [this.showControl, this.upperCL, this.lowerCL, this.showSubControl, this.showMean];
+}
 class MarkerOptions extends SimpleCard {
     showMarker = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
         name: "showMarker",
@@ -1920,17 +2084,23 @@ class MarkerOptions extends SimpleCard {
         displayName: "Oneside of Mean Color",
         value: { value: "orange" }
     });
+    twoInThree = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
+        name: "twoInThree",
+        displayName: "Two In three",
+        value: { value: "pink" }
+    });
     name = "markerOptions";
     displayName = "Marker Options";
-    slices = [this.outlier, this.run, this.oneside];
+    slices = [this.outlier, this.run, this.oneside, this.twoInThree];
 }
 class SPC extends CompCard {
     spcSetUp = new SPCSetUp();
     logoOptions = new LogoOptions();
+    lineOptions = new LineOptions();
     markerOptions = new MarkerOptions();
     name = "SPCSettings";
     displayName = 'SPC Settings';
-    groups = [this.spcSetUp, this.logoOptions, this.markerOptions];
+    groups = [this.spcSetUp, this.logoOptions, this.lineOptions, this.markerOptions];
 }
 /**
  * Enable x-Axis Formatting Card

@@ -44,7 +44,6 @@ const variation_ccLow = require("./../assets/variation_ccLow.png")
 
 function logoSelector(data: SPCChartData): any {
     //let dataPoints = data.datapoints
-    console.log(data)
     if(data.direction > 0) {
           if(data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1){return variation_ciHigh
         } if(data.outlier ==-1 || data.run ==-1 || data.shift ==-1 || data.twoInThree ==-1){return variation_ccLow
@@ -52,8 +51,8 @@ function logoSelector(data: SPCChartData): any {
             return variation_noChange
         }
     } if (data.direction < 0) {
-          if(data.outlier ==-1 || data.run ==-1 || data.shift ==-1 || data.twoInThree ==-1){return variation_ccHigh
-        } if(data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1){return variation_ciLow
+          if(data.outlier ==-1 || data.run ==-1 || data.shift ==-1 || data.twoInThree ==-1){return variation_ciLow
+        } if(data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1){return variation_ccHigh
         } else {return variation_noChange
         }
     } if (data.direction = 0) {
@@ -62,6 +61,21 @@ function logoSelector(data: SPCChartData): any {
 }
 
 
+function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction){
+    if(Direction = 1){
+        if(value > Upper_Zone_A){
+            return 1
+        } else {
+            return 0 
+        }
+    } else {
+        if(value < Lower_Zone_A){
+            return 1
+        } else {
+            0
+        }
+    }
+}
 
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
 
@@ -75,6 +89,10 @@ export interface SPCChartData {
     meanValue: number;
     UCLValue: number;
     LCLValue: number;
+    Upper_Zone_A: number;
+    Upper_Zone_B: number;
+    Lower_Zone_A: number;
+    Lower_Zone_B: number;
     
     strokeWidth: number;
     strokeColor: string;
@@ -94,6 +112,11 @@ export interface SPCChartDataPoint {
     color: string; //for the marker
     markerSize: number;
     selectionId: ISelectionId;
+
+    outlier: number;
+    run: number;
+    shift: number;
+    twoInThree: number;
 }
 
 function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, formatSettings: BarChartSettingsModel): SPCChartData {
@@ -127,45 +150,63 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     let UCLValue = meanValue + 2.66*avgDiff
     let LCLValue = meanValue - 2.66*avgDiff
 
+    let Upper_Zone_A = meanValue + 2.66*avgDiff*2/3
+    let Lower_Zone_A = meanValue - 2.66*avgDiff*2/3
     
+    let Upper_Zone_B = meanValue + 2.66*avgDiff*1/3
+    let Lower_Zone_B = meanValue - 2.66*avgDiff*1/3
 
 
     let outlier = 0
     let run = 0
     let shift = 0
+    let twoInThree = 0
     //SPC Marker Colors Rules        
         //find group of 7
     for(let i = 0; i < nPoints; i++) {
+        if(i > 3){ //two in three rules 
+            let latest3 = SPCChartDataPoints.slice(i-3+1, i+1)
+            let twoInThreeCheck = latest3
+                .map((d)=>twoInThreeRule(d.value, Upper_Zone_A, Lower_Zone_A, direction))
+                .reduce((a,b) => a+b, 0)
+            if(Math.abs(twoInThreeCheck) >= 2 ) {
+                latest3.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.twoInThree.value.value)
+                latest3.forEach(d => d.markerSize = 3)
+                latest3.forEach(d => d.twoInThree = 1)
+            }
+        }
         let p = 7
         if(i > p){
-            let lastest7 = SPCChartDataPoints.slice(i-p+1, i+1)
-            console.log(lastest7)
+            let latest7 = SPCChartDataPoints.slice(i-p+1, i+1)
             //run of 7
-            let runOfNumbers = lastest7
+            let runOfNumbers = latest7
                 .map((d)=>Math.sign(d.difference))
                 .reduce((a,b) => a+b,0)
             if( runOfNumbers == p) {
-                lastest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.run.value.value)
-                lastest7.forEach(d => d.markerSize = 3)
-                let run = 1
+                latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.run.value.value)
+                latest7.forEach(d => d.markerSize = 3)
+                latest7.forEach(d => d.run = 1)
             } if ( runOfNumbers == -1*p) {
-                lastest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.run.value.value)
-                lastest7.forEach(d => d.markerSize = 3)
-                let run = -1
+                latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.run.value.value)
+                latest7.forEach(d => d.markerSize = 3)
+                latest7.forEach(d => d.run = -1)
             } 
             //oneside of mean 
-            let shift7 = lastest7
+            let shift7 = latest7
                 .map((d)=>Math.sign(<number>d.value - meanValue))
                 .reduce((a,b) => a+b, 0)
             if ( shift7 == p){
-                lastest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.oneside.value.value)
-                lastest7.forEach(d => d.markerSize = 3)
-                let shift = 1
+                latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.oneside.value.value)
+                latest7.forEach(d => d.markerSize = 3)
+                latest7.forEach(d => d.shift = 1)
             } if ( shift7 == -1*p) {
-                lastest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.oneside.value.value)
-                lastest7.forEach(d => d.markerSize = 3)
-                let shift = -1
+                latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.oneside.value.value)
+                latest7.forEach(d => d.markerSize = 3)
+                latest7.forEach(d => d.shift = -1)
             }
+        }
+        if(i > 15){
+            let latest15 = SPCChartDataPoints.slice(i-15+1, i+1)
         }
     }
 
@@ -175,15 +216,21 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
             if(<number>SPCChartDataPoints[i].value > UCLValue){
                 SPCChartDataPoints[i].color = formatSettings.SPCSettings.markerOptions.outlier.value.value
                 SPCChartDataPoints[i].markerSize = 3
-                let outlier = 1
+                SPCChartDataPoints[i].outlier = 1
             }
             if(<number>SPCChartDataPoints[i].value < LCLValue){
                 SPCChartDataPoints[i].color = formatSettings.SPCSettings.markerOptions.outlier.value.value
                 SPCChartDataPoints[i].markerSize = 3
-                let outlier = -1
+                SPCChartDataPoints[i].outlier = -1
             } 
             
         }
+
+    outlier = SPCChartDataPoints[nPoints-1].outlier
+    run = SPCChartDataPoints[nPoints-1].run
+    shift = SPCChartDataPoints[nPoints-1].shift
+    twoInThree = SPCChartDataPoints[nPoints-1].twoInThree
+
     
     return {
         datapoints: SPCChartDataPoints,
@@ -195,6 +242,11 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
         meanValue,
         UCLValue,
         LCLValue,
+        
+        Upper_Zone_A,
+        Upper_Zone_B,
+        Lower_Zone_A,
+        Lower_Zone_B,
 
         strokeWidth:2,
         strokeColor:'steelblue',
@@ -204,7 +256,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
         outlier,
         run,
         shift,
-        twoInThree: 0
+        twoInThree
     }
 }
 
@@ -244,7 +296,12 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
             selectionId,
             value: dataValue.values[i],
             difference: diff,
-            category: <string>category.values[i] 
+            category: <string>category.values[i] ,
+
+            outlier: 0,
+            run: 0 ,
+            shift: 0 ,
+            twoInThree: 0
         });
     }
 
@@ -311,6 +368,10 @@ export class SPCChart implements IVisual {
     private lineMean: Selection<SVGElement>;
     private lineUCL: Selection<SVGElement>;
     private lineLCL: Selection<SVGElement>;
+    private lineUpperZoneA: Selection<SVGElement>;
+    private lineUpperZoneB: Selection<SVGElement>;
+    private lineLowerZoneA: Selection<SVGElement>;
+    private lineLowerZoneB: Selection<SVGElement>;
 
     private dataMarkers: Selection<SVGElement>;
 
@@ -349,9 +410,6 @@ export class SPCChart implements IVisual {
             .append('svg')
             .classed('SPCChart', true);
         
-        this.logo = this.svg
-            .append('image')
-
         this.xAxis = this.svg
             .append('g')
             .classed('xAxis', true);
@@ -359,6 +417,9 @@ export class SPCChart implements IVisual {
         this.yAxis = this.svg
             .append('g')
             .classed('yAxis', true);
+
+        this.logo = this.svg
+            .append('image')    
 
         this.lineData = this.svg
             .append('path')
@@ -380,6 +441,22 @@ export class SPCChart implements IVisual {
             .classed('line', true)
         
         this.lineLCL = this.svg
+            .append('line')
+            .classed('line', true)
+            
+        this.lineUpperZoneA = this.svg
+            .append('line')
+            .classed('line', true)
+        
+        this.lineUpperZoneB = this.svg
+            .append('line')
+            .classed('line', true)
+            
+        this.lineLowerZoneA = this.svg
+            .append('line')
+            .classed('line', true)
+        
+        this.lineLowerZoneB = this.svg
             .append('line')
             .classed('line', true)
     }
@@ -620,42 +697,116 @@ export class SPCChart implements IVisual {
                 .y(function (d) { return yScale(<number>d.difference) })
             )*/
         //Create mean line
-        this.lineMean
-            .style("stroke-linecap", "round")
-            .attr("class", "mean")
-            .attr("x1", widthChartStart)
-            .attr("x2", widthChartEnd)
-            .attr("y1", function(d){ return yScale(data.meanValue);})
-            .attr("y2", function(d){ return yScale(data.meanValue);})
-            .attr("fill", "none")
-            .attr("stroke", "black")
-            .attr("stroke-width", 1.5)
-
+        if(this.formattingSettings.SPCSettings.lineOptions.showMean.value){
+            this.lineMean
+                .style("stroke-linecap", "round")
+                .attr("class", "mean")
+                .attr("x1", widthChartStart)
+                .attr("x2", widthChartEnd)
+                .attr("y1", function(d){ return yScale(data.meanValue);})
+                .attr("y2", function(d){ return yScale(data.meanValue);})
+                .attr("fill", "none")
+                .attr("stroke", "black")
+                .attr("stroke-width", 1.5)
+        } else {
+            this.lineMean
+                .attr("stroke-width", 0)
+        }
+        
         //Create limit lines   
-        this.lineUCL
-            .style("stroke-dasharray", ("5,5"))
-            .style("stroke-linecap", "round")
-            .attr("class", "mean")
-            .attr("x1", widthChartStart)
-            .attr("x2", widthChartEnd)
-            .attr("y1", function(d){ return yScale(data.UCLValue);})
-            .attr("y2", function(d){ return yScale(data.UCLValue);})
-            .attr("fill", "none")
-            .attr("stroke", "black")
-            .attr("stroke-width", 2)
+        if(this.formattingSettings.SPCSettings.lineOptions.showControl.value){
+            this.lineUCL
+                .style("stroke-dasharray", ("5,5"))
+                .style("stroke-linecap", "round")
+                .attr("class", "ControlLimit")
+                .attr("x1", widthChartStart)
+                .attr("x2", widthChartEnd)
+                .attr("y1", function(d){ return yScale(data.UCLValue);})
+                .attr("y2", function(d){ return yScale(data.UCLValue);})
+                .attr("fill", "none")
+                .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value)
+                .attr("stroke-width", 2)
+                
+            this.lineLCL
+                .style("stroke-dasharray", ("5,5"))
+                .style("stroke-linecap", "round")
+                .attr("class", "ControlLimit")
+                .attr("x1", widthChartStart)
+                .attr("x2", widthChartEnd)
+                .attr("y1", function(d){ return yScale(data.LCLValue);})
+                .attr("y2", function(d){ return yScale(data.LCLValue);})
+                .attr("fill", "none")
+                .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value)
+                .attr("stroke-width", 2)
+        } else {
+            this.lineUCL
+                .attr("stroke-width", 0)
             
-        this.lineLCL
+            this.lineLCL
+                .attr("stroke-width", 0)
+        }
+        //Create Zone lines 
+        if(this.formattingSettings.SPCSettings.lineOptions.showSubControl.value){
+        this.lineUpperZoneA
             .style("stroke-dasharray", ("5,5"))
             .style("stroke-linecap", "round")
-            .attr("class", "mean")
+            .attr("class", "subControl")
             .attr("x1", widthChartStart)
             .attr("x2", widthChartEnd)
-            .attr("y1", function(d){ return yScale(data.LCLValue);})
-            .attr("y2", function(d){ return yScale(data.LCLValue);})
+            .attr("y1", function(d){ return yScale(data.Upper_Zone_A);})
+            .attr("y2", function(d){ return yScale(data.Upper_Zone_A);})
             .attr("fill", "none")
             .attr("stroke", "black")
-            .attr("stroke-width", 2)
+            .attr("stroke-width", 1)
+        
+        this.lineUpperZoneB
+            .style("stroke-dasharray", ("5,5"))
+            .style("stroke-linecap", "round")
+            .attr("class", "subControl")
+            .attr("x1", widthChartStart)
+            .attr("x2", widthChartEnd)
+            .attr("y1", function(d){ return yScale(data.Upper_Zone_B);})
+            .attr("y2", function(d){ return yScale(data.Upper_Zone_B);})
+            .attr("fill", "none")
+            .attr("stroke", "black")
+            .attr("stroke-width", 1)
 
+        this.lineLowerZoneA
+            .style("stroke-dasharray", ("5,5"))
+            .style("stroke-linecap", "round")
+            .attr("class", "subControl")
+            .attr("x1", widthChartStart)
+            .attr("x2", widthChartEnd)
+            .attr("y1", function(d){ return yScale(data.Lower_Zone_A);})
+            .attr("y2", function(d){ return yScale(data.Lower_Zone_A);})
+            .attr("fill", "none")
+            .attr("stroke", "black")
+            .attr("stroke-width", 1)
+            
+        this.lineLowerZoneB
+            .style("stroke-dasharray", ("5,5"))
+            .style("stroke-linecap", "round")
+            .attr("class", "subControl")
+            .attr("x1", widthChartStart)
+            .attr("x2", widthChartEnd)
+            .attr("y1", function(d){ return yScale(data.Lower_Zone_B);})
+            .attr("y2", function(d){ return yScale(data.Lower_Zone_B);})
+            .attr("fill", "none")
+            .attr("stroke", "black")
+            .attr("stroke-width", 1)
+        } else {
+            this.lineUpperZoneA
+            .attr("stroke-width", 0)
+        
+        this.lineUpperZoneB
+            .attr("stroke-width", 0)
+
+        this.lineLowerZoneA
+            .attr("stroke-width", 0)
+            
+        this.lineLowerZoneB
+            .attr("stroke-width", 0)
+        }
     }
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {

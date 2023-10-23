@@ -14,6 +14,10 @@ export interface SPCChartData {
     meanValue: number;
     UCLValue: number;
     LCLValue: number;
+    Upper_Zone_A: number;
+    Upper_Zone_B: number;
+    Lower_Zone_A: number;
+    Lower_Zone_B: number;
     strokeWidth: number;
     strokeColor: string;
     measureFormat: string;
@@ -29,6 +33,10 @@ export interface SPCChartDataPoint {
     color: string;
     markerSize: number;
     selectionId: ISelectionId;
+    outlier: number;
+    run: number;
+    shift: number;
+    twoInThree: number;
 }
 export declare class SPCChart implements IVisual {
     private svg;
@@ -42,6 +50,10 @@ export declare class SPCChart implements IVisual {
     private lineMean;
     private lineUCL;
     private lineLCL;
+    private lineUpperZoneA;
+    private lineUpperZoneB;
+    private lineLowerZoneA;
+    private lineLowerZoneB;
     private dataMarkers;
     private dataPoints;
     private formattingSettings;

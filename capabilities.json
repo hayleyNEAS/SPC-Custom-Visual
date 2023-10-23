@@ -61,6 +61,39 @@
                         "bool": true
                     }
                 },
+                "showControl": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "upperCL": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "lowerCL": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "showSubControl": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showMean": {
+                    "type": {
+                        "bool": true
+                    }
+                },
                 "showMarker": {
                     "type": {
                         "bool": true
@@ -85,6 +118,15 @@
                     }
                 },
                 "oneside": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "twoInThree": {
                     "type": {
                         "fill": {
                             "solid": {

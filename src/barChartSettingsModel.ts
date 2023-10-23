@@ -31,6 +31,42 @@ class LogoOptions extends SimpleCard {
     slices: Array<FormattingSettingsSlice> = [this.show];
 }
 
+class LineOptions extends SimpleCard{
+    showControl = new formattingSettings.ToggleSwitch({
+        name: "showControl",
+        displayName: "Show Control Limits",
+        value: true
+    });
+
+    upperCL = new formattingSettings.ColorPicker({
+        name: "upperCL",
+        displayName: "Upper Control Limit Color",
+        value: { value: "#777777" }
+    });
+
+    lowerCL = new formattingSettings.ColorPicker({
+        name: "lowerCL",
+        displayName: "Lower Control Limit Color",
+        value: { value: "#777777" }
+    });
+
+    showSubControl = new formattingSettings.ToggleSwitch({
+        name: "showSubControl",
+        displayName: "Show Sub-Control Limits",
+        value: true
+    });
+
+    showMean = new formattingSettings.ToggleSwitch({
+        name: "showMean",
+        displayName: "Show Average",
+        value: true
+    });
+    
+
+    name: string = "lineOptions";
+    displayName?: string = "Line Options";
+    slices: Array<FormattingSettingsSlice> = [this.showControl, this.upperCL, this.lowerCL, this.showSubControl, this.showMean];
+}
 
 class MarkerOptions extends SimpleCard {
     showMarker = new formattingSettings.ToggleSwitch({
@@ -59,19 +95,27 @@ class MarkerOptions extends SimpleCard {
         value: { value: "orange" }
     });
 
+    twoInThree = new formattingSettings.ColorPicker({
+        name: "twoInThree",
+        displayName: "Two In three",
+        value: { value: "pink" }
+    });
+
     name: string = "markerOptions";
     displayName?: string = "Marker Options";
-    slices: Array<FormattingSettingsSlice> = [this.outlier, this.run, this.oneside];
+    slices: Array<FormattingSettingsSlice> = [this.outlier, this.run, this.oneside, this.twoInThree];
 }
 
 class SPC extends CompCard {
     spcSetUp = new SPCSetUp();
     logoOptions = new LogoOptions();
+    lineOptions = new LineOptions();
     markerOptions = new MarkerOptions();
+
 
     name: string = "SPCSettings";
     displayName: string = 'SPC Settings';
-    groups = [this.spcSetUp, this.logoOptions, this.markerOptions]
+    groups = [this.spcSetUp, this.logoOptions, this.lineOptions, this.markerOptions]
 }
 /**
  * Enable x-Axis Formatting Card
