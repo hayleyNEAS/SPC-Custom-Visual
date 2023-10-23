@@ -42,6 +42,7 @@ export declare class SPCChart implements IVisual {
     private svg;
     private tooltip;
     private logo;
+    private logoTarget;
     private host;
     private xAxis;
     private yAxis;

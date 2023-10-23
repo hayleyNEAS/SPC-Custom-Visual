@@ -42,27 +42,58 @@ const variation_ccHigh = require("./../assets/variation_ccHigh.png")
 const variation_ciLow = require("./../assets/variation_ciLow.png")
 const variation_ccLow = require("./../assets/variation_ccLow.png")
 
-function logoSelector(data: SPCChartData): any {
-    //let dataPoints = data.datapoints
-    if (data.direction > 0) {
-        if (data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1) {
-            return variation_ciHigh
-        } if (data.outlier == -1 || data.run == -1 || data.shift == -1 || data.twoInThree == -1) {
-            return variation_ccLow
-        } else {
-            return variation_noChange
+const atTarget = require("./../assets/assurance_atTarget.png")
+const fail_above = require("./../assets/fail_above.png")
+const fail_below = require("./../assets/fail_below.png")
+const pass_above = require("./../assets/pass_above.png")
+const pass_below = require("./../assets/pass_below.png")
+
+
+function logoSelector(data: SPCChartData, option): any {
+    if (option == "variation") {
+        //let dataPoints = data.datapoints
+        if (data.direction > 0) {
+            if (data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1) {
+                return variation_ciHigh
+            } if (data.outlier == -1 || data.run == -1 || data.shift == -1 || data.twoInThree == -1) {
+                return variation_ccLow
+            } else {
+                return variation_noChange
+            }
+        } if (data.direction < 0) {
+            if (data.outlier == -1 || data.run == -1 || data.shift == -1 || data.twoInThree == -1) {
+                return variation_ciLow
+            } if (data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1) {
+                return variation_ccHigh
+            } else {
+                return variation_noChange
+            }
+        } if (data.direction = 0) {
+            console.log("no direction")
         }
-    } if (data.direction < 0) {
-        if (data.outlier == -1 || data.run == -1 || data.shift == -1 || data.twoInThree == -1) {
-            return variation_ciLow
-        } if (data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1) {
-            return variation_ccHigh
-        } else {
-            return variation_noChange
+    } 
+    
+    if (option == "target") {
+        if (data.direction < 0) {
+            if (data.target < data.LCLValue) {
+                return fail_above
+            } if (data.target >= data.UCLValue) {
+                return pass_below
+            } else { //TODO Check target exists 
+                return atTarget
+            }
+
+        } if (data.direction > 0) {
+            if (data.target < data.LCLValue) {
+                return pass_above
+            } if (data.target >= data.UCLValue) {
+                return fail_above
+            } else {
+                return atTarget
+            }
         }
-    } if (data.direction = 0) {
-        console.log("no direction")
     }
+
 }
 
 
@@ -363,6 +394,7 @@ export class SPCChart implements IVisual {
     private svg: Selection<any>;
     private tooltip: Selection<any>;
     private logo: Selection<any>;
+    private logoTarget: Selection<any>;
 
     private host: IVisualHost;
     //private barContainer: Selection<SVGElement>;
@@ -426,6 +458,9 @@ export class SPCChart implements IVisual {
             .classed('yAxis', true);
 
         this.logo = this.svg
+            .append('image')
+
+        this.logoTarget = this.svg
             .append('image')
 
         this.lineData = this.svg
@@ -637,11 +672,11 @@ export class SPCChart implements IVisual {
         if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == -1) {
             logoX = widthChartStart
         } if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 0) {
-            logoX = (widthChartEnd - widthChartStart) / 2 + widthChartStart - 25
+            logoX = (widthChartEnd - widthChartStart) / 2 + widthChartStart - 50
         } if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 1) {
-            logoX = widthChartEnd - 50
+            logoX = widthChartEnd - 100
         }
-        let logo = logoSelector(data)
+        let logo = logoSelector(data, "variation")
         if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
             this.logo
                 .attr('href', logo)
@@ -651,6 +686,20 @@ export class SPCChart implements IVisual {
                 .attr('y', 0)
         } else {
             this.logo
+                .attr('width', 0)
+                .attr('height', 0)
+        }
+
+        let logoTarget = logoSelector(data, "target")
+        if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
+            this.logoTarget
+                .attr('href', logoTarget)
+                .attr('width', 50)
+                .attr('height', 50)
+                .attr('x', logoX + 50)
+                .attr('y', 0)
+        } else {
+            this.logoTarget
                 .attr('width', 0)
                 .attr('height', 0)
         }
