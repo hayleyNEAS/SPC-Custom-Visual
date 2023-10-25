@@ -1689,6 +1689,15 @@ class SPCChart {
         this.svg = (0,d3_selection__WEBPACK_IMPORTED_MODULE_5__/* ["default"] */ .Z)(options.element)
             .append('svg')
             .classed('SPCChart', true);
+        this.tooltip = (0,d3_selection__WEBPACK_IMPORTED_MODULE_5__/* ["default"] */ .Z)(options.element)
+            .append('div')
+            .text("This is text")
+            .style("top", "50px")
+            .style("left", "50px")
+            .style("background-color", "pink")
+            .style("position", "absolute")
+            .classed('tooltip', true);
+        console.log(this.tooltip);
         this.xAxis = this.svg
             .append('g')
             .classed('xAxis', true);
@@ -1782,6 +1791,25 @@ class SPCChart {
         //   return 'test'
         // }
         return 'ff';
+    }
+    // Three function that change the tooltip when user hover / move / leave a cell
+    mouseover(p, d) {
+        this.tooltip
+            .style("opacity", 1)
+            .style("stroke", "black")
+            .style("opacity", 1);
+    }
+    mousemove(p, d) {
+        this.tooltip
+            .html("The exact value of<br>this cell is: " + d.datapoints.values)
+            .style("left", (p[0] + 70) + "px")
+            .style("top", (p[1]) + "px");
+    }
+    mouseleave(p, d) {
+        this.tooltip
+            .style("opacity", 0)
+            .style("stroke", "none")
+            .style("opacity", 0.8);
     }
     /**
      * Updates the state of the visual. Every sequential databinding and resize will call update.
@@ -1903,9 +1931,9 @@ class SPCChart {
                 .attr('y', 0);
         }
         else {
-            this.logoTarget
-                .attr('width', 0)
-                .attr('height', 0);
+            //this.logoTarget
+            //    .attr('width', 0)
+            //.attr('height', 0)
         }
         //Set up the X Axis
         this.xAxis
@@ -2073,6 +2101,27 @@ class SPCChart {
             this.lineLowerZoneB
                 .attr("stroke-width", 0);
         }
+        //ToolTips
+        let tt = this.tooltip;
+        this.svg
+            .on('mouseover', function () {
+            console.log('on');
+        })
+            .on('mousemove', function (ev) {
+            let pointer = d3__WEBPACK_IMPORTED_MODULE_0__/* .pointer */ .cx$(ev);
+            if (pointer[1] < height) {
+                tt
+                    .style("left", pointer[0] + "px")
+                    .style("top", pointer[1] + "px");
+            }
+            else {
+                tt
+                    .style("top", height + "px");
+            }
+        })
+            .on('mouseleave', function () {
+            console.log('left');
+        });
     }
     getFormattingModel() {
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
@@ -5931,6 +5980,33 @@ function creatorFixed(fullname) {
 
 /***/ }),
 
+/***/ 950:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   cx: () => (/* reexport safe */ _pointer_js__WEBPACK_IMPORTED_MODULE_0__.Z)
+/* harmony export */ });
+/* harmony import */ var _pointer_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(109);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/***/ }),
+
 /***/ 4421:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
@@ -5991,6 +6067,38 @@ var xhtml = "http://www.w3.org/1999/xhtml";
   xml: "http://www.w3.org/XML/1998/namespace",
   xmlns: "http://www.w3.org/2000/xmlns/"
 });
+
+
+/***/ }),
+
+/***/ 109:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Z: () => (/* export default binding */ __WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _sourceEvent_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(439);
+
+
+/* harmony default export */ function __WEBPACK_DEFAULT_EXPORT__(event, node) {
+  event = (0,_sourceEvent_js__WEBPACK_IMPORTED_MODULE_0__/* ["default"] */ .Z)(event);
+  if (node === undefined) node = event.currentTarget;
+  if (node) {
+    var svg = node.ownerSVGElement || node;
+    if (svg.createSVGPoint) {
+      var point = svg.createSVGPoint();
+      point.x = event.clientX, point.y = event.clientY;
+      point = point.matrixTransform(node.getScreenCTM().inverse());
+      return [point.x, point.y];
+    }
+    if (node.getBoundingClientRect) {
+      var rect = node.getBoundingClientRect();
+      return [event.clientX - rect.left - node.clientLeft, event.clientY - rect.top - node.clientTop];
+    }
+  }
+  return [event.pageX, event.pageY];
+}
 
 
 /***/ }),
@@ -7372,6 +7480,22 @@ function empty() {
   return selector == null ? empty : function() {
     return this.querySelectorAll(selector);
   };
+}
+
+
+/***/ }),
+
+/***/ 439:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Z: () => (/* export default binding */ __WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ function __WEBPACK_DEFAULT_EXPORT__(event) {
+  let sourceEvent;
+  while (sourceEvent = event.sourceEvent) event = sourceEvent;
+  return event;
 }
 
 
@@ -10697,14 +10821,16 @@ function defaultConstrain(transform, extent, translateExtent) {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   Z1g: () => (/* reexport safe */ d3_time_format__WEBPACK_IMPORTED_MODULE_2__.Z1),
-/* harmony export */   jvg: () => (/* reexport safe */ d3_shape__WEBPACK_IMPORTED_MODULE_1__.jv)
+/* harmony export */   Z1g: () => (/* reexport safe */ d3_time_format__WEBPACK_IMPORTED_MODULE_3__.Z1),
+/* harmony export */   cx$: () => (/* reexport safe */ d3_selection__WEBPACK_IMPORTED_MODULE_1__.cx),
+/* harmony export */   jvg: () => (/* reexport safe */ d3_shape__WEBPACK_IMPORTED_MODULE_2__.jv)
 /* harmony export */ });
 /* harmony import */ var d3_brush__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9961);
-/* harmony import */ var d3_shape__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8285);
-/* harmony import */ var d3_time_format__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(4809);
-/* harmony import */ var d3_transition__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(3399);
-/* harmony import */ var d3_zoom__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(5180);
+/* harmony import */ var d3_selection__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(950);
+/* harmony import */ var d3_shape__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8285);
+/* harmony import */ var d3_time_format__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(4809);
+/* harmony import */ var d3_transition__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(3399);
+/* harmony import */ var d3_zoom__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(5180);
 
 
 

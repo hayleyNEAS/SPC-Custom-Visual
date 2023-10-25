@@ -83,6 +83,9 @@ export declare class SPCChart implements IVisual {
     constructor(options: VisualConstructorOptions);
     private parseDateLabel;
     private parseYLabel;
+    private mouseover;
+    private mousemove;
+    private mouseleave;
     /**
      * Updates the state of the visual. Every sequential databinding and resize will call update.
      *

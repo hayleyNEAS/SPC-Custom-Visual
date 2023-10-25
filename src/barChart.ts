@@ -96,7 +96,6 @@ function logoSelector(data: SPCChartData, option): any {
 
 }
 
-
 function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
     if (Direction = 1) {
         if (value > Upper_Zone_A) {
@@ -345,7 +344,6 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
     return SPCChartDataPoints;
 }
 
-
 function getFillColor(
     objects: DataViewObjects,
     objectString: string,
@@ -389,6 +387,8 @@ function getYAxisTextFillColor(
         },
     ).solid.color;
 }
+
+
 
 export class SPCChart implements IVisual {
     private svg: Selection<any>;
@@ -448,6 +448,16 @@ export class SPCChart implements IVisual {
         this.svg = d3Select(options.element)
             .append('svg')
             .classed('SPCChart', true);
+
+        this.tooltip = d3Select(options.element)
+            .append('div')
+            .text("This is text")
+            .style("top", "50px")
+            .style("left", "50px")
+            .style("background-color", "pink")
+            .style("position", "absolute")
+            .classed('tooltip', true);
+        console.log(this.tooltip)
 
         this.xAxis = this.svg
             .append('g')
@@ -559,6 +569,28 @@ export class SPCChart implements IVisual {
         return 'ff'
     }
 
+      // Three function that change the tooltip when user hover / move / leave a cell
+    private mouseover(p:[number, number] , d: SPCChartData) {
+    this.tooltip
+        .style("opacity", 1)
+        .style("stroke", "black")
+        .style("opacity", 1)
+}
+    private mousemove(p:[number, number], d: SPCChartData) {
+    this.tooltip
+        .html("The exact value of<br>this cell is: " + d.datapoints.values)
+        .style("left", (p[0] + 70) + "px")
+        .style("top", (p[1]) + "px")
+}
+
+
+    private mouseleave(p:[number, number], d: SPCChartData) {
+        this.tooltip
+            .style("opacity", 0)
+            .style("stroke", "none")
+            .style("opacity", 0.8)
+    }
+
     /**
      * Updates the state of the visual. Every sequential databinding and resize will call update.
      *
@@ -581,6 +613,7 @@ export class SPCChart implements IVisual {
         let margins = SPCChart.Config.margins;
         let widthChartStart = 0;
         let widthChartEnd = 0.99 * width;
+
 
         this.svg
             .attr("width", width)
@@ -699,9 +732,9 @@ export class SPCChart implements IVisual {
                 .attr('x', logoX + 50)
                 .attr('y', 0)
         } else {
-            this.logoTarget
-                .attr('width', 0)
-                .attr('height', 0)
+            //this.logoTarget
+            //    .attr('width', 0)
+            //.attr('height', 0)
         }
 
         //Set up the X Axis
@@ -898,7 +931,31 @@ export class SPCChart implements IVisual {
             this.lineLowerZoneB
                 .attr("stroke-width", 0)
         }
+
+        //ToolTips
+        let tt = this.tooltip;
+        this.svg
+            .on('mouseover', function() {
+                console.log('on')
+            })
+            .on('mousemove', function(ev) {   
+                let pointer =  d3.pointer(ev)
+                if(pointer[1] < height){
+                    tt
+                    .style("left",pointer[0] + "px")
+                    .style("top", pointer[1] + "px")
+                } else {
+                    tt
+                    .style("top", height + "px")
+                }
+                    
+                              })
+            .on('mouseleave', function() {
+                console.log('left')
+            });
+
     }
+
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
