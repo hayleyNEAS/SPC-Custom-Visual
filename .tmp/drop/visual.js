@@ -581,6 +581,110 @@ function getPropertyValue(slice, value, defaultValue) {
 
 /***/ }),
 
+/***/ 8297:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   a: () => (/* binding */ DefaultHandleTouchDelay)
+/* harmony export */ });
+const DefaultHandleTouchDelay = 500;
+//# sourceMappingURL=constants.js.map
+
+/***/ }),
+
+/***/ 9472:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   p: () => (/* binding */ createTooltipServiceWrapper)
+/* harmony export */ });
+/* unused harmony export TooltipServiceWrapper */
+/* harmony import */ var d3_selection__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4264);
+/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8297);
+
+
+function createTooltipServiceWrapper(tooltipService, rootElement, // this argument is deprecated and is optional now, just to maintain visuals with tooltiputils logic written for versions bellow 3.0.0
+handleTouchDelay = _constants__WEBPACK_IMPORTED_MODULE_0__/* .DefaultHandleTouchDelay */ .a) {
+    return new TooltipServiceWrapper({
+        tooltipService: tooltipService,
+        handleTouchDelay: handleTouchDelay,
+    });
+}
+class TooltipServiceWrapper {
+    constructor(options) {
+        this.visualHostTooltipService = options.tooltipService;
+        this.handleTouchDelay = options.handleTouchDelay;
+    }
+    addTooltip(selection, getTooltipInfoDelegate, getDataPointIdentity, reloadTooltipDataOnMouseMove) {
+        if (!selection || !this.visualHostTooltipService.enabled()) {
+            return;
+        }
+        const internalSelection = (0,d3_selection__WEBPACK_IMPORTED_MODULE_1__/* ["default"] */ .Z)(selection.nodes());
+        const callTooltip = (func, event, tooltipInfo, selectionIds) => {
+            const coordinates = [event.clientX, event.clientY];
+            func.call(this.visualHostTooltipService, {
+                coordinates: coordinates,
+                isTouchEvent: event.pointerType === "touch",
+                dataItems: tooltipInfo,
+                identities: selectionIds
+            });
+        };
+        internalSelection.on("pointerover", (event, data) => {
+            const tooltipInfo = getTooltipInfoDelegate(data);
+            if (tooltipInfo == null) {
+                return;
+            }
+            const selectionIds = getDataPointIdentity ? [getDataPointIdentity(data)] : [];
+            if (event.pointerType === "mouse") {
+                callTooltip(this.visualHostTooltipService.show, event, tooltipInfo, selectionIds);
+            }
+            if (event.pointerType === "touch") {
+                this.handleTouchTimeoutId = window.setTimeout(() => {
+                    callTooltip(this.visualHostTooltipService.show, event, tooltipInfo, selectionIds);
+                    this.handleTouchTimeoutId = undefined;
+                }, this.handleTouchDelay);
+            }
+        });
+        internalSelection.on("pointerout", (event) => {
+            if (event.pointerType === "mouse") {
+                this.visualHostTooltipService.hide({
+                    isTouchEvent: false,
+                    immediately: false,
+                });
+            }
+            if (event.pointerType === "touch") {
+                this.cancelTouchTimeoutEvents();
+            }
+        });
+        internalSelection.on("pointermove", (event, data) => {
+            if (event.pointerType === "mouse") {
+                let tooltipInfo;
+                if (reloadTooltipDataOnMouseMove) {
+                    tooltipInfo = getTooltipInfoDelegate(data);
+                    if (tooltipInfo == null) {
+                        return;
+                    }
+                }
+                const selectionIds = getDataPointIdentity ? [getDataPointIdentity(data)] : [];
+                callTooltip(this.visualHostTooltipService.move, event, tooltipInfo, selectionIds);
+            }
+        });
+    }
+    cancelTouchTimeoutEvents() {
+        if (this.handleTouchTimeoutId) {
+            clearTimeout(this.handleTouchTimeoutId);
+        }
+    }
+    hide() {
+        this.visualHostTooltipService.hide({ immediately: true, isTouchEvent: false });
+    }
+}
+//# sourceMappingURL=tooltipService.js.map
+
+/***/ }),
+
 /***/ 5666:
 /***/ ((module) => {
 
@@ -1356,16 +1460,18 @@ try {
 /* harmony export */   u: () => (/* binding */ SPCChart)
 /* harmony export */ });
 /* unused harmony export SPCChart */
-/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(5036);
-/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(7808);
+/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(5036);
+/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(7808);
 /* harmony import */ var d3_selection__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(3838);
-/* harmony import */ var d3_axis__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(924);
+/* harmony import */ var d3_axis__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(924);
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8976);
 /* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5666);
 /* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(4261);
+/* harmony import */ var powerbi_visuals_utils_tooltiputils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(9472);
 /* harmony import */ var _barChartSettingsModel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2446);
 /* harmony import */ var _objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(6363);
+
 
 
 
@@ -1381,11 +1487,11 @@ const variation_ciHigh = __webpack_require__(3484);
 const variation_ccHigh = __webpack_require__(4201);
 const variation_ciLow = __webpack_require__(4837);
 const variation_ccLow = __webpack_require__(1069);
-const atTarget = __webpack_require__(523);
-const fail_above = __webpack_require__(359);
-const fail_below = __webpack_require__(564);
-const pass_above = __webpack_require__(151);
-const pass_below = __webpack_require__(525);
+const atTarget = __webpack_require__(7523);
+const fail_above = __webpack_require__(3359);
+const fail_below = __webpack_require__(2564);
+const pass_above = __webpack_require__(4151);
+const pass_below = __webpack_require__(9525);
 function logoSelector(data, option) {
     if (option == "variation") {
         //let dataPoints = data.datapoints
@@ -1464,11 +1570,20 @@ function createSelectorData(options, host, formatSettings) {
     let target = Number(formatSettings.SPCSettings.spcSetUp.target.value.valueOf());
     let metadata = options.dataViews[0].metadata.columns;
     let measureFormat = '';
+    let decimalPlaces = 0;
+    let measureName = '';
     for (let i = 0, len = metadata.length; i < len; i++) {
         let meta = metadata[i];
         if (meta.isMeasure) {
+            console.log(meta);
+            measureName = meta.displayName;
             if (meta.format.includes('%')) {
                 measureFormat = '%';
+            }
+            if (meta.format.includes('.')) {
+                decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1).length;
+                console.log(decimalPlaces);
+                measureFormat = 's';
             }
             else {
                 measureFormat = 's';
@@ -1574,7 +1689,9 @@ function createSelectorData(options, host, formatSettings) {
         Lower_Zone_B,
         strokeWidth: 2,
         strokeColor: 'steelblue',
+        measureName,
         measureFormat,
+        decimalPlaces,
         outlier,
         run,
         shift,
@@ -1641,11 +1758,9 @@ function getYAxisTextFillColor(objects, colorPalette, defaultColor) {
 }
 class SPCChart {
     svg;
-    tooltip;
     logo;
     logoTarget;
     host;
-    //private barContainer: Selection<SVGElement>;
     xAxis;
     yAxis;
     lineData;
@@ -1659,10 +1774,12 @@ class SPCChart {
     lineLowerZoneB;
     lineTarget;
     dataMarkers;
+    tooltipMarkers;
     dataPoints;
     formattingSettings;
     formattingSettingsService;
-    chartSelection;
+    tooltipServiceWrapper;
+    locale;
     static Config = {
         xScalePadding: 0.1,
         solidOpacity: 1,
@@ -1686,36 +1803,22 @@ class SPCChart {
         this.host = options.host;
         const localizationManager = this.host.createLocalizationManager();
         this.formattingSettingsService = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_4__/* ["default"] */ .Z(localizationManager);
+        this.locale = options.host.locale;
         this.svg = (0,d3_selection__WEBPACK_IMPORTED_MODULE_5__/* ["default"] */ .Z)(options.element)
             .append('svg')
             .classed('SPCChart', true);
-        this.tooltip = (0,d3_selection__WEBPACK_IMPORTED_MODULE_5__/* ["default"] */ .Z)(options.element)
-            .append('div')
-            .text("This is text")
-            .style("top", "50px")
-            .style("left", "50px")
-            .style("background-color", "pink")
-            .style("position", "absolute")
-            .classed('tooltip', true);
-        console.log(this.tooltip);
         this.xAxis = this.svg
             .append('g')
             .classed('xAxis', true);
         this.yAxis = this.svg
             .append('g')
             .classed('yAxis', true);
-        this.logo = this.svg
-            .append('image');
-        this.logoTarget = this.svg
-            .append('image');
         this.lineData = this.svg
             .append('path')
             .classed('line', true);
         this.lineData_Diff = this.svg
             .append('path')
             .classed('line', true);
-        this.dataMarkers = this.svg
-            .selectAll('dot.Markers');
         this.lineMean = this.svg
             .append('line')
             .classed('line', true);
@@ -1740,6 +1843,19 @@ class SPCChart {
         this.lineTarget = this.svg
             .append('line')
             .classed('line', true);
+        this.dataMarkers = this.svg
+            .append('g')
+            .classed('dataMarkers', true)
+            .selectAll();
+        this.tooltipMarkers = this.svg
+            .append('g')
+            .classed('dataMarkers', true)
+            .selectAll();
+        this.logo = this.svg
+            .append('image');
+        this.logoTarget = this.svg
+            .append('image');
+        this.tooltipServiceWrapper = (0,powerbi_visuals_utils_tooltiputils__WEBPACK_IMPORTED_MODULE_6__/* .createTooltipServiceWrapper */ .p)(this.host.tooltipService, options.element);
     }
     parseDateLabel(label, index) {
         let formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y');
@@ -1793,24 +1909,26 @@ class SPCChart {
         return 'ff';
     }
     // Three function that change the tooltip when user hover / move / leave a cell
-    mouseover(p, d) {
-        this.tooltip
-            .style("opacity", 1)
-            .style("stroke", "black")
-            .style("opacity", 1);
-    }
-    mousemove(p, d) {
-        this.tooltip
-            .html("The exact value of<br>this cell is: " + d.datapoints.values)
-            .style("left", (p[0] + 70) + "px")
-            .style("top", (p[1]) + "px");
-    }
-    mouseleave(p, d) {
-        this.tooltip
-            .style("opacity", 0)
-            .style("stroke", "none")
-            .style("opacity", 0.8);
-    }
+    /*     private mouseover(p: [number, number], d: SPCChartData) {
+            this.tooltip
+                .style("opacity", 1)
+                .style("stroke", "black")
+                .style("opacity", 1)
+        }
+        private mousemove(p: [number, number], d: SPCChartData) {
+            this.tooltip
+                .html("The exact value of<br>this cell is: " + d.datapoints.values)
+                .style("left", (p[0] + 70) + "px")
+                .style("top", (p[1]) + "px")
+        }
+    
+    
+        private mouseleave(p: [number, number], d: SPCChartData) {
+            this.tooltip
+                .style("opacity", 0)
+                .style("stroke", "none")
+                .style("opacity", 0.8)
+        } */
     /**
      * Updates the state of the visual. Every sequential databinding and resize will call update.
      *
@@ -1838,12 +1956,12 @@ class SPCChart {
         }
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
         //Set up the Y Axis
-        let yScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_6__/* ["default"] */ .Z)()
-            .domain([Math.min(options.dataViews[0].categorical.values[0].minLocal) * 0.9,
-            Math.max(options.dataViews[0].categorical.values[0].maxLocal) * 1.1])
+        let yScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_7__/* ["default"] */ .Z)()
+            .domain([Math.min(options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) * 0.9,
+            Math.max(options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) * 1.1])
             .range([height, 5]);
         let yTicks = 5;
-        let yAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_7__/* .axisLeft */ .y4)(yScale)
+        let yAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_8__/* .axisLeft */ .y4)(yScale)
             .tickSizeInner(-widthChartEnd);
         if (this.formattingSettings.enableYAxis.formatter.time.value) {
             yAxis = yAxis
@@ -1896,52 +2014,13 @@ class SPCChart {
             .style('font-family', 'inherit')
             .style('font-size', 11) //TODO make this a drop down
             .attr('transform', 'translate(' + (yShift) + ',0)');
-        // Move logo 
-        let logoX = widthChartStart;
-        if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == -1) {
-            logoX = widthChartStart;
-        }
-        if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 0) {
-            logoX = (widthChartEnd - widthChartStart) / 2 + widthChartStart - 50;
-        }
-        if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 1) {
-            logoX = widthChartEnd - 100;
-        }
-        let logo = logoSelector(data, "variation");
-        if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
-            this.logo
-                .attr('href', logo)
-                .attr('width', 50)
-                .attr('height', 50)
-                .attr('x', logoX)
-                .attr('y', 0);
-        }
-        else {
-            this.logo
-                .attr('width', 0)
-                .attr('height', 0);
-        }
-        let logoTarget = logoSelector(data, "target");
-        if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
-            this.logoTarget
-                .attr('href', logoTarget)
-                .attr('width', 50)
-                .attr('height', 50)
-                .attr('x', logoX + 50)
-                .attr('y', 0);
-        }
-        else {
-            //this.logoTarget
-            //    .attr('width', 0)
-            //.attr('height', 0)
-        }
         //Set up the X Axis
         this.xAxis
             .style("font-size", 11);
-        let xScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_8__/* .point */ .x)()
+        let xScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_9__/* .point */ .x)()
             .domain(this.dataPoints.map(d => d.category))
             .range([widthChartStart, widthChartEnd]);
-        let xAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_7__/* .axisBottom */ .LL)(xScale)
+        let xAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_8__/* .axisBottom */ .LL)(xScale)
             .tickFormat(this.parseDateLabel);
         let xAxisObject = this.xAxis
             .attr('transform', 'translate(0, ' + (height + 2) + ')')
@@ -1984,6 +2063,39 @@ class SPCChart {
             .attr("cy", function (d) { return yScale(d.value); })
             .attr("r", function (d) { return d.markerSize; })
             .attr("fill", function (d) { return d.color; });
+        this.tooltipMarkers
+            .data(this.dataPoints)
+            .enter()
+            .append("circle")
+            .attr("class", "markers tooltip")
+            .attr("cx", function (d) { return xScale(d.category); })
+            .attr("cy", function (d) { return yScale(d.value); })
+            .attr("r", function (d) { return 3; })
+            .attr("fill", function (d) { return data.strokeColor; })
+            .attr("opacity", 0);
+        let bandwidth = (widthChartEnd - widthChartStart) / (data.n - 1);
+        this.dataMarkers
+            .data(this.dataPoints)
+            .enter()
+            .append("rect")
+            .attr("class", "markers")
+            .attr("width", bandwidth)
+            .attr("height", height)
+            .attr("x", function (d) { return xScale(d.category) - bandwidth / 2; })
+            .attr("y", 0)
+            .attr("fill", function (d) { return d.color; })
+            .attr("opacity", 0); //invisable rectangles 
+        this.tooltipMarkers
+            .data(this.dataPoints)
+            .enter()
+            .append("rect")
+            .attr("class", "markers tooltip")
+            .attr("width", 0.05)
+            .attr("height", height)
+            .attr("x", function (d) { return xScale(d.category); })
+            .attr("y", 0)
+            .attr("stroke", "#777777")
+            .attr("opacity", 0); //invisable rectangles 
         /*
     this.lineData_Diff
         .datum(this.dataPoints)
@@ -2101,30 +2213,101 @@ class SPCChart {
             this.lineLowerZoneB
                 .attr("stroke-width", 0);
         }
+        // Move logo 
+        let logoX = widthChartStart;
+        if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == -1) {
+            logoX = widthChartStart;
+        }
+        if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 0) {
+            logoX = (widthChartEnd - widthChartStart) / 2 + widthChartStart - 50;
+        }
+        if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 1) {
+            logoX = widthChartEnd - 100;
+        }
+        let logo = logoSelector(data, "variation");
+        if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
+            this.logo
+                .attr('href', logo)
+                .attr('width', 50)
+                .attr('height', 50)
+                .attr('x', logoX)
+                .attr('y', 0);
+        }
+        else {
+            this.logo
+                .attr('width', 0)
+                .attr('height', 0);
+        }
+        let logoTarget = logoSelector(data, "target");
+        if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
+            this.logoTarget
+                .attr('href', logoTarget)
+                .attr('width', 50)
+                .attr('height', 50)
+                .attr('x', logoX + 50)
+                .attr('y', 0);
+        }
+        else {
+            //this.logoTarget
+            //    .attr('width', 0)
+            //.attr('height', 0)
+        }
         //ToolTips
-        let tt = this.tooltip;
+        let thissvg = this.svg;
+        let tt = this.tooltipMarkers;
+        let dm = this.dataPoints;
         this.svg
             .on('mouseover', function () {
             console.log('on');
         })
             .on('mousemove', function (ev) {
+            thissvg //clear previous tooltip
+                .selectAll('.markers.tooltip')
+                .attr("opacity", 0);
             let pointer = d3__WEBPACK_IMPORTED_MODULE_0__/* .pointer */ .cx$(ev);
-            if (pointer[1] < height) {
-                tt
-                    .style("left", pointer[0] + "px")
-                    .style("top", pointer[1] + "px");
-            }
-            else {
-                tt
-                    .style("top", height + "px");
-            }
+            let cats = dm.map(d => xScale(d.category));
+            let closest = cats.reduce(function (prev, curr) {
+                return (Math.abs(curr - pointer[0]) < Math.abs(prev - pointer[0]) ? curr : prev);
+            });
+            let index = cats.map(d => d == closest).indexOf(true);
+            let tooltiplines = thissvg
+                .selectAll('rect.markers.tooltip')
+                .nodes();
+            let tooltipmarkers = thissvg
+                .selectAll('circle.markers.tooltip')
+                .nodes();
+            (0,d3_selection__WEBPACK_IMPORTED_MODULE_5__/* ["default"] */ .Z)(tooltiplines[index])
+                .attr("opacity", 1);
+            (0,d3_selection__WEBPACK_IMPORTED_MODULE_5__/* ["default"] */ .Z)(tooltipmarkers[index])
+                .attr("opacity", 1);
+            console.log(pointer, pointer[0], cats, closest, index);
         })
             .on('mouseleave', function () {
+            thissvg
+                .selectAll('.markers.tooltip')
+                .attr("opacity", 0);
             console.log('left');
         });
+        this.tooltipServiceWrapper
+            .addTooltip(this.svg.selectAll('rect.markers'), (d) => this.getTooltipData(d, data), (d) => null, true);
     }
     getFormattingModel() {
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
+    }
+    getTooltipData(d, data) {
+        return [
+            {
+                header: d.category,
+                displayName: data.measureName,
+                value: d.value.toLocaleString(undefined, { minimumFractionDigits: data.decimalPlaces, maximumFractionDigits: data.decimalPlaces }),
+                color: data.strokeColor
+            },
+            {
+                displayName: "Upper Control Limit",
+                value: data.meanValue.toLocaleString(undefined, { minimumFractionDigits: data.decimalPlaces, maximumFractionDigits: data.decimalPlaces }),
+                color: "darkgrey"
+            }
+        ];
     }
 }
 
@@ -2198,7 +2381,7 @@ class LineOptions extends SimpleCard {
     showSubControl = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
         name: "showSubControl",
         displayName: "Show Sub-Control Limits",
-        value: true
+        value: false
     });
     showMean = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
         name: "showMean",
@@ -2387,7 +2570,7 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGcAAABkCAYAAAHs
 
 /***/ }),
 
-/***/ 523:
+/***/ 7523:
 /***/ ((module) => {
 
 "use strict";
@@ -2395,7 +2578,7 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGYAAABjCAYAAAEe
 
 /***/ }),
 
-/***/ 359:
+/***/ 3359:
 /***/ ((module) => {
 
 "use strict";
@@ -2403,7 +2586,7 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXoAAAF6CAYAAAAX
 
 /***/ }),
 
-/***/ 564:
+/***/ 2564:
 /***/ ((module) => {
 
 "use strict";
@@ -2411,7 +2594,7 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXoAAAF6CAYAAAAX
 
 /***/ }),
 
-/***/ 151:
+/***/ 4151:
 /***/ ((module) => {
 
 "use strict";
@@ -2419,7 +2602,7 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXwAAAF8CAYAAADM
 
 /***/ }),
 
-/***/ 525:
+/***/ 9525:
 /***/ ((module) => {
 
 "use strict";
@@ -5980,14 +6163,14 @@ function creatorFixed(fullname) {
 
 /***/ }),
 
-/***/ 950:
+/***/ 3950:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   cx: () => (/* reexport safe */ _pointer_js__WEBPACK_IMPORTED_MODULE_0__.Z)
 /* harmony export */ });
-/* harmony import */ var _pointer_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(109);
+/* harmony import */ var _pointer_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3109);
 
 
 
@@ -6071,14 +6254,14 @@ var xhtml = "http://www.w3.org/1999/xhtml";
 
 /***/ }),
 
-/***/ 109:
+/***/ 3109:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Z: () => (/* export default binding */ __WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _sourceEvent_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(439);
+/* harmony import */ var _sourceEvent_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9439);
 
 
 /* harmony default export */ function __WEBPACK_DEFAULT_EXPORT__(event, node) {
@@ -6117,6 +6300,27 @@ var xhtml = "http://www.w3.org/1999/xhtml";
   return typeof selector === "string"
       ? new _selection_index_js__WEBPACK_IMPORTED_MODULE_0__/* .Selection */ .Y1([[document.querySelector(selector)]], [document.documentElement])
       : new _selection_index_js__WEBPACK_IMPORTED_MODULE_0__/* .Selection */ .Y1([[selector]], _selection_index_js__WEBPACK_IMPORTED_MODULE_0__/* .root */ .Jz);
+}
+
+
+/***/ }),
+
+/***/ 4264:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Z: () => (/* export default binding */ __WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _array_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9898);
+/* harmony import */ var _selection_index_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8390);
+
+
+
+/* harmony default export */ function __WEBPACK_DEFAULT_EXPORT__(selector) {
+  return typeof selector === "string"
+      ? new _selection_index_js__WEBPACK_IMPORTED_MODULE_0__/* .Selection */ .Y1([document.querySelectorAll(selector)], [document.documentElement])
+      : new _selection_index_js__WEBPACK_IMPORTED_MODULE_0__/* .Selection */ .Y1([(0,_array_js__WEBPACK_IMPORTED_MODULE_1__/* ["default"] */ .Z)(selector)], _selection_index_js__WEBPACK_IMPORTED_MODULE_0__/* .root */ .Jz);
 }
 
 
@@ -7485,7 +7689,7 @@ function empty() {
 
 /***/ }),
 
-/***/ 439:
+/***/ 9439:
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -10826,7 +11030,7 @@ function defaultConstrain(transform, extent, translateExtent) {
 /* harmony export */   jvg: () => (/* reexport safe */ d3_shape__WEBPACK_IMPORTED_MODULE_2__.jv)
 /* harmony export */ });
 /* harmony import */ var d3_brush__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9961);
-/* harmony import */ var d3_selection__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(950);
+/* harmony import */ var d3_selection__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3950);
 /* harmony import */ var d3_shape__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(8285);
 /* harmony import */ var d3_time_format__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(4809);
 /* harmony import */ var d3_transition__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(3399);

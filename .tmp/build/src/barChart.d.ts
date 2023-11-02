@@ -20,7 +20,9 @@ export interface SPCChartData {
     Lower_Zone_B: number;
     strokeWidth: number;
     strokeColor: string;
+    measureName: string;
     measureFormat: string;
+    decimalPlaces: number;
     outlier: number;
     run: number;
     shift: number;
@@ -40,7 +42,6 @@ export interface SPCChartDataPoint {
 }
 export declare class SPCChart implements IVisual {
     private svg;
-    private tooltip;
     private logo;
     private logoTarget;
     private host;
@@ -57,10 +58,12 @@ export declare class SPCChart implements IVisual {
     private lineLowerZoneB;
     private lineTarget;
     private dataMarkers;
+    private tooltipMarkers;
     private dataPoints;
     private formattingSettings;
     private formattingSettingsService;
-    private chartSelection;
+    private tooltipServiceWrapper;
+    private locale;
     static Config: {
         xScalePadding: number;
         solidOpacity: number;
@@ -83,9 +86,6 @@ export declare class SPCChart implements IVisual {
     constructor(options: VisualConstructorOptions);
     private parseDateLabel;
     private parseYLabel;
-    private mouseover;
-    private mousemove;
-    private mouseleave;
     /**
      * Updates the state of the visual. Every sequential databinding and resize will call update.
      *
@@ -96,5 +96,6 @@ export declare class SPCChart implements IVisual {
      */
     update(options: VisualUpdateOptions): void;
     getFormattingModel(): powerbi.visuals.FormattingModel;
+    private getTooltipData;
 }
 export { SPCChart as Visual };

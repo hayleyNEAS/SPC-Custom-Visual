@@ -71,7 +71,7 @@ class LineOptions extends SimpleCard{
     showSubControl = new formattingSettings.ToggleSwitch({
         name: "showSubControl",
         displayName: "Show Sub-Control Limits",
-        value: true
+        value: false
     });
 
     showMean = new formattingSettings.ToggleSwitch({

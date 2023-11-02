@@ -23,14 +23,17 @@ import ISandboxExtendedColorPalette = powerbi.extensibility.ISandboxExtendedColo
 import ISelectionId = powerbi.visuals.ISelectionId;
 import IVisual = powerbi.extensibility.IVisual;
 import IVisualHost = powerbi.extensibility.visual.IVisualHost;
+import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
 import PrimitiveValue = powerbi.PrimitiveValue;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 
-import { textMeasurementService } from "powerbi-visuals-utils-formattingutils";
 import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
+import { createTooltipServiceWrapper, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
+import { textMeasurementService, valueFormatter } from "powerbi-visuals-utils-formattingutils";
 
 import { BarChartSettingsModel } from "./barChartSettingsModel";
+import { getLocalizedString } from "./localisation/localisationHelper"
 import { getCategoricalObjectValue, getValue } from "./objectEnumerationUtility";
 import { MarginPadding } from "powerbi-visuals-utils-formattingmodel/lib/FormattingSettingsComponents";
 
@@ -71,8 +74,8 @@ function logoSelector(data: SPCChartData, option): any {
         } if (data.direction = 0) {
             console.log("no direction")
         }
-    } 
-    
+    }
+
     if (option == "target") {
         if (data.direction < 0) {
             if (data.target < data.LCLValue) {
@@ -132,7 +135,9 @@ export interface SPCChartData {
     strokeWidth: number;
     strokeColor: string;
 
+    measureName: string;
     measureFormat: string;
+    decimalPlaces: number;
 
     outlier: number;
     run: number;
@@ -162,11 +167,19 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
 
     let metadata = options.dataViews[0].metadata.columns
     let measureFormat = ''
+    let decimalPlaces = 0
+    let measureName = ''
     for (let i = 0, len = metadata.length; i < len; i++) {
         let meta = metadata[i]
         if (meta.isMeasure) {
+            console.log(meta)
+            measureName = meta.displayName
             if (meta.format.includes('%')) {
                 measureFormat = '%'
+            } if (meta.format.includes('.')) {
+                decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1).length
+                console.log(decimalPlaces)
+                measureFormat = 's'
             } else {
                 measureFormat = 's'
             }
@@ -287,7 +300,9 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
         strokeWidth: 2,
         strokeColor: 'steelblue',
 
+        measureName,
         measureFormat,
+        decimalPlaces,
 
         outlier,
         run,
@@ -392,12 +407,11 @@ function getYAxisTextFillColor(
 
 export class SPCChart implements IVisual {
     private svg: Selection<any>;
-    private tooltip: Selection<any>;
+
     private logo: Selection<any>;
     private logoTarget: Selection<any>;
 
     private host: IVisualHost;
-    //private barContainer: Selection<SVGElement>;
     private xAxis: Selection<SVGElement>;
     private yAxis: Selection<SVGElement>;
 
@@ -413,12 +427,14 @@ export class SPCChart implements IVisual {
     private lineTarget: Selection<SVGElement>;
 
     private dataMarkers: Selection<SVGElement>;
+    private tooltipMarkers: Selection<SVGElement>;
 
     private dataPoints: SPCChartDataPoint[];
     private formattingSettings: BarChartSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
 
-    private chartSelection: d3.Selection<d3.BaseType, any, d3.BaseType, any>;
+    private tooltipServiceWrapper: ITooltipServiceWrapper;
+    private locale: string;
 
     static Config = {
         xScalePadding: 0.1,
@@ -444,20 +460,11 @@ export class SPCChart implements IVisual {
         this.host = options.host;
         const localizationManager = this.host.createLocalizationManager();
         this.formattingSettingsService = new FormattingSettingsService(localizationManager);
+        this.locale = options.host.locale;
 
         this.svg = d3Select(options.element)
             .append('svg')
             .classed('SPCChart', true);
-
-        this.tooltip = d3Select(options.element)
-            .append('div')
-            .text("This is text")
-            .style("top", "50px")
-            .style("left", "50px")
-            .style("background-color", "pink")
-            .style("position", "absolute")
-            .classed('tooltip', true);
-        console.log(this.tooltip)
 
         this.xAxis = this.svg
             .append('g')
@@ -467,12 +474,6 @@ export class SPCChart implements IVisual {
             .append('g')
             .classed('yAxis', true);
 
-        this.logo = this.svg
-            .append('image')
-
-        this.logoTarget = this.svg
-            .append('image')
-
         this.lineData = this.svg
             .append('path')
             .classed('line', true)
@@ -480,9 +481,6 @@ export class SPCChart implements IVisual {
         this.lineData_Diff = this.svg
             .append('path')
             .classed('line', true)
-
-        this.dataMarkers = this.svg
-            .selectAll('dot.Markers')
 
         this.lineMean = this.svg
             .append('line')
@@ -514,7 +512,25 @@ export class SPCChart implements IVisual {
 
         this.lineTarget = this.svg
             .append('line')
-            .classed('line', true)
+            .classed('line', true);
+
+        this.dataMarkers = this.svg
+            .append('g')
+            .classed('dataMarkers', true)
+            .selectAll();
+
+        this.tooltipMarkers = this.svg
+            .append('g')
+            .classed('dataMarkers', true)
+            .selectAll();
+
+        this.logo = this.svg
+            .append('image')
+
+        this.logoTarget = this.svg
+            .append('image');
+
+        this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, options.element);
     }
 
     private parseDateLabel(label: string, index: number) {
@@ -569,27 +585,27 @@ export class SPCChart implements IVisual {
         return 'ff'
     }
 
-      // Three function that change the tooltip when user hover / move / leave a cell
-    private mouseover(p:[number, number] , d: SPCChartData) {
-    this.tooltip
-        .style("opacity", 1)
-        .style("stroke", "black")
-        .style("opacity", 1)
-}
-    private mousemove(p:[number, number], d: SPCChartData) {
-    this.tooltip
-        .html("The exact value of<br>this cell is: " + d.datapoints.values)
-        .style("left", (p[0] + 70) + "px")
-        .style("top", (p[1]) + "px")
-}
-
-
-    private mouseleave(p:[number, number], d: SPCChartData) {
-        this.tooltip
-            .style("opacity", 0)
-            .style("stroke", "none")
-            .style("opacity", 0.8)
-    }
+    // Three function that change the tooltip when user hover / move / leave a cell
+    /*     private mouseover(p: [number, number], d: SPCChartData) {
+            this.tooltip
+                .style("opacity", 1)
+                .style("stroke", "black")
+                .style("opacity", 1)
+        }
+        private mousemove(p: [number, number], d: SPCChartData) {
+            this.tooltip
+                .html("The exact value of<br>this cell is: " + d.datapoints.values)
+                .style("left", (p[0] + 70) + "px")
+                .style("top", (p[1]) + "px")
+        }
+    
+    
+        private mouseleave(p: [number, number], d: SPCChartData) {
+            this.tooltip
+                .style("opacity", 0)
+                .style("stroke", "none")
+                .style("opacity", 0.8)
+        } */
 
     /**
      * Updates the state of the visual. Every sequential databinding and resize will call update.
@@ -628,8 +644,8 @@ export class SPCChart implements IVisual {
 
         //Set up the Y Axis
         let yScale = scaleLinear()
-            .domain([Math.min(<number>options.dataViews[0].categorical.values[0].minLocal) * 0.9,
-            Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal) * 1.1])
+            .domain([Math.min(<number>options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) * 0.9,
+            Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) * 1.1])
             .range([height, 5]);
 
         let yTicks = 5;
@@ -700,43 +716,6 @@ export class SPCChart implements IVisual {
             .style('font-size', 11) //TODO make this a drop down
             .attr('transform', 'translate(' + (yShift) + ',0)')
 
-        // Move logo 
-        let logoX = widthChartStart
-        if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == -1) {
-            logoX = widthChartStart
-        } if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 0) {
-            logoX = (widthChartEnd - widthChartStart) / 2 + widthChartStart - 50
-        } if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 1) {
-            logoX = widthChartEnd - 100
-        }
-        let logo = logoSelector(data, "variation")
-        if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
-            this.logo
-                .attr('href', logo)
-                .attr('width', 50)
-                .attr('height', 50)
-                .attr('x', logoX)
-                .attr('y', 0)
-        } else {
-            this.logo
-                .attr('width', 0)
-                .attr('height', 0)
-        }
-
-        let logoTarget = logoSelector(data, "target")
-        if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
-            this.logoTarget
-                .attr('href', logoTarget)
-                .attr('width', 50)
-                .attr('height', 50)
-                .attr('x', logoX + 50)
-                .attr('y', 0)
-        } else {
-            //this.logoTarget
-            //    .attr('width', 0)
-            //.attr('height', 0)
-        }
-
         //Set up the X Axis
 
         this.xAxis
@@ -783,6 +762,7 @@ export class SPCChart implements IVisual {
 
 
         //}
+
         //Create data line
         this.lineData
             .datum(this.dataPoints)
@@ -805,7 +785,45 @@ export class SPCChart implements IVisual {
             .attr("cx", function (d) { return xScale(d.category) })
             .attr("cy", function (d) { return yScale(<number>d.value) })
             .attr("r", function (d) { return d.markerSize })
+            .attr("fill", function (d) { return d.color });
+
+        this.tooltipMarkers
+            .data(this.dataPoints)
+            .enter()
+            .append("circle")
+            .attr("class", "markers tooltip")
+            .attr("cx", function (d) { return xScale(d.category) })
+            .attr("cy", function (d) { return yScale(<number>d.value) })
+            .attr("r", function (d) { return 3 })
+            .attr("fill", function (d) { return data.strokeColor })
+            .attr("opacity", 0);
+
+        let bandwidth = (widthChartEnd - widthChartStart) / (data.n - 1);
+
+        this.dataMarkers
+            .data(this.dataPoints)
+            .enter()
+            .append("rect")
+            .attr("class", "markers")
+            .attr("width", bandwidth)
+            .attr("height", height)
+            .attr("x", function (d) { return xScale(d.category) - bandwidth / 2 })
+            .attr("y", 0)
             .attr("fill", function (d) { return d.color })
+            .attr("opacity", 0); //invisable rectangles 
+
+        this.tooltipMarkers
+            .data(this.dataPoints)
+            .enter()
+            .append("rect")
+            .attr("class", "markers tooltip")
+            .attr("width", 0.05)
+            .attr("height", height)
+            .attr("x", function (d) { return xScale(d.category) })
+            .attr("y", 0)
+            .attr("stroke", "#777777")
+            .attr("opacity", 0) //invisable rectangles 
+
 
         /*
     this.lineData_Diff
@@ -931,34 +949,117 @@ export class SPCChart implements IVisual {
             this.lineLowerZoneB
                 .attr("stroke-width", 0)
         }
+        // Move logo 
+        let logoX = widthChartStart
+        if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == -1) {
+            logoX = widthChartStart
+        } if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 0) {
+            logoX = (widthChartEnd - widthChartStart) / 2 + widthChartStart - 50
+        } if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 1) {
+            logoX = widthChartEnd - 100
+        }
+        let logo = logoSelector(data, "variation")
+        if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
+            this.logo
+                .attr('href', logo)
+                .attr('width', 50)
+                .attr('height', 50)
+                .attr('x', logoX)
+                .attr('y', 0)
+        } else {
+            this.logo
+                .attr('width', 0)
+                .attr('height', 0)
+        }
+
+        let logoTarget = logoSelector(data, "target")
+        if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
+            this.logoTarget
+                .attr('href', logoTarget)
+                .attr('width', 50)
+                .attr('height', 50)
+                .attr('x', logoX + 50)
+                .attr('y', 0)
+        } else {
+            //this.logoTarget
+            //    .attr('width', 0)
+            //.attr('height', 0)
+        }
 
         //ToolTips
-        let tt = this.tooltip;
+        let thissvg = this.svg;
+        let tt = this.tooltipMarkers;
+        let dm = this.dataPoints;
+
         this.svg
-            .on('mouseover', function() {
+            .on('mouseover', function () {
                 console.log('on')
             })
-            .on('mousemove', function(ev) {   
-                let pointer =  d3.pointer(ev)
-                if(pointer[1] < height){
-                    tt
-                    .style("left",pointer[0] + "px")
-                    .style("top", pointer[1] + "px")
-                } else {
-                    tt
-                    .style("top", height + "px")
-                }
-                    
-                              })
-            .on('mouseleave', function() {
+            .on('mousemove', function (ev) {
+                thissvg //clear previous tooltip
+                    .selectAll('.markers.tooltip')
+                    .attr("opacity", 0);
+
+                let pointer = d3.pointer(ev)
+                let cats = dm.map(d => xScale(d.category))
+                let closest = cats.reduce(function (prev, curr) {
+                    return (Math.abs(curr - pointer[0]) < Math.abs(prev - pointer[0]) ? curr : prev);
+                });
+
+                let index = cats.map(d => d == closest).indexOf(true)
+                let tooltiplines = thissvg
+                    .selectAll('rect.markers.tooltip')
+                    .nodes();
+
+                let tooltipmarkers = thissvg
+                    .selectAll('circle.markers.tooltip')
+                    .nodes();
+
+                d3Select(tooltiplines[index])
+                    .attr("opacity", 1);
+
+                d3Select(tooltipmarkers[index])
+                    .attr("opacity", 1);
+
+                console.log(pointer, pointer[0], cats, closest, index)
+
+            })
+            .on('mouseleave', function () {
+                thissvg
+                    .selectAll('.markers.tooltip')
+                    .attr("opacity", 0);
                 console.log('left')
             });
+
+        this.tooltipServiceWrapper
+            .addTooltip(this.svg.selectAll('rect.markers'),
+                (d: SPCChartDataPoint) => this.getTooltipData(d, data),
+                (d: SPCChartDataPoint) => null,
+                true
+            );
 
     }
 
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
+    }
+
+    private getTooltipData(d: SPCChartDataPoint, data: SPCChartData): VisualTooltipDataItem[] {
+
+        return [
+            {
+                header: d.category,
+                displayName: data.measureName,
+                value: d.value.toLocaleString(undefined, { minimumFractionDigits: data.decimalPlaces, maximumFractionDigits: data.decimalPlaces }),
+                color: data.strokeColor
+            },
+            {
+                displayName: "Upper Control Limit",
+                value: data.meanValue.toLocaleString(undefined, { minimumFractionDigits: data.decimalPlaces, maximumFractionDigits: data.decimalPlaces }),
+                color: "darkgrey"
+            }
+        ];
     }
 
 }
