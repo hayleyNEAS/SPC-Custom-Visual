@@ -1,4 +1,4 @@
 import powerbiVisualsApi from "powerbi-visuals-api";
 import IVisualPlugin = powerbiVisualsApi.visuals.plugins.IVisualPlugin;
-declare var barChart690B60A9B92A4B3F9CD47387F807847E_DEBUG: IVisualPlugin;
-export default barChart690B60A9B92A4B3F9CD47387F807847E_DEBUG;
+declare var barCharte052449909264a3487139638376f9e72_DEBUG: IVisualPlugin;
+export default barCharte052449909264a3487139638376f9e72_DEBUG;

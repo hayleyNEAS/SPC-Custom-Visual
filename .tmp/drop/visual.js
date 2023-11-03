@@ -1,4 +1,4 @@
-var barChart690B60A9B92A4B3F9CD47387F807847E_DEBUG;
+var barCharte052449909264a3487139638376f9e72_DEBUG;
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
@@ -1460,17 +1460,19 @@ try {
 /* harmony export */   u: () => (/* binding */ SPCChart)
 /* harmony export */ });
 /* unused harmony export SPCChart */
-/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(5036);
-/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(7808);
-/* harmony import */ var d3_selection__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(3838);
-/* harmony import */ var d3_axis__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(924);
+/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(5036);
+/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(7808);
+/* harmony import */ var d3_selection__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(3838);
+/* harmony import */ var d3_axis__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(924);
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8976);
 /* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5666);
 /* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(4261);
-/* harmony import */ var powerbi_visuals_utils_tooltiputils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(9472);
+/* harmony import */ var powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(4261);
+/* harmony import */ var powerbi_visuals_utils_tooltiputils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(9472);
 /* harmony import */ var _barChartSettingsModel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2446);
-/* harmony import */ var _objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(6363);
+/* harmony import */ var _objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(6363);
+/* harmony import */ var _formattingFunctions__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(540);
+
 
 
 
@@ -1568,6 +1570,7 @@ function createSelectorData(options, host, formatSettings) {
     let SPCChartDataPoints = createSelectorDataPoints(options, host);
     let direction = formatSettings.SPCSettings.spcSetUp.direction.value.value;
     let target = Number(formatSettings.SPCSettings.spcSetUp.target.value.valueOf());
+    console.log(target);
     let metadata = options.dataViews[0].metadata.columns;
     let measureFormat = '';
     let decimalPlaces = 0;
@@ -1575,14 +1578,12 @@ function createSelectorData(options, host, formatSettings) {
     for (let i = 0, len = metadata.length; i < len; i++) {
         let meta = metadata[i];
         if (meta.isMeasure) {
-            console.log(meta);
             measureName = meta.displayName;
             if (meta.format.includes('%')) {
                 measureFormat = '%';
             }
             if (meta.format.includes('.')) {
                 decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1).length;
-                console.log(decimalPlaces);
                 measureFormat = 's';
             }
             else {
@@ -1740,7 +1741,7 @@ function getFillColor(objects, objectString, propString, colorPalette, defaultCo
     if (colorPalette.isHighContrast) {
         return colorPalette.foreground.value;
     }
-    return (0,_objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_3__/* .getValue */ .N)(objects, objectString, propString, {
+    return (0,_objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_4__/* .getValue */ .N)(objects, objectString, propString, {
         solid: {
             color: defaultColor,
         }
@@ -1750,7 +1751,7 @@ function getYAxisTextFillColor(objects, colorPalette, defaultColor) {
     if (colorPalette.isHighContrast) {
         return colorPalette.foreground.value;
     }
-    return (0,_objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_3__/* .getValue */ .N)(objects, "enableYAxis", "fill", {
+    return (0,_objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_4__/* .getValue */ .N)(objects, "enableYAxis", "fill", {
         solid: {
             color: defaultColor,
         }
@@ -1802,9 +1803,9 @@ class SPCChart {
     constructor(options) {
         this.host = options.host;
         const localizationManager = this.host.createLocalizationManager();
-        this.formattingSettingsService = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_4__/* ["default"] */ .Z(localizationManager);
+        this.formattingSettingsService = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_5__/* ["default"] */ .Z(localizationManager);
         this.locale = options.host.locale;
-        this.svg = (0,d3_selection__WEBPACK_IMPORTED_MODULE_5__/* ["default"] */ .Z)(options.element)
+        this.svg = (0,d3_selection__WEBPACK_IMPORTED_MODULE_6__/* ["default"] */ .Z)(options.element)
             .append('svg')
             .classed('SPCChart', true);
         this.xAxis = this.svg
@@ -1855,58 +1856,7 @@ class SPCChart {
             .append('image');
         this.logoTarget = this.svg
             .append('image');
-        this.tooltipServiceWrapper = (0,powerbi_visuals_utils_tooltiputils__WEBPACK_IMPORTED_MODULE_6__/* .createTooltipServiceWrapper */ .p)(this.host.tooltipService, options.element);
-    }
-    parseDateLabel(label, index) {
-        let formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y');
-        let parsed = formatter(label);
-        if (parsed) {
-            return parsed.getFullYear().toString();
-        }
-        formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q');
-        parsed = formatter(label);
-        if (parsed) {
-            if (parsed.getMonth() == 0) {
-                return parsed.getFullYear().toString();
-            }
-            else {
-                return '';
-            }
-        }
-        formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q %B');
-        parsed = formatter(label);
-        if (parsed) {
-            if (parsed.getMonth() == 0) {
-                return parsed.getFullYear().toString();
-            }
-            else {
-                return '';
-            }
-        }
-        formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q %B %-d');
-        parsed = formatter(label);
-        if (parsed) {
-            if (parsed.getMonth() == 0 && parsed.getDate() == 1) {
-                return parsed.getFullYear().toString();
-            }
-            else {
-                return '';
-            }
-        }
-        formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%B');
-        parsed = formatter(label);
-        if (parsed) {
-            return label.slice(0, 3);
-        }
-        return label;
-    }
-    parseYLabel(label) {
-        //let formatter = d3.timeParse('%Y');
-        //let parsed = formatter(label);
-        //if( this.formattingSettings.enableYAxis.time.value ){
-        //   return 'test'
-        // }
-        return 'ff';
+        this.tooltipServiceWrapper = (0,powerbi_visuals_utils_tooltiputils__WEBPACK_IMPORTED_MODULE_7__/* .createTooltipServiceWrapper */ .p)(this.host.tooltipService, options.element);
     }
     // Three function that change the tooltip when user hover / move / leave a cell
     /*     private mouseover(p: [number, number], d: SPCChartData) {
@@ -1956,29 +1906,17 @@ class SPCChart {
         }
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
         //Set up the Y Axis
-        let yScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_7__/* ["default"] */ .Z)()
+        let yScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_8__/* ["default"] */ .Z)()
             .domain([Math.min(options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) * 0.9,
             Math.max(options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) * 1.1])
             .range([height, 5]);
         let yTicks = 5;
-        let yAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_8__/* .axisLeft */ .y4)(yScale)
+        let yAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_9__/* .axisLeft */ .y4)(yScale)
             .tickSizeInner(-widthChartEnd);
         if (this.formattingSettings.enableYAxis.formatter.time.value) {
             yAxis = yAxis
                 .ticks(yTicks)
-                .tickFormat(function (d) {
-                let sign = '';
-                if (d < 0) {
-                    sign = '-', d = Math.abs(d);
-                }
-                let minutes = Math.floor(d / 60);
-                let hours = Math.floor(minutes / 60);
-                if (hours > 0) {
-                    minutes = minutes % 60;
-                }
-                let seconds = d % 60;
-                return sign + String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
-            });
+                .tickFormat(d => (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseinHMS */ .F)(d));
         }
         else {
             yAxis = yAxis
@@ -2017,16 +1955,16 @@ class SPCChart {
         //Set up the X Axis
         this.xAxis
             .style("font-size", 11);
-        let xScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_9__/* .point */ .x)()
+        let xScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_10__/* .point */ .x)()
             .domain(this.dataPoints.map(d => d.category))
             .range([widthChartStart, widthChartEnd]);
-        let xAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_8__/* .axisBottom */ .LL)(xScale)
-            .tickFormat(this.parseDateLabel);
+        let xAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_9__/* .axisBottom */ .LL)(xScale)
+            .tickFormat(_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseDateLabel */ .Y);
         let xAxisObject = this.xAxis
             .attr('transform', 'translate(0, ' + (height + 2) + ')')
             .call(xAxis)
             .transition().duration(500)
-            .attr("color", getFillColor(colorObjects, 'enableAxis', 'fill', this.host.colorPalette, this.formattingSettings.enableAxis.fill.value.value));
+            .attr("color", getFillColor(colorObjects, 'enableAxis', 'fill', this.host.colorPalette, this.formattingSettings.enableAxis.formatter.fill.value.value));
         xAxisObject.selectAll('.xAxis path, line')
             .attr('opacity', 0);
         //Create target line
@@ -2276,11 +2214,10 @@ class SPCChart {
             let tooltipmarkers = thissvg
                 .selectAll('circle.markers.tooltip')
                 .nodes();
-            (0,d3_selection__WEBPACK_IMPORTED_MODULE_5__/* ["default"] */ .Z)(tooltiplines[index])
+            (0,d3_selection__WEBPACK_IMPORTED_MODULE_6__/* ["default"] */ .Z)(tooltiplines[index])
                 .attr("opacity", 1);
-            (0,d3_selection__WEBPACK_IMPORTED_MODULE_5__/* ["default"] */ .Z)(tooltipmarkers[index])
+            (0,d3_selection__WEBPACK_IMPORTED_MODULE_6__/* ["default"] */ .Z)(tooltipmarkers[index])
                 .attr("opacity", 1);
-            console.log(pointer, pointer[0], cats, closest, index);
         })
             .on('mouseleave', function () {
             thissvg
@@ -2299,12 +2236,12 @@ class SPCChart {
             {
                 header: d.category,
                 displayName: data.measureName,
-                value: d.value.toLocaleString(undefined, { minimumFractionDigits: data.decimalPlaces, maximumFractionDigits: data.decimalPlaces }),
+                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseinHMS */ .F)(d.value),
                 color: data.strokeColor
             },
             {
                 displayName: "Upper Control Limit",
-                value: data.meanValue.toLocaleString(undefined, { minimumFractionDigits: data.decimalPlaces, maximumFractionDigits: data.decimalPlaces }),
+                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseinHMS */ .F)(data.UCLValue),
                 color: "darkgrey"
             }
         ];
@@ -2435,23 +2372,29 @@ class SPC extends CompCard {
 /**
  * Enable x-Axis Formatting Card
  */
-class EnableAxisCardSettings extends SimpleCard {
+class EnableAxisCardSettings extends CompCard {
     // Formatting property `show` toggle switch (formatting simple slice)
     show = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
         name: "show",
         displayName: undefined,
-        value: false,
-        //topLevelSlice: true
+        value: false
     });
+    topLevelSlice = this.show;
+    formatter = new XAxisFormatter();
+    name = "enableXAxis";
+    displayName = "X-axis";
+    groups = [this.formatter];
+}
+class XAxisFormatter extends SimpleCard {
     // Formatting property `fill` color picker (formatting simple slice)
     fill = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
         name: "fill",
         displayName: "Color",
         value: { value: "#777777" }
     });
-    name = "enableAxis";
-    displayName = "X-axis";
-    slices = [this.show, this.fill];
+    name = "XAxisFormatter";
+    displayName = "X-axis Formatter";
+    slices = [this.fill];
 }
 /**
  * Enable y-Axis Formatting Card
@@ -2498,6 +2441,77 @@ class BarChartSettingsModel extends FormattingSettingsModel {
     enableYAxis = new EnableYAxisCardSettings();
     //colorSelector = new ColorSelectorCardSettings();
     cards = [this.SPCSettings, this.enableAxis, this.enableYAxis];
+}
+
+
+/***/ }),
+
+/***/ 540:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   F: () => (/* binding */ parseinHMS),
+/* harmony export */   Y: () => (/* binding */ parseDateLabel)
+/* harmony export */ });
+/* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8976);
+
+function parseDateLabel(label, index) {
+    let formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y');
+    let parsed = formatter(label);
+    if (parsed) {
+        return parsed.getFullYear().toString();
+    }
+    formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q');
+    parsed = formatter(label);
+    if (parsed) {
+        if (parsed.getMonth() == 0) {
+            return parsed.getFullYear().toString();
+        }
+        else {
+            return '';
+        }
+    }
+    formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q %B');
+    parsed = formatter(label);
+    if (parsed) {
+        if (parsed.getMonth() == 0) {
+            return parsed.getFullYear().toString();
+        }
+        else {
+            return '';
+        }
+    }
+    formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q %B %-d');
+    parsed = formatter(label);
+    if (parsed) {
+        if (parsed.getMonth() == 0 && parsed.getDate() == 1) {
+            return parsed.getFullYear().toString();
+        }
+        else {
+            return '';
+        }
+    }
+    formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%B');
+    parsed = formatter(label);
+    if (parsed) {
+        return label.slice(0, 3);
+    }
+    return label;
+}
+function parseinHMS(d) {
+    let sign = '';
+    if (d < 0) {
+        sign = '-';
+    }
+    d = Math.round(Math.abs(d));
+    let minutes = Math.floor(d / 60);
+    let hours = Math.floor(minutes / 60);
+    if (hours > 0) {
+        minutes = minutes % 60;
+    }
+    let seconds = d % 60;
+    return sign + String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
 }
 
 
@@ -11222,9 +11236,9 @@ __webpack_require__.r(__webpack_exports__);
 
 var powerbiKey = "powerbi";
 var powerbi = window[powerbiKey];
-var barChart690B60A9B92A4B3F9CD47387F807847E_DEBUG = {
-    name: 'barChart690B60A9B92A4B3F9CD47387F807847E_DEBUG',
-    displayName: 'BarChart',
+var barCharte052449909264a3487139638376f9e72_DEBUG = {
+    name: 'barCharte052449909264a3487139638376f9e72_DEBUG',
+    displayName: 'SPCChart',
     class: 'Visual',
     apiVersion: '5.3.0',
     create: (options) => {
@@ -11244,13 +11258,13 @@ var barChart690B60A9B92A4B3F9CD47387F807847E_DEBUG = {
 if (typeof powerbi !== "undefined") {
     powerbi.visuals = powerbi.visuals || {};
     powerbi.visuals.plugins = powerbi.visuals.plugins || {};
-    powerbi.visuals.plugins["barChart690B60A9B92A4B3F9CD47387F807847E_DEBUG"] = barChart690B60A9B92A4B3F9CD47387F807847E_DEBUG;
+    powerbi.visuals.plugins["barCharte052449909264a3487139638376f9e72_DEBUG"] = barCharte052449909264a3487139638376f9e72_DEBUG;
 }
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (barChart690B60A9B92A4B3F9CD47387F807847E_DEBUG);
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (barCharte052449909264a3487139638376f9e72_DEBUG);
 
 })();
 
-barChart690B60A9B92A4B3F9CD47387F807847E_DEBUG = __webpack_exports__;
+barCharte052449909264a3487139638376f9e72_DEBUG = __webpack_exports__;
 /******/ })()
 ;
 //# sourceMappingURL=https://localhost:8080/assets/visual.js.map

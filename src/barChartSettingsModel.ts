@@ -138,14 +138,22 @@ class SPC extends CompCard {
 /**
  * Enable x-Axis Formatting Card
  */
-class EnableAxisCardSettings extends SimpleCard {
+class EnableAxisCardSettings extends CompCard {
     // Formatting property `show` toggle switch (formatting simple slice)
     show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayName: undefined,
-        value: false,
-        //topLevelSlice: true
+        value: false
     });
+    topLevelSlice = this.show;
+    formatter = new XAxisFormatter()
+
+    name: string = "enableXAxis";
+    displayName: string = "X-axis";
+    groups = [this.formatter];
+}
+
+class XAxisFormatter extends SimpleCard {
 
     // Formatting property `fill` color picker (formatting simple slice)
     fill = new formattingSettings.ColorPicker({
@@ -154,9 +162,9 @@ class EnableAxisCardSettings extends SimpleCard {
         value: { value: "#777777" }
     });
 
-    name: string = "enableAxis";
-    displayName: string = "X-axis";
-    slices: Array<FormattingSettingsSlice> = [this.show, this.fill];
+    name: string = "XAxisFormatter";
+    displayName: string = "X-axis Formatter";
+    slices: Array<FormattingSettingsSlice> = [this.fill];
 }
 
 /**

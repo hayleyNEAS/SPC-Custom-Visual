@@ -37,6 +37,8 @@ import { getLocalizedString } from "./localisation/localisationHelper"
 import { getCategoricalObjectValue, getValue } from "./objectEnumerationUtility";
 import { MarginPadding } from "powerbi-visuals-utils-formattingmodel/lib/FormattingSettingsComponents";
 
+import { parseDateLabel , parseinHMS} from "./formattingFunctions"
+
 
 //import logo_variation_nochange from "./../assets/Variation_noChange.png"
 const variation_noChange = require("./../assets/Variation_noChange.png")
@@ -164,6 +166,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
 
     let direction = <number>formatSettings.SPCSettings.spcSetUp.direction.value.value
     let target = Number(formatSettings.SPCSettings.spcSetUp.target.value.valueOf())
+    console.log(target)
 
     let metadata = options.dataViews[0].metadata.columns
     let measureFormat = ''
@@ -172,13 +175,11 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     for (let i = 0, len = metadata.length; i < len; i++) {
         let meta = metadata[i]
         if (meta.isMeasure) {
-            console.log(meta)
             measureName = meta.displayName
             if (meta.format.includes('%')) {
                 measureFormat = '%'
             } if (meta.format.includes('.')) {
                 decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1).length
-                console.log(decimalPlaces)
                 measureFormat = 's'
             } else {
                 measureFormat = 's'
@@ -533,57 +534,8 @@ export class SPCChart implements IVisual {
         this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, options.element);
     }
 
-    private parseDateLabel(label: string, index: number) {
-        let formatter = d3.timeParse('%Y');
-        let parsed = formatter(label);
-        if (parsed) {
-            return parsed.getFullYear().toString()
-        }
+    
 
-        formatter = d3.timeParse('%Y Qtr %q');
-        parsed = formatter(label);
-        if (parsed) {
-            if (parsed.getMonth() == 0) {
-                return parsed.getFullYear().toString()
-            } else { return '' }
-        }
-
-        formatter = d3.timeParse('%Y Qtr %q %B');
-        parsed = formatter(label);
-        if (parsed) {
-            if (parsed.getMonth() == 0) {
-                return parsed.getFullYear().toString()
-            } else { return '' }
-        }
-
-
-        formatter = d3.timeParse('%Y Qtr %q %B %-d');
-        parsed = formatter(label);
-        if (parsed) {
-            if (parsed.getMonth() == 0 && parsed.getDate() == 1) {
-                return parsed.getFullYear().toString()
-            } else { return '' }
-        }
-
-        formatter = d3.timeParse('%B');
-        parsed = formatter(label);
-        if (parsed) {
-            return label.slice(0, 3)
-        }
-
-        return label
-    }
-
-    private parseYLabel(label: number) {
-        //let formatter = d3.timeParse('%Y');
-        //let parsed = formatter(label);
-
-        //if( this.formattingSettings.enableYAxis.time.value ){
-        //   return 'test'
-        // }
-
-        return 'ff'
-    }
 
     // Three function that change the tooltip when user hover / move / leave a cell
     /*     private mouseover(p: [number, number], d: SPCChartData) {
@@ -656,17 +608,7 @@ export class SPCChart implements IVisual {
         if (this.formattingSettings.enableYAxis.formatter.time.value) {
             yAxis = yAxis
                 .ticks(yTicks)
-                .tickFormat(function (d) {
-                    let sign = ''
-                    if (<number>d < 0) { sign = '-', d = Math.abs(<number>d) }
-                    let minutes = Math.floor(<number>d / 60);
-                    let hours = Math.floor(minutes / 60);
-                    if (hours > 0) {
-                        minutes = minutes % 60
-                    }
-                    let seconds = <number>d % 60;
-                    return sign + String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0')
-                })
+                .tickFormat(d => parseinHMS(d))
                 ;
         } else {
             yAxis = yAxis
@@ -728,7 +670,7 @@ export class SPCChart implements IVisual {
             ;
 
         let xAxis = axisBottom(xScale)
-            .tickFormat(this.parseDateLabel)
+            .tickFormat(parseDateLabel)
             ;
 
         let xAxisObject = this.xAxis
@@ -740,7 +682,7 @@ export class SPCChart implements IVisual {
                 'enableAxis',
                 'fill',
                 this.host.colorPalette,
-                this.formattingSettings.enableAxis.fill.value.value
+                this.formattingSettings.enableAxis.formatter.fill.value.value
             ));
 
         xAxisObject.selectAll('.xAxis path, line')
@@ -1021,7 +963,6 @@ export class SPCChart implements IVisual {
                 d3Select(tooltipmarkers[index])
                     .attr("opacity", 1);
 
-                console.log(pointer, pointer[0], cats, closest, index)
 
             })
             .on('mouseleave', function () {
@@ -1046,17 +987,16 @@ export class SPCChart implements IVisual {
     }
 
     private getTooltipData(d: SPCChartDataPoint, data: SPCChartData): VisualTooltipDataItem[] {
-
         return [
             {
                 header: d.category,
                 displayName: data.measureName,
-                value: d.value.toLocaleString(undefined, { minimumFractionDigits: data.decimalPlaces, maximumFractionDigits: data.decimalPlaces }),
+                value: parseinHMS(<number>d.value),
                 color: data.strokeColor
             },
             {
                 displayName: "Upper Control Limit",
-                value: data.meanValue.toLocaleString(undefined, { minimumFractionDigits: data.decimalPlaces, maximumFractionDigits: data.decimalPlaces }),
+                value: parseinHMS(data.UCLValue),
                 color: "darkgrey"
             }
         ];

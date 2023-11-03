@@ -5,9 +5,9 @@ import VisualConstructorOptions = powerbiVisualsApi.extensibility.visual.VisualC
 import DialogConstructorOptions = powerbiVisualsApi.extensibility.visual.DialogConstructorOptions;
 var powerbiKey: any = "powerbi";
 var powerbi: any = window[powerbiKey];
-var barChart690B60A9B92A4B3F9CD47387F807847E_DEBUG: IVisualPlugin = {
-    name: 'barChart690B60A9B92A4B3F9CD47387F807847E_DEBUG',
-    displayName: 'BarChart',
+var barCharte052449909264a3487139638376f9e72_DEBUG: IVisualPlugin = {
+    name: 'barCharte052449909264a3487139638376f9e72_DEBUG',
+    displayName: 'SPCChart',
     class: 'Visual',
     apiVersion: '5.3.0',
     create: (options?: VisualConstructorOptions) => {
@@ -27,6 +27,6 @@ var barChart690B60A9B92A4B3F9CD47387F807847E_DEBUG: IVisualPlugin = {
 if (typeof powerbi !== "undefined") {
     powerbi.visuals = powerbi.visuals || {};
     powerbi.visuals.plugins = powerbi.visuals.plugins || {};
-    powerbi.visuals.plugins["barChart690B60A9B92A4B3F9CD47387F807847E_DEBUG"] = barChart690B60A9B92A4B3F9CD47387F807847E_DEBUG;
+    powerbi.visuals.plugins["barCharte052449909264a3487139638376f9e72_DEBUG"] = barCharte052449909264a3487139638376f9e72_DEBUG;
 }
-export default barChart690B60A9B92A4B3F9CD47387F807847E_DEBUG;
+export default barCharte052449909264a3487139638376f9e72_DEBUG;

@@ -51,8 +51,15 @@ declare class SPC extends CompCard {
 /**
  * Enable x-Axis Formatting Card
  */
-declare class EnableAxisCardSettings extends SimpleCard {
+declare class EnableAxisCardSettings extends CompCard {
     show: formattingSettings.ToggleSwitch;
+    topLevelSlice: formattingSettings.ToggleSwitch;
+    formatter: XAxisFormatter;
+    name: string;
+    displayName: string;
+    groups: XAxisFormatter[];
+}
+declare class XAxisFormatter extends SimpleCard {
     fill: formattingSettings.ColorPicker;
     name: string;
     displayName: string;

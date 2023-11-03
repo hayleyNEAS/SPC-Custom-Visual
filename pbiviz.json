@@ -1,1 +1,21 @@
-{"visual":{"name":"barChart","displayName":"BarChart","guid":"barChart690B60A9B92A4B3F9CD47387F807847E","visualClassName":"Visual","version":"1.0.0.0","description":"","supportUrl":"","gitHubUrl":""},"apiVersion":"5.3.0","author":{"name":"","email":""},"assets":{"icon":"assets/icon.png"},"externalJS":null,"style":"style/visual.less","capabilities":"capabilities.json","dependencies":null,"stringResources":[],"version":"1.0.0.0"}
+{"visual":{"name":"SPC_Chart",
+    "displayName":"SPCChart",
+    "guid":"barCharte052449909264a3487139638376f9e72",
+    "visualClassName":"Visual",
+    "version":"1.0.0.0",
+    "description":"SPC Visual",
+    "supportUrl":"https://github.com/hayleyNEAS/SPC-Custom-Visual",
+    "gitHubUrl":"https://github.com/hayleyNEAS/SPC-Custom-Visual"
+},
+"apiVersion":"5.3.0",
+"author":{"name":"Hayley Stagg",
+    "email":"hayley.stagg@neas.nhs.uk"
+    },
+"assets":{"icon":"assets/icon.png"},
+"externalJS":null,
+"style":"style/visual.less",
+"capabilities":"capabilities.json",
+"dependencies":null,
+"stringResources":[],
+"version":"1.0.0.0"
+}
