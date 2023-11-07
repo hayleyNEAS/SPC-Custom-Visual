@@ -120,6 +120,11 @@
                         }
                     }
                 },
+                "showOutlier": {
+                    "type": {
+                        "bool": true
+                    }
+                },
                 "run": {
                     "type": {
                         "fill": {

@@ -99,6 +99,11 @@ class MarkerOptions extends SimpleCard {
         displayName: "Outlier Color",
         value: { value: "#777777" }
     });
+    showOutlier = new formattingSettings.ToggleSwitch({
+        name: "showOutlier",
+        displayName: undefined,
+        value: true
+    });
 
     run = new formattingSettings.ColorPicker({
         name: "run",
@@ -121,7 +126,7 @@ class MarkerOptions extends SimpleCard {
 
     name: string = "markerOptions";
     displayName?: string = "Marker Options";
-    slices: Array<FormattingSettingsSlice> = [this.outlier, this.run, this.oneside, this.twoInThree];
+    slices: Array<FormattingSettingsSlice> = [this.outlier, this.showOutlier, this.run, this.oneside, this.twoInThree];
 }
 
 class SPC extends CompCard {

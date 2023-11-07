@@ -1916,7 +1916,7 @@ class SPCChart {
         if (this.formattingSettings.enableYAxis.formatter.time.value) {
             yAxis = yAxis
                 .ticks(yTicks)
-                .tickFormat(d => (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseinHMS */ .F)(d));
+                .tickFormat(d => (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseinHMS */ .Fg)(d));
         }
         else {
             yAxis = yAxis
@@ -1959,7 +1959,7 @@ class SPCChart {
             .domain(this.dataPoints.map(d => d.category))
             .range([widthChartStart, widthChartEnd]);
         let xAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_9__/* .axisBottom */ .LL)(xScale)
-            .tickFormat(_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseDateLabel */ .Y);
+            .tickFormat(_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseDateLabel */ .YV);
         let xAxisObject = this.xAxis
             .attr('transform', 'translate(0, ' + (height + 2) + ')')
             .call(xAxis)
@@ -1992,15 +1992,18 @@ class SPCChart {
             .x(function (d) { return xScale(d.category); })
             .y(function (d) { return yScale(d.value); }));
         this.svg.selectAll('.markers').remove();
-        this.dataMarkers
-            .data(this.dataPoints)
-            .enter()
-            .append("circle")
-            .attr("class", "markers")
-            .attr("cx", function (d) { return xScale(d.category); })
-            .attr("cy", function (d) { return yScale(d.value); })
-            .attr("r", function (d) { return d.markerSize; })
-            .attr("fill", function (d) { return d.color; });
+        console.log(this.formattingSettings.SPCSettings.markerOptions.showMarker.value);
+        if (this.formattingSettings.SPCSettings.markerOptions.showMarker.value) {
+            this.dataMarkers
+                .data(this.dataPoints)
+                .enter()
+                .append("circle")
+                .attr("class", "markers")
+                .attr("cx", function (d) { return xScale(d.category); })
+                .attr("cy", function (d) { return yScale(d.value); })
+                .attr("r", function (d) { return d.markerSize; })
+                .attr("fill", function (d) { return d.color; });
+        }
         this.tooltipMarkers
             .data(this.dataPoints)
             .enter()
@@ -2236,12 +2239,12 @@ class SPCChart {
             {
                 header: d.category,
                 displayName: data.measureName,
-                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseinHMS */ .F)(d.value),
+                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(d.value, this.formattingSettings.enableYAxis.formatter.time.value),
                 color: data.strokeColor
             },
             {
                 displayName: "Upper Control Limit",
-                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseinHMS */ .F)(data.UCLValue),
+                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(data.UCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
                 color: "darkgrey"
             }
         ];
@@ -2341,6 +2344,11 @@ class MarkerOptions extends SimpleCard {
         displayName: "Outlier Color",
         value: { value: "#777777" }
     });
+    showOutlier = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
+        name: "showOutlier",
+        displayName: undefined,
+        value: true
+    });
     run = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
         name: "run",
         displayName: "Run Color",
@@ -2358,7 +2366,7 @@ class MarkerOptions extends SimpleCard {
     });
     name = "markerOptions";
     displayName = "Marker Options";
-    slices = [this.outlier, this.run, this.oneside, this.twoInThree];
+    slices = [this.outlier, this.showOutlier, this.run, this.oneside, this.twoInThree];
 }
 class SPC extends CompCard {
     spcSetUp = new SPCSetUp();
@@ -2451,8 +2459,9 @@ class BarChartSettingsModel extends FormattingSettingsModel {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   F: () => (/* binding */ parseinHMS),
-/* harmony export */   Y: () => (/* binding */ parseDateLabel)
+/* harmony export */   Fg: () => (/* binding */ parseinHMS),
+/* harmony export */   Qo: () => (/* binding */ parseYLabels),
+/* harmony export */   YV: () => (/* binding */ parseDateLabel)
 /* harmony export */ });
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8976);
 
@@ -2512,6 +2521,14 @@ function parseinHMS(d) {
     }
     let seconds = d % 60;
     return sign + String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+}
+function parseYLabels(d, hms) {
+    if (hms) {
+        return parseinHMS(d);
+    }
+    else {
+        return d.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
 }
 
 

@@ -37,7 +37,7 @@ import { getLocalizedString } from "./localisation/localisationHelper"
 import { getCategoricalObjectValue, getValue } from "./objectEnumerationUtility";
 import { MarginPadding } from "powerbi-visuals-utils-formattingmodel/lib/FormattingSettingsComponents";
 
-import { parseDateLabel , parseinHMS} from "./formattingFunctions"
+import { parseDateLabel , parseinHMS, parseYLabels} from "./formattingFunctions"
 
 
 //import logo_variation_nochange from "./../assets/Variation_noChange.png"
@@ -719,7 +719,10 @@ export class SPCChart implements IVisual {
             )
 
         this.svg.selectAll('.markers').remove();
-        this.dataMarkers
+
+        console.log(this.formattingSettings.SPCSettings.markerOptions.showMarker.value)
+        if(this.formattingSettings.SPCSettings.markerOptions.showMarker.value){
+            this.dataMarkers
             .data(this.dataPoints)
             .enter()
             .append("circle")
@@ -728,6 +731,7 @@ export class SPCChart implements IVisual {
             .attr("cy", function (d) { return yScale(<number>d.value) })
             .attr("r", function (d) { return d.markerSize })
             .attr("fill", function (d) { return d.color });
+        }
 
         this.tooltipMarkers
             .data(this.dataPoints)
@@ -991,12 +995,12 @@ export class SPCChart implements IVisual {
             {
                 header: d.category,
                 displayName: data.measureName,
-                value: parseinHMS(<number>d.value),
+                value: parseYLabels(<number>d.value, this.formattingSettings.enableYAxis.formatter.time.value),
                 color: data.strokeColor
             },
             {
                 displayName: "Upper Control Limit",
-                value: parseinHMS(data.UCLValue),
+                value: parseYLabels(data.UCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
                 color: "darkgrey"
             }
         ];

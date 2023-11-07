@@ -58,3 +58,11 @@ export function parseinHMS(d: d3.NumberValue) {
     let seconds = <number>d % 60;
     return sign + String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0')
 }
+
+export function parseYLabels(d: d3.NumberValue, hms:boolean){
+    if(hms){
+        return parseinHMS(d)
+    } else {
+        return d.toLocaleString(undefined, {minimumFractionDigits : 2, maximumFractionDigits : 2})
+    }
+}

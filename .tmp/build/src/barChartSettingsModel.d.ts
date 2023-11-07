@@ -32,6 +32,7 @@ declare class MarkerOptions extends SimpleCard {
     showMarker: formattingSettings.ToggleSwitch;
     topLevelSlice: formattingSettings.ToggleSwitch;
     outlier: formattingSettings.ColorPicker;
+    showOutlier: formattingSettings.ToggleSwitch;
     run: formattingSettings.ColorPicker;
     oneside: formattingSettings.ColorPicker;
     twoInThree: formattingSettings.ColorPicker;
