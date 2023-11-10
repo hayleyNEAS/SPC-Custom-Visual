@@ -3,10 +3,14 @@ import { dataViewWildcard } from "powerbi-visuals-utils-dataviewutils";
 import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
 import { SPCChartDataPoint } from "./barChart";
 
+import visuals = powerbi.visuals;
+
 import SimpleCard = formattingSettings.SimpleCard;
 import CompCard = formattingSettings.CompositeCard;
 import FormattingSettingsSlice = formattingSettings.Slice;
+import FormattingSettingsCompositeSlice = formattingSettings.CompositeSlice;
 import FormattingSettingsModel = formattingSettings.Model;
+import { ColorPicker, CompositeSlice, ToggleSwitch } from "powerbi-visuals-utils-formattingmodel/lib/FormattingSettingsComponents";
 
 class SPCSetUp extends SimpleCard {
     direction = new formattingSettings.ItemDropdown({
@@ -86,6 +90,32 @@ class LineOptions extends SimpleCard{
     slices: Array<FormattingSettingsSlice> = [this.showControl, this.upperCL, this.lowerCL, this.showSubControl, this.showMean];
 }
 
+class ColorSelectorOnOff extends CompositeSlice{
+    color: ColorPicker;
+    display: ToggleSwitch;
+    
+    constructor(object:ColorSelectorOnOff) {
+        super(object);
+    }
+
+    getFormattingComponent?(objectName: string): visuals.CompositeComponentPropertyType {
+        return {
+            color: this.color.getFormattingComponent(objectName),
+            display: this.display.getFormattingComponent(objectName)
+        }
+    }
+
+    getRevertToDefaultDescriptor?(objectName: string): visuals.FormattingDescriptor[] {
+        return this.color.getRevertToDefaultDescriptor(objectName)
+        .concat(this.display.getRevertToDefaultDescriptor(objectName))
+    }
+
+    setPropertiesValues?(dataViewObjects: powerbi.DataViewObjects, objectName: string) {
+        this.color.setPropertiesValues(dataViewObjects, objectName);
+        this.display.setPropertiesValues(dataViewObjects, objectName);
+    }
+}
+
 class MarkerOptions extends SimpleCard {
     showMarker = new formattingSettings.ToggleSwitch({
         name: "showMarker",
@@ -105,6 +135,26 @@ class MarkerOptions extends SimpleCard {
         value: true
     });
 
+    outlier2 = new ColorSelectorOnOff({
+        name: "outlier2",
+        displayName: "outlier 2",
+
+        color: {
+            name: "color",
+            displayName: "Outlier Color",
+            value: { value: "#777777" }
+        },
+
+        display: {
+            name: "display",
+            displayName: undefined,
+            value: true
+        },
+
+
+    })
+
+    
     run = new formattingSettings.ColorPicker({
         name: "run",
         displayName: "Run Color",

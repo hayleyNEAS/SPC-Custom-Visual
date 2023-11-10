@@ -10,12 +10,13 @@ var barCharte052449909264a3487139638376f9e72_DEBUG;
 /* harmony export */   DP: () => (/* binding */ CompositeCard),
 /* harmony export */   Hn: () => (/* binding */ Model),
 /* harmony export */   Zh: () => (/* binding */ ToggleSwitch),
+/* harmony export */   f3: () => (/* binding */ CompositeSlice),
 /* harmony export */   oi: () => (/* binding */ TextInput),
 /* harmony export */   sF: () => (/* binding */ SimpleCard),
 /* harmony export */   zH: () => (/* binding */ ColorPicker),
 /* harmony export */   zt: () => (/* binding */ ItemDropdown)
 /* harmony export */ });
-/* unused harmony exports CardGroupEntity, Group, SimpleSlice, AlignmentGroup, NumUpDown, Slider, DatePicker, AutoDropdown, DurationPicker, ErrorRangeControl, FieldPicker, ItemFlagsSelection, AutoFlagsSelection, TextArea, FontPicker, GradientBar, ImageUpload, ListEditor, ReadOnlyText, ShapeMapSelector, CompositeSlice, FontControl, MarginPadding, Container, ContainerItem */
+/* unused harmony exports CardGroupEntity, Group, SimpleSlice, AlignmentGroup, NumUpDown, Slider, DatePicker, AutoDropdown, DurationPicker, ErrorRangeControl, FieldPicker, ItemFlagsSelection, AutoFlagsSelection, TextArea, FontPicker, GradientBar, ImageUpload, ListEditor, ReadOnlyText, ShapeMapSelector, FontControl, MarginPadding, Container, ContainerItem */
 /* harmony import */ var _utils_FormattingSettingsUtils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3827);
 /**
  * Powerbi utils components classes for custom visual formatting pane objects
@@ -240,7 +241,7 @@ class ShapeMapSelector extends (/* unused pure expression or super */ null && (S
         return Object.assign(Object.assign({}, super.getFormattingComponent(objectName)), { isAzMapReferenceSelector: this.isAzMapReferenceSelector });
     }
 }
-class CompositeSlice extends (/* unused pure expression or super */ null && (NamedEntity)) {
+class CompositeSlice extends NamedEntity {
     constructor(object) {
         super();
         Object.assign(this, object);
@@ -1471,7 +1472,7 @@ try {
 /* harmony import */ var powerbi_visuals_utils_tooltiputils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(9472);
 /* harmony import */ var _barChartSettingsModel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2446);
 /* harmony import */ var _objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(6363);
-/* harmony import */ var _formattingFunctions__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(540);
+/* harmony import */ var _formattingFunctions__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(9540);
 
 
 
@@ -2267,6 +2268,7 @@ class SPCChart {
 var SimpleCard = powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .SimpleCard */ .sF;
 var CompCard = powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .CompositeCard */ .DP;
 var FormattingSettingsModel = powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .Model */ .Hn;
+
 class SPCSetUp extends SimpleCard {
     direction = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ItemDropdown */ .zt({
         items: [{ value: 1, displayName: "Up" }, { value: 0, displayName: "No Direction" }, { value: -1, displayName: "Down" }],
@@ -2332,6 +2334,27 @@ class LineOptions extends SimpleCard {
     displayName = "Line Options";
     slices = [this.showControl, this.upperCL, this.lowerCL, this.showSubControl, this.showMean];
 }
+class ColorSelectorOnOff extends powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .CompositeSlice */ .f3 {
+    color;
+    display;
+    constructor(object) {
+        super(object);
+    }
+    getFormattingComponent(objectName) {
+        return {
+            color: this.color.getFormattingComponent(objectName),
+            display: this.display.getFormattingComponent(objectName)
+        };
+    }
+    getRevertToDefaultDescriptor(objectName) {
+        return this.color.getRevertToDefaultDescriptor(objectName)
+            .concat(this.display.getRevertToDefaultDescriptor(objectName));
+    }
+    setPropertiesValues(dataViewObjects, objectName) {
+        this.color.setPropertiesValues(dataViewObjects, objectName);
+        this.display.setPropertiesValues(dataViewObjects, objectName);
+    }
+}
 class MarkerOptions extends SimpleCard {
     showMarker = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
         name: "showMarker",
@@ -2348,6 +2371,20 @@ class MarkerOptions extends SimpleCard {
         name: "showOutlier",
         displayName: undefined,
         value: true
+    });
+    outlier2 = new ColorSelectorOnOff({
+        name: "outlier2",
+        displayName: "outlier 2",
+        color: {
+            name: "color",
+            displayName: "Outlier Color",
+            value: { value: "#777777" }
+        },
+        display: {
+            name: "display",
+            displayName: undefined,
+            value: true
+        },
     });
     run = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
         name: "run",
@@ -2454,7 +2491,7 @@ class BarChartSettingsModel extends FormattingSettingsModel {
 
 /***/ }),
 
-/***/ 540:
+/***/ 9540:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";

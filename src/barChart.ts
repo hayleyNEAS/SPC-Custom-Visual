@@ -598,7 +598,7 @@ export class SPCChart implements IVisual {
         let yScale = scaleLinear()
             .domain([Math.min(<number>options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) * 0.9,
             Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) * 1.1])
-            .range([height, 5]);
+            .range([height, 5]); //caclulate the diff from *1.1 and minus that from the bottom 
 
         let yTicks = 5;
 

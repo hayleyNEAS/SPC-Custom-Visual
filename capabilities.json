@@ -125,6 +125,20 @@
                         "bool": true
                     }
                 },
+                "color":{
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "display":{
+                    "type": {
+                        "bool": true
+                    }
+                },
                 "run": {
                     "type": {
                         "fill": {
