@@ -1913,12 +1913,12 @@ class SPCChart {
         }
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
         const yScale_increase = Math.max(options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) * 1.1 - Math.max(options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue);
-        console.log("increase", yScale_increase, options.dataViews[0].categorical.values[0].minLocal, [Math.min(options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) - yScale_increase - 1,
+        console.log('y domain', [Math.min(options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) - yScale_increase - 1,
             Math.max(options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) + yScale_increase + 1]);
         //Set up the Y Axis
         let yScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_8__/* ["default"] */ .Z)()
-            .domain([Math.min(options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) - yScale_increase - 1,
-            Math.max(options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) + yScale_increase + 1])
+            .domain([Math.min(options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) - yScale_increase - 1.1,
+            Math.max(options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) + yScale_increase + 1.1])
             .range([height, 5]);
         let yTicks = 5;
         let yAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_9__/* .axisLeft */ .y4)(yScale)

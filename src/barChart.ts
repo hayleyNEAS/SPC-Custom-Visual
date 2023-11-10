@@ -601,12 +601,12 @@ export class SPCChart implements IVisual {
 
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
         const yScale_increase = Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) * 1.1 - Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) 
-        console.log("increase",yScale_increase, options.dataViews[0].categorical.values[0].minLocal, [Math.min(<number>options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) - yScale_increase - 1,
+        console.log('y domain', [Math.min(<number>options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) - yScale_increase - 1,
         Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) + yScale_increase + 1])
         //Set up the Y Axis
         let yScale = scaleLinear()
-            .domain([Math.min(<number>options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) - yScale_increase - 1,
-            Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) + yScale_increase + 1])
+            .domain([Math.min(<number>options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) - yScale_increase - 1.1,
+            Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) + yScale_increase + 1.1])
             .range([height, 5]); 
 
         let yTicks = 5;
@@ -677,7 +677,6 @@ export class SPCChart implements IVisual {
             .domain(this.dataPoints.map(d => d.category))
             .range([widthChartStart, widthChartEnd])
             ;
-
         let xAxis = axisBottom(xScale)
             .tickFormat(parseDateLabel)
             ;
