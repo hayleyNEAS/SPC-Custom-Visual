@@ -1599,6 +1599,9 @@ function createSelectorData(options, host, formatSettings) {
     let avgDiff = SPCChartDataPoints
         .map((d) => Math.abs(d.difference))
         .reduce((a, b) => a + b, 0) / (nPoints - 1);
+    if (nPoints = 1) {
+        avgDiff = null;
+    }
     let UCLValue = meanValue + 2.66 * avgDiff;
     let LCLValue = meanValue - 2.66 * avgDiff;
     let Upper_Zone_A = meanValue + 2.66 * avgDiff * 2 / 3;
@@ -1677,6 +1680,9 @@ function createSelectorData(options, host, formatSettings) {
     run = SPCChartDataPoints[nPoints - 1].run;
     shift = SPCChartDataPoints[nPoints - 1].shift;
     twoInThree = SPCChartDataPoints[nPoints - 1].twoInThree;
+    if (nPoints == 1) {
+        SPCChartDataPoints.forEach(d => d.markerSize = 3);
+    }
     return {
         datapoints: SPCChartDataPoints,
         n: SPCChartDataPoints.length,
@@ -1906,10 +1912,13 @@ class SPCChart {
             height -= margins.bottom;
         }
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
+        const yScale_increase = Math.max(options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) * 1.1 - Math.max(options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue);
+        console.log("increase", yScale_increase, options.dataViews[0].categorical.values[0].minLocal, [Math.min(options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) - yScale_increase - 1,
+            Math.max(options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) + yScale_increase + 1]);
         //Set up the Y Axis
         let yScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_8__/* ["default"] */ .Z)()
-            .domain([Math.min(options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) * 0.9,
-            Math.max(options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) * 1.1])
+            .domain([Math.min(options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) - yScale_increase - 1,
+            Math.max(options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) + yScale_increase + 1])
             .range([height, 5]);
         let yTicks = 5;
         let yAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_9__/* .axisLeft */ .y4)(yScale)

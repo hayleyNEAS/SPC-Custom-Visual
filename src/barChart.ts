@@ -172,6 +172,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     let measureFormat = ''
     let decimalPlaces = 0
     let measureName = ''
+
     for (let i = 0, len = metadata.length; i < len; i++) {
         let meta = metadata[i]
         if (meta.isMeasure) {
@@ -191,11 +192,16 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
 
     let meanValue = SPCChartDataPoints
         .map((d) => <number>d.value)
-        .reduce((a, b) => a + b, 0) / nPoints
+        .reduce((a, b) => a + b, 0) / nPoints;
 
+    
     let avgDiff = SPCChartDataPoints
         .map((d) => <number>Math.abs(d.difference))
-        .reduce((a, b) => a + b, 0) / (nPoints - 1)
+        .reduce((a, b) => a + b, 0) / (nPoints - 1);
+
+    if (nPoints = 1){
+        avgDiff = null
+    }
 
     let UCLValue = meanValue + 2.66 * avgDiff
     let LCLValue = meanValue - 2.66 * avgDiff
@@ -281,6 +287,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     shift = SPCChartDataPoints[nPoints - 1].shift
     twoInThree = SPCChartDataPoints[nPoints - 1].twoInThree
 
+    if(nPoints == 1){ SPCChartDataPoints.forEach(d => d.markerSize = 3)}
 
     return {
         datapoints: SPCChartDataPoints,
@@ -593,12 +600,14 @@ export class SPCChart implements IVisual {
 
 
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
-
+        const yScale_increase = Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) * 1.1 - Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) 
+        console.log("increase",yScale_increase, options.dataViews[0].categorical.values[0].minLocal, [Math.min(<number>options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) - yScale_increase - 1,
+        Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) + yScale_increase + 1])
         //Set up the Y Axis
         let yScale = scaleLinear()
-            .domain([Math.min(<number>options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) * 0.9,
-            Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) * 1.1])
-            .range([height, 5]); //caclulate the diff from *1.1 and minus that from the bottom 
+            .domain([Math.min(<number>options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) - yScale_increase - 1,
+            Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) + yScale_increase + 1])
+            .range([height, 5]); 
 
         let yTicks = 5;
 
