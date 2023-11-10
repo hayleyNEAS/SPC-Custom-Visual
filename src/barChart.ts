@@ -46,12 +46,16 @@ const variation_ciHigh = require("./../assets/variation_ciHigh.png")
 const variation_ccHigh = require("./../assets/variation_ccHigh.png")
 const variation_ciLow = require("./../assets/variation_ciLow.png")
 const variation_ccLow = require("./../assets/variation_ccLow.png")
+const variation_High = require("./../assets/variation_high.png")
+const variation_Low = require("./../assets/variation_low.png")
 
 const atTarget = require("./../assets/assurance_atTarget.png")
 const fail_above = require("./../assets/fail_above.png")
 const fail_below = require("./../assets/fail_below.png")
 const pass_above = require("./../assets/pass_above.png")
 const pass_below = require("./../assets/pass_below.png")
+const above = require("./../assets/above.png")
+const below = require("./../assets/below.png")
 
 
 function logoSelector(data: SPCChartData, option): any {
@@ -73,8 +77,14 @@ function logoSelector(data: SPCChartData, option): any {
             } else {
                 return variation_noChange
             }
-        } if (data.direction = 0) {
-            console.log("no direction")
+        } if (data.direction == 0) {
+            if (data.outlier == -1 || data.run == -1 || data.shift == -1 || data.twoInThree == -1) {
+                return variation_Low
+            } if (data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1) {
+                return variation_High
+            } else {
+                return variation_noChange
+            }
         }
     }
 
@@ -92,7 +102,15 @@ function logoSelector(data: SPCChartData, option): any {
             if (data.target < data.LCLValue) {
                 return pass_above
             } if (data.target >= data.UCLValue) {
-                return fail_above
+                return fail_below
+            } else {
+                return atTarget
+            }
+        } if (data.direction == 0) {
+            if (data.target < data.LCLValue) {
+                return above
+            } if (data.target >= data.UCLValue) {
+                return below
             } else {
                 return atTarget
             }
@@ -166,7 +184,6 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
 
     let direction = <number>formatSettings.SPCSettings.spcSetUp.direction.value.value
     let target = Number(formatSettings.SPCSettings.spcSetUp.target.value.valueOf())
-    console.log(target)
 
     let metadata = options.dataViews[0].metadata.columns
     let measureFormat = ''
@@ -199,7 +216,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
         .map((d) => <number>Math.abs(d.difference))
         .reduce((a, b) => a + b, 0) / (nPoints - 1);
 
-    if (nPoints = 1){
+    if (nPoints == 1){
         avgDiff = null
     }
 
@@ -601,8 +618,7 @@ export class SPCChart implements IVisual {
 
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
         const yScale_increase = Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) * 1.1 - Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) 
-        console.log('y domain', [Math.min(<number>options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) - yScale_increase - 1,
-        Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) + yScale_increase + 1])
+
         //Set up the Y Axis
         let yScale = scaleLinear()
             .domain([Math.min(<number>options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) - yScale_increase - 1.1,
@@ -728,7 +744,6 @@ export class SPCChart implements IVisual {
 
         this.svg.selectAll('.markers').remove();
 
-        console.log(this.formattingSettings.SPCSettings.markerOptions.showMarker.value)
         if(this.formattingSettings.SPCSettings.markerOptions.showMarker.value){
             this.dataMarkers
             .data(this.dataPoints)
