@@ -192,6 +192,8 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     let decimalPlaces = 0
     let measureName = ''
 
+    let displayMarkerSize = 3
+
     for (let i = 0, len = metadata.length; i < len; i++) {
         let meta = metadata[i]
         if (meta.isMeasure) {
@@ -246,7 +248,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
                 .reduce((a, b) => a + b, 0)
             if (Math.abs(twoInThreeCheck) >= 2) {
                 latest3.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.twoInThree.value.value)
-                latest3.forEach(d => d.markerSize = 3)
+                latest3.forEach(d => d.markerSize = displayMarkerSize)
                 latest3.forEach(d => d.twoInThree = 1)
             }
         }
@@ -259,11 +261,11 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
                 .reduce((a, b) => a + b, 0)
             if (runOfNumbers == p) {
                 latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.run.value.value)
-                latest7.forEach(d => d.markerSize = 3)
+                latest7.forEach(d => d.markerSize = displayMarkerSize)
                 latest7.forEach(d => d.run = 1)
             } if (runOfNumbers == -1 * p) {
                 latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.run.value.value)
-                latest7.forEach(d => d.markerSize = 3)
+                latest7.forEach(d => d.markerSize = displayMarkerSize)
                 latest7.forEach(d => d.run = -1)
             }
             //oneside of mean 
@@ -272,11 +274,11 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
                 .reduce((a, b) => a + b, 0)
             if (shift7 == p) {
                 latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.oneside.value.value)
-                latest7.forEach(d => d.markerSize = 3)
+                latest7.forEach(d => d.markerSize = displayMarkerSize)
                 latest7.forEach(d => d.shift = 1)
             } if (shift7 == -1 * p) {
                 latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.oneside.value.value)
-                latest7.forEach(d => d.markerSize = 3)
+                latest7.forEach(d => d.markerSize = displayMarkerSize)
                 latest7.forEach(d => d.shift = -1)
             }
         }
@@ -287,15 +289,16 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
 
     //SPC Marker Colors Rules 
     //find outliers
+    let outlierColor = formatSettings.SPCSettings.markerOptions.outlier.value.value
     for (let i = 0, len = nPoints; i < len; i++) {
         if (<number>SPCChartDataPoints[i].value > UCLValue) {
-            SPCChartDataPoints[i].color = formatSettings.SPCSettings.markerOptions.outlier.value.value
-            SPCChartDataPoints[i].markerSize = 3
+            SPCChartDataPoints[i].color = outlierColor
+            SPCChartDataPoints[i].markerSize = displayMarkerSize*Number(formatSettings.SPCSettings.markerOptions.showOutlier.value)
             SPCChartDataPoints[i].outlier = 1
         }
         if (<number>SPCChartDataPoints[i].value < LCLValue) {
-            SPCChartDataPoints[i].color = formatSettings.SPCSettings.markerOptions.outlier.value.value
-            SPCChartDataPoints[i].markerSize = 3
+            SPCChartDataPoints[i].color = outlierColor
+            SPCChartDataPoints[i].markerSize = displayMarkerSize*Number(formatSettings.SPCSettings.markerOptions.showOutlier.value)
             SPCChartDataPoints[i].outlier = -1
         }
 
@@ -306,7 +309,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     shift = SPCChartDataPoints[nPoints - 1].shift
     twoInThree = SPCChartDataPoints[nPoints - 1].twoInThree
 
-    if(nPoints == 1){ SPCChartDataPoints.forEach(d => d.markerSize = 3)}
+    if(nPoints == 1){ SPCChartDataPoints.forEach(d => d.markerSize = displayMarkerSize)}
 
     return {
         datapoints: SPCChartDataPoints,

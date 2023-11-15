@@ -1,11 +1,8 @@
-import powerbi from "powerbi-visuals-api";
 import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
-import visuals = powerbi.visuals;
 import SimpleCard = formattingSettings.SimpleCard;
 import CompCard = formattingSettings.CompositeCard;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
-import { ColorPicker, CompositeSlice, ToggleSwitch } from "powerbi-visuals-utils-formattingmodel/lib/FormattingSettingsComponents";
 declare class SPCSetUp extends SimpleCard {
     direction: formattingSettings.ItemDropdown;
     target: formattingSettings.TextInput;
@@ -31,20 +28,11 @@ declare class LineOptions extends SimpleCard {
     displayName?: string;
     slices: Array<FormattingSettingsSlice>;
 }
-declare class ColorSelectorOnOff extends CompositeSlice {
-    color: ColorPicker;
-    display: ToggleSwitch;
-    constructor(object: ColorSelectorOnOff);
-    getFormattingComponent?(objectName: string): visuals.CompositeComponentPropertyType;
-    getRevertToDefaultDescriptor?(objectName: string): visuals.FormattingDescriptor[];
-    setPropertiesValues?(dataViewObjects: powerbi.DataViewObjects, objectName: string): void;
-}
 declare class MarkerOptions extends SimpleCard {
     showMarker: formattingSettings.ToggleSwitch;
     topLevelSlice: formattingSettings.ToggleSwitch;
-    outlier: formattingSettings.ColorPicker;
     showOutlier: formattingSettings.ToggleSwitch;
-    outlier2: ColorSelectorOnOff;
+    outlier: formattingSettings.ColorPicker;
     run: formattingSettings.ColorPicker;
     oneside: formattingSettings.ColorPicker;
     twoInThree: formattingSettings.ColorPicker;

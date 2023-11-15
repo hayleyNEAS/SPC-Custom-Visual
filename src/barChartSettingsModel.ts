@@ -90,31 +90,6 @@ class LineOptions extends SimpleCard{
     slices: Array<FormattingSettingsSlice> = [this.showControl, this.upperCL, this.lowerCL, this.showSubControl, this.showMean];
 }
 
-class ColorSelectorOnOff extends CompositeSlice{
-    color: ColorPicker;
-    display: ToggleSwitch;
-    
-    constructor(object:ColorSelectorOnOff) {
-        super(object);
-    }
-
-    getFormattingComponent?(objectName: string): visuals.CompositeComponentPropertyType {
-        return {
-            color: this.color.getFormattingComponent(objectName),
-            display: this.display.getFormattingComponent(objectName)
-        }
-    }
-
-    getRevertToDefaultDescriptor?(objectName: string): visuals.FormattingDescriptor[] {
-        return this.color.getRevertToDefaultDescriptor(objectName)
-        .concat(this.display.getRevertToDefaultDescriptor(objectName))
-    }
-
-    setPropertiesValues?(dataViewObjects: powerbi.DataViewObjects, objectName: string) {
-        this.color.setPropertiesValues(dataViewObjects, objectName);
-        this.display.setPropertiesValues(dataViewObjects, objectName);
-    }
-}
 
 class MarkerOptions extends SimpleCard {
     showMarker = new formattingSettings.ToggleSwitch({
@@ -124,37 +99,18 @@ class MarkerOptions extends SimpleCard {
     });
     topLevelSlice = this.showMarker;
 
-    outlier = new formattingSettings.ColorPicker({
-        name: "outlier",
-        displayName: "Outlier Color",
-        value: { value: "#777777" }
-    });
     showOutlier = new formattingSettings.ToggleSwitch({
         name: "showOutlier",
-        displayName: undefined,
+        displayName: "Outlier Color",
         value: true
     });
 
-    outlier2 = new ColorSelectorOnOff({
-        name: "outlier2",
-        displayName: "outlier 2",
-
-        color: {
-            name: "color",
-            displayName: "Outlier Color",
-            value: { value: "#777777" }
-        },
-
-        display: {
-            name: "display",
-            displayName: undefined,
-            value: true
-        },
-
-
-    })
-
-    
+    outlier = new formattingSettings.ColorPicker({
+        name: "outlier",
+        displayName: undefined,
+        value: { value: "#DA291C" }
+    });
+  
     run = new formattingSettings.ColorPicker({
         name: "run",
         displayName: "Run Color",
@@ -176,7 +132,7 @@ class MarkerOptions extends SimpleCard {
 
     name: string = "markerOptions";
     displayName?: string = "Marker Options";
-    slices: Array<FormattingSettingsSlice> = [this.outlier, this.showOutlier, this.run, this.oneside, this.twoInThree];
+    slices: Array<FormattingSettingsSlice> = [this.showOutlier, this.outlier, this.run, this.oneside, this.twoInThree];
 }
 
 class SPC extends CompCard {

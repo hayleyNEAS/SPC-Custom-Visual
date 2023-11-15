@@ -10,13 +10,12 @@ var barCharte052449909264a3487139638376f9e72_DEBUG;
 /* harmony export */   DP: () => (/* binding */ CompositeCard),
 /* harmony export */   Hn: () => (/* binding */ Model),
 /* harmony export */   Zh: () => (/* binding */ ToggleSwitch),
-/* harmony export */   f3: () => (/* binding */ CompositeSlice),
 /* harmony export */   oi: () => (/* binding */ TextInput),
 /* harmony export */   sF: () => (/* binding */ SimpleCard),
 /* harmony export */   zH: () => (/* binding */ ColorPicker),
 /* harmony export */   zt: () => (/* binding */ ItemDropdown)
 /* harmony export */ });
-/* unused harmony exports CardGroupEntity, Group, SimpleSlice, AlignmentGroup, NumUpDown, Slider, DatePicker, AutoDropdown, DurationPicker, ErrorRangeControl, FieldPicker, ItemFlagsSelection, AutoFlagsSelection, TextArea, FontPicker, GradientBar, ImageUpload, ListEditor, ReadOnlyText, ShapeMapSelector, FontControl, MarginPadding, Container, ContainerItem */
+/* unused harmony exports CardGroupEntity, Group, SimpleSlice, AlignmentGroup, NumUpDown, Slider, DatePicker, AutoDropdown, DurationPicker, ErrorRangeControl, FieldPicker, ItemFlagsSelection, AutoFlagsSelection, TextArea, FontPicker, GradientBar, ImageUpload, ListEditor, ReadOnlyText, ShapeMapSelector, CompositeSlice, FontControl, MarginPadding, Container, ContainerItem */
 /* harmony import */ var _utils_FormattingSettingsUtils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3827);
 /**
  * Powerbi utils components classes for custom visual formatting pane objects
@@ -241,7 +240,7 @@ class ShapeMapSelector extends (/* unused pure expression or super */ null && (S
         return Object.assign(Object.assign({}, super.getFormattingComponent(objectName)), { isAzMapReferenceSelector: this.isAzMapReferenceSelector });
     }
 }
-class CompositeSlice extends NamedEntity {
+class CompositeSlice extends (/* unused pure expression or super */ null && (NamedEntity)) {
     constructor(object) {
         super();
         Object.assign(this, object);
@@ -1601,6 +1600,7 @@ function createSelectorData(options, host, formatSettings) {
     let measureFormat = '';
     let decimalPlaces = 0;
     let measureName = '';
+    let displayMarkerSize = 3;
     for (let i = 0, len = metadata.length; i < len; i++) {
         let meta = metadata[i];
         if (meta.isMeasure) {
@@ -1647,7 +1647,7 @@ function createSelectorData(options, host, formatSettings) {
                 .reduce((a, b) => a + b, 0);
             if (Math.abs(twoInThreeCheck) >= 2) {
                 latest3.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.twoInThree.value.value);
-                latest3.forEach(d => d.markerSize = 3);
+                latest3.forEach(d => d.markerSize = displayMarkerSize);
                 latest3.forEach(d => d.twoInThree = 1);
             }
         }
@@ -1660,12 +1660,12 @@ function createSelectorData(options, host, formatSettings) {
                 .reduce((a, b) => a + b, 0);
             if (runOfNumbers == p) {
                 latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.run.value.value);
-                latest7.forEach(d => d.markerSize = 3);
+                latest7.forEach(d => d.markerSize = displayMarkerSize);
                 latest7.forEach(d => d.run = 1);
             }
             if (runOfNumbers == -1 * p) {
                 latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.run.value.value);
-                latest7.forEach(d => d.markerSize = 3);
+                latest7.forEach(d => d.markerSize = displayMarkerSize);
                 latest7.forEach(d => d.run = -1);
             }
             //oneside of mean 
@@ -1674,12 +1674,12 @@ function createSelectorData(options, host, formatSettings) {
                 .reduce((a, b) => a + b, 0);
             if (shift7 == p) {
                 latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.oneside.value.value);
-                latest7.forEach(d => d.markerSize = 3);
+                latest7.forEach(d => d.markerSize = displayMarkerSize);
                 latest7.forEach(d => d.shift = 1);
             }
             if (shift7 == -1 * p) {
                 latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.oneside.value.value);
-                latest7.forEach(d => d.markerSize = 3);
+                latest7.forEach(d => d.markerSize = displayMarkerSize);
                 latest7.forEach(d => d.shift = -1);
             }
         }
@@ -1689,15 +1689,16 @@ function createSelectorData(options, host, formatSettings) {
     }
     //SPC Marker Colors Rules 
     //find outliers
+    let outlierColor = formatSettings.SPCSettings.markerOptions.outlier.value.value;
     for (let i = 0, len = nPoints; i < len; i++) {
         if (SPCChartDataPoints[i].value > UCLValue) {
-            SPCChartDataPoints[i].color = formatSettings.SPCSettings.markerOptions.outlier.value.value;
-            SPCChartDataPoints[i].markerSize = 3;
+            SPCChartDataPoints[i].color = outlierColor;
+            SPCChartDataPoints[i].markerSize = displayMarkerSize * Number(formatSettings.SPCSettings.markerOptions.showOutlier.value);
             SPCChartDataPoints[i].outlier = 1;
         }
         if (SPCChartDataPoints[i].value < LCLValue) {
-            SPCChartDataPoints[i].color = formatSettings.SPCSettings.markerOptions.outlier.value.value;
-            SPCChartDataPoints[i].markerSize = 3;
+            SPCChartDataPoints[i].color = outlierColor;
+            SPCChartDataPoints[i].markerSize = displayMarkerSize * Number(formatSettings.SPCSettings.markerOptions.showOutlier.value);
             SPCChartDataPoints[i].outlier = -1;
         }
     }
@@ -1706,7 +1707,7 @@ function createSelectorData(options, host, formatSettings) {
     shift = SPCChartDataPoints[nPoints - 1].shift;
     twoInThree = SPCChartDataPoints[nPoints - 1].twoInThree;
     if (nPoints == 1) {
-        SPCChartDataPoints.forEach(d => d.markerSize = 3);
+        SPCChartDataPoints.forEach(d => d.markerSize = displayMarkerSize);
     }
     return {
         datapoints: SPCChartDataPoints,
@@ -2294,7 +2295,6 @@ class SPCChart {
 var SimpleCard = powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .SimpleCard */ .sF;
 var CompCard = powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .CompositeCard */ .DP;
 var FormattingSettingsModel = powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .Model */ .Hn;
-
 class SPCSetUp extends SimpleCard {
     direction = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ItemDropdown */ .zt({
         items: [{ value: 1, displayName: "Up" }, { value: 0, displayName: "No Direction" }, { value: -1, displayName: "Down" }],
@@ -2360,27 +2360,6 @@ class LineOptions extends SimpleCard {
     displayName = "Line Options";
     slices = [this.showControl, this.upperCL, this.lowerCL, this.showSubControl, this.showMean];
 }
-class ColorSelectorOnOff extends powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .CompositeSlice */ .f3 {
-    color;
-    display;
-    constructor(object) {
-        super(object);
-    }
-    getFormattingComponent(objectName) {
-        return {
-            color: this.color.getFormattingComponent(objectName),
-            display: this.display.getFormattingComponent(objectName)
-        };
-    }
-    getRevertToDefaultDescriptor(objectName) {
-        return this.color.getRevertToDefaultDescriptor(objectName)
-            .concat(this.display.getRevertToDefaultDescriptor(objectName));
-    }
-    setPropertiesValues(dataViewObjects, objectName) {
-        this.color.setPropertiesValues(dataViewObjects, objectName);
-        this.display.setPropertiesValues(dataViewObjects, objectName);
-    }
-}
 class MarkerOptions extends SimpleCard {
     showMarker = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
         name: "showMarker",
@@ -2388,29 +2367,15 @@ class MarkerOptions extends SimpleCard {
         value: true
     });
     topLevelSlice = this.showMarker;
-    outlier = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
-        name: "outlier",
-        displayName: "Outlier Color",
-        value: { value: "#777777" }
-    });
     showOutlier = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
         name: "showOutlier",
-        displayName: undefined,
+        displayName: "Outlier Color",
         value: true
     });
-    outlier2 = new ColorSelectorOnOff({
-        name: "outlier2",
-        displayName: "outlier 2",
-        color: {
-            name: "color",
-            displayName: "Outlier Color",
-            value: { value: "#777777" }
-        },
-        display: {
-            name: "display",
-            displayName: undefined,
-            value: true
-        },
+    outlier = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
+        name: "outlier",
+        displayName: undefined,
+        value: { value: "#DA291C" }
     });
     run = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
         name: "run",
@@ -2429,7 +2394,7 @@ class MarkerOptions extends SimpleCard {
     });
     name = "markerOptions";
     displayName = "Marker Options";
-    slices = [this.outlier, this.showOutlier, this.run, this.oneside, this.twoInThree];
+    slices = [this.showOutlier, this.outlier, this.run, this.oneside, this.twoInThree];
 }
 class SPC extends CompCard {
     spcSetUp = new SPCSetUp();
