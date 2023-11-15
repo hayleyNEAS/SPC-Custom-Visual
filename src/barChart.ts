@@ -37,7 +37,9 @@ import { getLocalizedString } from "./localisation/localisationHelper"
 import { getCategoricalObjectValue, getValue } from "./objectEnumerationUtility";
 import { MarginPadding } from "powerbi-visuals-utils-formattingmodel/lib/FormattingSettingsComponents";
 
+//Importing functions from file
 import { parseDateLabel , parseinHMS, parseYLabels} from "./formattingFunctions"
+import { yAxisDomain} from "./chartFunctions"
 
 
 //import logo_variation_nochange from "./../assets/Variation_noChange.png"
@@ -617,12 +619,9 @@ export class SPCChart implements IVisual {
 
 
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
-        const yScale_increase = Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) * 1.1 - Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) 
-
         //Set up the Y Axis
         let yScale = scaleLinear()
-            .domain([Math.min(<number>options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) - yScale_increase - 1.1,
-            Math.max(<number>options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) + yScale_increase + 1.1])
+            .domain(yAxisDomain(data))
             .range([height, 5]); 
 
         let yTicks = 5;

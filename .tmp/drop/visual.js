@@ -1462,9 +1462,9 @@ try {
 /* harmony export */ });
 /* unused harmony export SPCChart */
 /* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(5036);
-/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(7808);
+/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(7808);
 /* harmony import */ var d3_selection__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(3838);
-/* harmony import */ var d3_axis__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(924);
+/* harmony import */ var d3_axis__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(924);
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8976);
 /* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5666);
 /* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1__);
@@ -1473,6 +1473,7 @@ try {
 /* harmony import */ var _barChartSettingsModel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2446);
 /* harmony import */ var _objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(6363);
 /* harmony import */ var _formattingFunctions__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(9540);
+/* harmony import */ var _chartFunctions__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(877);
 
 
 
@@ -1482,6 +1483,8 @@ try {
 
 
 
+
+//Importing functions from file
 
 
 //import logo_variation_nochange from "./../assets/Variation_noChange.png"
@@ -1490,15 +1493,15 @@ const variation_ciHigh = __webpack_require__(3484);
 const variation_ccHigh = __webpack_require__(4201);
 const variation_ciLow = __webpack_require__(4837);
 const variation_ccLow = __webpack_require__(1069);
-const variation_High = __webpack_require__(840);
-const variation_Low = __webpack_require__(395);
+const variation_High = __webpack_require__(4840);
+const variation_Low = __webpack_require__(2395);
 const atTarget = __webpack_require__(7523);
 const fail_above = __webpack_require__(3359);
 const fail_below = __webpack_require__(2564);
 const pass_above = __webpack_require__(4151);
 const pass_below = __webpack_require__(9525);
-const above = __webpack_require__(119);
-const below = __webpack_require__(762);
+const above = __webpack_require__(8119);
+const below = __webpack_require__(2762);
 function logoSelector(data, option) {
     if (option == "variation") {
         //let dataPoints = data.datapoints
@@ -1934,14 +1937,12 @@ class SPCChart {
             height -= margins.bottom;
         }
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
-        const yScale_increase = Math.max(options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) * 1.1 - Math.max(options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue);
         //Set up the Y Axis
         let yScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_8__/* ["default"] */ .Z)()
-            .domain([Math.min(options.dataViews[0].categorical.values[0].minLocal, data.LCLValue) - yScale_increase - 1.1,
-            Math.max(options.dataViews[0].categorical.values[0].maxLocal, data.UCLValue) + yScale_increase + 1.1])
+            .domain((0,_chartFunctions__WEBPACK_IMPORTED_MODULE_9__/* .yAxisDomain */ .l)(data))
             .range([height, 5]);
         let yTicks = 5;
-        let yAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_9__/* .axisLeft */ .y4)(yScale)
+        let yAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_10__/* .axisLeft */ .y4)(yScale)
             .tickSizeInner(-widthChartEnd);
         if (this.formattingSettings.enableYAxis.formatter.time.value) {
             yAxis = yAxis
@@ -1985,10 +1986,10 @@ class SPCChart {
         //Set up the X Axis
         this.xAxis
             .style("font-size", 11);
-        let xScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_10__/* .point */ .x)()
+        let xScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_11__/* .point */ .x)()
             .domain(this.dataPoints.map(d => d.category))
             .range([widthChartStart, widthChartEnd]);
-        let xAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_9__/* .axisBottom */ .LL)(xScale)
+        let xAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_10__/* .axisBottom */ .LL)(xScale)
             .tickFormat(_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseDateLabel */ .YV);
         let xAxisObject = this.xAxis
             .attr('transform', 'translate(0, ' + (height + 2) + ')')
@@ -2519,6 +2520,26 @@ class BarChartSettingsModel extends FormattingSettingsModel {
 
 /***/ }),
 
+/***/ 877:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   l: () => (/* binding */ yAxisDomain)
+/* harmony export */ });
+function yAxisDomain(data) {
+    let yData = data.datapoints.map(d => d.value);
+    let maxData = yData.reduce((a, b) => Math.max(a, b), -Infinity);
+    let yScale_maxData = Math.max(maxData, data.UCLValue, data.target);
+    let minData = yData.reduce((a, b) => Math.min(a, b), Infinity);
+    let yScale_minData = Math.min(minData, data.LCLValue, data.target);
+    let yScale_increase_window = yScale_maxData * 1.1 - yScale_maxData;
+    return [yScale_minData - yScale_increase_window, yScale_maxData + yScale_increase_window];
+}
+
+
+/***/ }),
+
 /***/ 9540:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -2666,7 +2687,7 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGcAAABkCAYAAAHs
 
 /***/ }),
 
-/***/ 119:
+/***/ 8119:
 /***/ ((module) => {
 
 "use strict";
@@ -2682,7 +2703,7 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXoAAAF6CAYAAAAX
 
 /***/ }),
 
-/***/ 762:
+/***/ 2762:
 /***/ ((module) => {
 
 "use strict";
@@ -2754,7 +2775,7 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGoAAABqCAYAAAEj
 
 /***/ }),
 
-/***/ 840:
+/***/ 4840:
 /***/ ((module) => {
 
 "use strict";
@@ -2762,7 +2783,7 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXoAAAF6CAYAAAAX
 
 /***/ }),
 
-/***/ 395:
+/***/ 2395:
 /***/ ((module) => {
 
 "use strict";
