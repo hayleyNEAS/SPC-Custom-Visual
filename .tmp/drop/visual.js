@@ -1972,10 +1972,7 @@ class SPCChart {
             if (this.getBBox().width > maxW)
                 maxW = this.getBBox().width;
         });
-        if (this.formattingSettings.enableYAxis.show.value) {
-            yShift = maxW + 10; //longest "word" plus 10 pixels
-        }
-        if (this.formattingSettings.enableYAxis.formatter.time.value) {
+        if (this.formattingSettings.enableYAxis.show.value || this.formattingSettings.enableYAxis.formatter.time.value) {
             yShift = maxW + 10; //longest "word" plus 10 pixels
         }
         widthChartStart = yShift + (width - widthChartEnd);
