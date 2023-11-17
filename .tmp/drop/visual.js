@@ -1651,7 +1651,7 @@ function createSelectorData(options, host, formatSettings) {
                 latest3.forEach(d => d.twoInThree = 1);
             }
         }
-        let p = 7;
+        let p = 5;
         if (i > p) {
             let latest7 = SPCChartDataPoints.slice(i - p + 1, i + 1);
             //run of 7
@@ -2377,10 +2377,15 @@ class MarkerOptions extends SimpleCard {
         displayName: undefined,
         value: { value: "#DA291C" }
     });
+    showTrend = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
+        name: "showTrend",
+        displayName: "Trend Color",
+        value: true
+    });
     run = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
         name: "run",
-        displayName: "Run Color",
-        value: { value: "purple" }
+        displayName: undefined,
+        value: { value: "#FAE100" }
     });
     oneside = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
         name: "oneside",
@@ -2394,7 +2399,7 @@ class MarkerOptions extends SimpleCard {
     });
     name = "markerOptions";
     displayName = "Marker Options";
-    slices = [this.showOutlier, this.outlier, this.run, this.oneside, this.twoInThree];
+    slices = [this.showOutlier, this.outlier, this.showTrend, this.run, this.oneside, this.twoInThree];
 }
 class SPC extends CompCard {
     spcSetUp = new SPCSetUp();

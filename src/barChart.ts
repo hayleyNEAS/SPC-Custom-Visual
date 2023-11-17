@@ -252,7 +252,8 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
                 latest3.forEach(d => d.twoInThree = 1)
             }
         }
-        let p = 7
+        let p = 7 
+        console.log(p)//, formatSettings.SPCSettings.markerOptions.runNumber.value
         if (i > p) {
             let latest7 = SPCChartDataPoints.slice(i - p + 1, i + 1)
             //run of 7

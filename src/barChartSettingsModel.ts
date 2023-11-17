@@ -110,12 +110,22 @@ class MarkerOptions extends SimpleCard {
         displayName: undefined,
         value: { value: "#DA291C" }
     });
-  
+
+    showTrend = new formattingSettings.ToggleSwitch({
+        name: "showTrend",
+        displayName: "Trend Color",
+        value: true
+    });
     run = new formattingSettings.ColorPicker({
         name: "run",
-        displayName: "Run Color",
-        value: { value: "purple" }
+        displayName: undefined,
+        value: { value: "#FAE100" }
     });
+/*     runNumber = new formattingSettings.NumUpDown({
+        name: "runNum",
+        displayName: undefined,
+        value: 7
+    }); */
 
     
     oneside = new formattingSettings.ColorPicker({
@@ -132,7 +142,7 @@ class MarkerOptions extends SimpleCard {
 
     name: string = "markerOptions";
     displayName?: string = "Marker Options";
-    slices: Array<FormattingSettingsSlice> = [this.showOutlier, this.outlier, this.run, this.oneside, this.twoInThree];
+    slices: Array<FormattingSettingsSlice> = [this.showOutlier, this.outlier, this.showTrend, this.run, this.oneside, this.twoInThree];
 }
 
 class SPC extends CompCard {
