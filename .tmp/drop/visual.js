@@ -1595,7 +1595,22 @@ function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
 function createSelectorData(options, host, formatSettings) {
     let SPCChartDataPoints = createSelectorDataPoints(options, host);
     let direction = formatSettings.SPCSettings.spcSetUp.direction.value.value;
-    let target = Number(formatSettings.SPCSettings.spcSetUp.target.value.valueOf());
+    let target = 0;
+    if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
+        if (formatSettings.enableYAxis.formatter.time.value) {
+            let targetSplit = formatSettings.SPCSettings.spcSetUp.target.value.valueOf().split(":").reverse();
+            let toSeconds = [1, 60, 3600, 86400];
+            for (let i = 0, len = targetSplit.length; i < len; i++) {
+                target = target + Number(targetSplit[i]) * toSeconds[i];
+            }
+        }
+        else {
+            target = Number(formatSettings.SPCSettings.spcSetUp.target.value.valueOf());
+        }
+    }
+    else {
+        target = 0;
+    }
     let metadata = options.dataViews[0].metadata.columns;
     let measureFormat = '';
     let decimalPlaces = 0;
@@ -1651,7 +1666,8 @@ function createSelectorData(options, host, formatSettings) {
                 latest3.forEach(d => d.twoInThree = 1);
             }
         }
-        let p = 5;
+        let p = 7;
+        console.log(p); //, formatSettings.SPCSettings.markerOptions.runNumber.value
         if (i > p) {
             let latest7 = SPCChartDataPoints.slice(i - p + 1, i + 1);
             //run of 7
@@ -1997,18 +2013,18 @@ class SPCChart {
         xAxisObject.selectAll('.xAxis path, line')
             .attr('opacity', 0);
         //Create target line
-        // if(this.formattingSettings.SPCSettings.lineOptions.showControl.value){
-        this.lineTarget
-            .style("stroke-linecap", "round")
-            .attr("class", "target")
-            .attr("x1", widthChartStart)
-            .attr("x2", widthChartEnd)
-            .attr("y1", function (d) { return yScale(data.target); })
-            .attr("y2", function (d) { return yScale(data.target); })
-            .attr("fill", "none")
-            .attr("stroke", "red")
-            .attr("stroke-width", 2);
-        //}
+        if (this.formattingSettings.SPCSettings.spcSetUp.target.value != '') {
+            this.lineTarget
+                .style("stroke-linecap", "round")
+                .attr("class", "target")
+                .attr("x1", widthChartStart)
+                .attr("x2", widthChartEnd)
+                .attr("y1", function (d) { return yScale(data.target); })
+                .attr("y2", function (d) { return yScale(data.target); })
+                .attr("fill", "none")
+                .attr("stroke", "red")
+                .attr("stroke-width", 2);
+        }
         //Create data line
         this.lineData
             .datum(this.dataPoints)
@@ -2387,6 +2403,11 @@ class MarkerOptions extends SimpleCard {
         displayName: undefined,
         value: { value: "#FAE100" }
     });
+    /*     runNumber = new formattingSettings.NumUpDown({
+            name: "runNum",
+            displayName: undefined,
+            value: 7
+        }); */
     oneside = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
         name: "oneside",
         displayName: "Oneside of Mean Color",

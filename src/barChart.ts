@@ -185,7 +185,20 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     let SPCChartDataPoints = createSelectorDataPoints(options, host);
 
     let direction = <number>formatSettings.SPCSettings.spcSetUp.direction.value.value
-    let target = Number(formatSettings.SPCSettings.spcSetUp.target.value.valueOf())
+    let target = 0
+    if(formatSettings.SPCSettings.spcSetUp.target.value != ''){
+        if(formatSettings.enableYAxis.formatter.time.value){
+            let targetSplit = formatSettings.SPCSettings.spcSetUp.target.value.valueOf().split(":").reverse()
+            let toSeconds = [1, 60, 3600, 86400]
+            for(let i = 0, len = targetSplit.length; i < len; i++){
+                target = target + Number(targetSplit[i])*toSeconds[i]
+            }
+         } else {
+            target = Number(formatSettings.SPCSettings.spcSetUp.target.value.valueOf())
+        }
+    } else {
+        target = 0 
+    }
 
     let metadata = options.dataViews[0].metadata.columns
     let measureFormat = ''
@@ -713,20 +726,20 @@ export class SPCChart implements IVisual {
             ;
 
         //Create target line
-        // if(this.formattingSettings.SPCSettings.lineOptions.showControl.value){
-        this.lineTarget
-            .style("stroke-linecap", "round")
-            .attr("class", "target")
-            .attr("x1", widthChartStart)
-            .attr("x2", widthChartEnd)
-            .attr("y1", function (d) { return yScale(data.target); })
-            .attr("y2", function (d) { return yScale(data.target); })
-            .attr("fill", "none")
-            .attr("stroke", "red")
-            .attr("stroke-width", 2)
+        if(this.formattingSettings.SPCSettings.spcSetUp.target.value != ''){
+            this.lineTarget
+                .style("stroke-linecap", "round")
+                .attr("class", "target")
+                .attr("x1", widthChartStart)
+                .attr("x2", widthChartEnd)
+                .attr("y1", function (d) { return yScale(data.target); })
+                .attr("y2", function (d) { return yScale(data.target); })
+                .attr("fill", "none")
+                .attr("stroke", "red")
+                .attr("stroke-width", 2)
 
 
-        //}
+        }
 
         //Create data line
         this.lineData
