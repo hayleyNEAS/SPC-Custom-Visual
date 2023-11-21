@@ -1548,7 +1548,7 @@ function logoSelector(data, option) {
                 if (data.target >= data.UCLValue) {
                     return pass_below;
                 }
-                else { //TODO Check target exists 
+                else {
                     return atTarget;
                 }
             }
@@ -1601,7 +1601,7 @@ function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
 function createSelectorData(options, host, formatSettings) {
     let SPCChartDataPoints = createSelectorDataPoints(options, host);
     let direction = formatSettings.SPCSettings.spcSetUp.direction.value.value;
-    let target = 0;
+    let target = -Infinity;
     if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
         if (formatSettings.enableYAxis.formatter.time.value) {
             let targetSplit = formatSettings.SPCSettings.spcSetUp.target.value.valueOf().split(":").reverse();

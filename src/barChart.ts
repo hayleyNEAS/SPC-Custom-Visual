@@ -98,7 +98,7 @@ function logoSelector(data: SPCChartData, option): any {
                     return fail_above
                 } if (data.target >= data.UCLValue) {
                     return pass_below
-                } else { //TODO Check target exists 
+                } else { 
                     return atTarget
                 }
 
@@ -190,7 +190,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     let SPCChartDataPoints = createSelectorDataPoints(options, host);
 
     let direction = <number>formatSettings.SPCSettings.spcSetUp.direction.value.value
-    let target = 0
+    let target = -Infinity
 
     if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
         if (formatSettings.enableYAxis.formatter.time.value) {
