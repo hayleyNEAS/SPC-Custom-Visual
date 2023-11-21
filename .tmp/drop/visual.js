@@ -1592,7 +1592,7 @@ function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
     }
     else {
         if (value < Lower_Zone_A) {
-            return 1;
+            return -1;
         }
         else {
             0;
@@ -1607,15 +1607,15 @@ function createSelectorData(options, host, formatSettings) {
     let down_color = "";
     if (direction == 1) {
         up_color = formatSettings.SPCSettings.markerOptions.improvement.value.value;
-        down_color = "red"; //formatSettings.SPCSettings.markerOptions.improvment.value.value
+        down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value;
     }
     else if (direction == -1) {
-        up_color = "red"; //formatSettings.SPCSettings.markerOptions.improvment.value.value
+        up_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value;
         down_color = formatSettings.SPCSettings.markerOptions.improvement.value.value;
     }
     else {
-        up_color = "blue";
-        down_color = "purple";
+        up_color = formatSettings.SPCSettings.markerOptions.improvement.value.value;
+        down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value;
     }
     //TARGETR
     let target = -Infinity;
@@ -1684,7 +1684,12 @@ function createSelectorData(options, host, formatSettings) {
                 .map((d) => twoInThreeRule(d.value, Upper_Zone_A, Lower_Zone_A, direction))
                 .reduce((a, b) => a + b, 0);
             if (Math.abs(twoInThreeCheck) >= 2) {
-                latest3.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.twoInThree.value.value);
+                latest3.forEach(d => d.color = up_color);
+                latest3.forEach(d => d.markerSize = displayMarkerSize);
+                latest3.forEach(d => d.twoInThree = 1);
+            }
+            else if (Math.abs(twoInThreeCheck) <= -2) {
+                latest3.forEach(d => d.color = down_color);
                 latest3.forEach(d => d.markerSize = displayMarkerSize);
                 latest3.forEach(d => d.twoInThree = 1);
             }
@@ -2433,14 +2438,14 @@ class MarkerOptions extends SimpleCard {
         displayName: "Improvement",
         value: { value: "orange" }
     });
-    twoInThree = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
-        name: "twoInThree",
-        displayName: "Two In three",
-        value: { value: "pink" }
+    deterioration = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
+        name: "deterioration",
+        displayName: "Deterioration",
+        value: { value: "#005EB8" }
     });
     name = "markerOptions";
     displayName = "Marker Options";
-    slices = [this.showOutlier, this.outlier, this.runNumber, this.showTrend, this.run, this.improvement, this.twoInThree];
+    slices = [this.showOutlier, this.outlier, this.runNumber, this.showTrend, this.run, this.improvement, this.deterioration];
 }
 class SPC extends CompCard {
     spcSetUp = new SPCSetUp();

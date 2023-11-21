@@ -134,15 +134,15 @@ class MarkerOptions extends SimpleCard {
         value: { value: "orange" }
     });
 
-    twoInThree = new formattingSettings.ColorPicker({
-        name: "twoInThree",
-        displayName: "Two In three",
-        value: { value: "pink" }
+    deterioration = new formattingSettings.ColorPicker({
+        name: "deterioration",
+        displayName: "Deterioration",
+        value: { value: "#005EB8" }
     });
 
     name: string = "markerOptions";
     displayName?: string = "Marker Options";
-    slices: Array<FormattingSettingsSlice> = [this.showOutlier, this.outlier, this.runNumber, this.showTrend,  this.run, this.improvement, this.twoInThree];
+    slices: Array<FormattingSettingsSlice> = [this.showOutlier, this.outlier, this.runNumber, this.showTrend,  this.run, this.improvement, this.deterioration];
 }
 
 class SPC extends CompCard {

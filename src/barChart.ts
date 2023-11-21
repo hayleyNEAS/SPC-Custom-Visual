@@ -135,7 +135,7 @@ function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
         }
     } else {
         if (value < Lower_Zone_A) {
-            return 1
+            return -1
         } else {
             0
         }
@@ -195,13 +195,13 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     let down_color = ""
     if(direction == 1){
         up_color = formatSettings.SPCSettings.markerOptions.improvement.value.value
-        down_color = "red"//formatSettings.SPCSettings.markerOptions.improvment.value.value
+        down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value
     } else if (direction == -1) {
-        up_color = "red"//formatSettings.SPCSettings.markerOptions.improvment.value.value
+        up_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value
         down_color = formatSettings.SPCSettings.markerOptions.improvement.value.value
     } else {
-        up_color = "blue"
-        down_color = "purple"
+        up_color = formatSettings.SPCSettings.markerOptions.improvement.value.value
+        down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value
     }
 
     //TARGETR
@@ -281,7 +281,11 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
                 .map((d) => twoInThreeRule(d.value, Upper_Zone_A, Lower_Zone_A, direction))
                 .reduce((a, b) => a + b, 0)
             if (Math.abs(twoInThreeCheck) >= 2) {
-                latest3.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.twoInThree.value.value)
+                latest3.forEach(d => d.color = up_color)
+                latest3.forEach(d => d.markerSize = displayMarkerSize)
+                latest3.forEach(d => d.twoInThree = 1)
+            } else if (Math.abs(twoInThreeCheck) <= -2) {
+                latest3.forEach(d => d.color = down_color)
                 latest3.forEach(d => d.markerSize = displayMarkerSize)
                 latest3.forEach(d => d.twoInThree = 1)
             }
