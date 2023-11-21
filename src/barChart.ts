@@ -193,10 +193,10 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     let direction = <number>formatSettings.SPCSettings.spcSetUp.direction.value.value
     let up_color = ""
     let down_color = ""
-    if(direction = 1){
+    if(direction == 1){
         up_color = formatSettings.SPCSettings.markerOptions.improvement.value.value
         down_color = "red"//formatSettings.SPCSettings.markerOptions.improvment.value.value
-    } else if (direction = -1) {
+    } else if (direction == -1) {
         up_color = "red"//formatSettings.SPCSettings.markerOptions.improvment.value.value
         down_color = formatSettings.SPCSettings.markerOptions.improvement.value.value
     } else {
