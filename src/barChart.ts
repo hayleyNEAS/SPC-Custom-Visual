@@ -189,7 +189,22 @@ export interface SPCChartDataPoint {
 function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, formatSettings: BarChartSettingsModel): SPCChartData {
     let SPCChartDataPoints = createSelectorDataPoints(options, host);
 
+    //DIRECTION
     let direction = <number>formatSettings.SPCSettings.spcSetUp.direction.value.value
+    let up_color = ""
+    let down_color = ""
+    if(direction = 1){
+        up_color = formatSettings.SPCSettings.markerOptions.improvement.value.value
+        down_color = "red"//formatSettings.SPCSettings.markerOptions.improvment.value.value
+    } else if (direction = -1) {
+        up_color = "red"//formatSettings.SPCSettings.markerOptions.improvment.value.value
+        down_color = formatSettings.SPCSettings.markerOptions.improvement.value.value
+    } else {
+        up_color = "blue"
+        down_color = "purple"
+    }
+
+    //TARGETR
     let target = -Infinity
 
     if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
@@ -279,11 +294,11 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
                 .map((d) => Math.sign(d.difference))
                 .reduce((a, b) => a + b, 0)
             if (runOfNumbers == p) {
-                latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.run.value.value)
+                latest7.forEach(d => d.color = up_color)
                 latest7.forEach(d => d.markerSize = displayMarkerSize)
                 latest7.forEach(d => d.run = 1)
             } if (runOfNumbers == -1 * p) {
-                latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.run.value.value)
+                latest7.forEach(d => d.color = down_color)
                 latest7.forEach(d => d.markerSize = displayMarkerSize)
                 latest7.forEach(d => d.run = -1)
             }
@@ -292,11 +307,11 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
                 .map((d) => Math.sign(<number>d.value - meanValue))
                 .reduce((a, b) => a + b, 0)
             if (shift7 == p) {
-                latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.oneside.value.value)
+                latest7.forEach(d => d.color = up_color)
                 latest7.forEach(d => d.markerSize = displayMarkerSize)
                 latest7.forEach(d => d.shift = 1)
             } if (shift7 == -1 * p) {
-                latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.oneside.value.value)
+                latest7.forEach(d => d.color = down_color)
                 latest7.forEach(d => d.markerSize = displayMarkerSize)
                 latest7.forEach(d => d.shift = -1)
             }

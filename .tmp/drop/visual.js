@@ -1601,7 +1601,23 @@ function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
 }
 function createSelectorData(options, host, formatSettings) {
     let SPCChartDataPoints = createSelectorDataPoints(options, host);
+    //DIRECTION
     let direction = formatSettings.SPCSettings.spcSetUp.direction.value.value;
+    let up_color = "";
+    let down_color = "";
+    if (direction = 1) {
+        up_color = formatSettings.SPCSettings.markerOptions.improvement.value.value;
+        down_color = "red"; //formatSettings.SPCSettings.markerOptions.improvment.value.value
+    }
+    else if (direction = -1) {
+        up_color = "red"; //formatSettings.SPCSettings.markerOptions.improvment.value.value
+        down_color = formatSettings.SPCSettings.markerOptions.improvement.value.value;
+    }
+    else {
+        up_color = "blue";
+        down_color = "purple";
+    }
+    //TARGETR
     let target = -Infinity;
     if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
         if (formatSettings.enableYAxis.formatter.time.value) {
@@ -1681,12 +1697,12 @@ function createSelectorData(options, host, formatSettings) {
                 .map((d) => Math.sign(d.difference))
                 .reduce((a, b) => a + b, 0);
             if (runOfNumbers == p) {
-                latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.run.value.value);
+                latest7.forEach(d => d.color = up_color);
                 latest7.forEach(d => d.markerSize = displayMarkerSize);
                 latest7.forEach(d => d.run = 1);
             }
             if (runOfNumbers == -1 * p) {
-                latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.run.value.value);
+                latest7.forEach(d => d.color = down_color);
                 latest7.forEach(d => d.markerSize = displayMarkerSize);
                 latest7.forEach(d => d.run = -1);
             }
@@ -1695,12 +1711,12 @@ function createSelectorData(options, host, formatSettings) {
                 .map((d) => Math.sign(d.value - meanValue))
                 .reduce((a, b) => a + b, 0);
             if (shift7 == p) {
-                latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.oneside.value.value);
+                latest7.forEach(d => d.color = up_color);
                 latest7.forEach(d => d.markerSize = displayMarkerSize);
                 latest7.forEach(d => d.shift = 1);
             }
             if (shift7 == -1 * p) {
-                latest7.forEach(d => d.color = formatSettings.SPCSettings.markerOptions.oneside.value.value);
+                latest7.forEach(d => d.color = down_color);
                 latest7.forEach(d => d.markerSize = displayMarkerSize);
                 latest7.forEach(d => d.shift = -1);
             }
@@ -2412,9 +2428,9 @@ class MarkerOptions extends SimpleCard {
         displayName: "Number of points",
         value: 7
     });
-    oneside = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
-        name: "oneside",
-        displayName: "Oneside of Mean Color",
+    improvement = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
+        name: "improvement",
+        displayName: "Improvement",
         value: { value: "orange" }
     });
     twoInThree = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
@@ -2424,7 +2440,7 @@ class MarkerOptions extends SimpleCard {
     });
     name = "markerOptions";
     displayName = "Marker Options";
-    slices = [this.showOutlier, this.outlier, this.runNumber, this.showTrend, this.run, this.oneside, this.twoInThree];
+    slices = [this.showOutlier, this.outlier, this.runNumber, this.showTrend, this.run, this.improvement, this.twoInThree];
 }
 class SPC extends CompCard {
     spcSetUp = new SPCSetUp();

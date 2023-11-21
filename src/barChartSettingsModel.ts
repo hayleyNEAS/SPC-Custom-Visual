@@ -128,9 +128,9 @@ class MarkerOptions extends SimpleCard {
     }); 
 
     
-    oneside = new formattingSettings.ColorPicker({
-        name: "oneside",
-        displayName: "Oneside of Mean Color",
+    improvement = new formattingSettings.ColorPicker({
+        name: "improvement",
+        displayName: "Improvement",
         value: { value: "orange" }
     });
 
@@ -142,7 +142,7 @@ class MarkerOptions extends SimpleCard {
 
     name: string = "markerOptions";
     displayName?: string = "Marker Options";
-    slices: Array<FormattingSettingsSlice> = [this.showOutlier, this.outlier, this.runNumber, this.showTrend,  this.run, this.oneside, this.twoInThree];
+    slices: Array<FormattingSettingsSlice> = [this.showOutlier, this.outlier, this.runNumber, this.showTrend,  this.run, this.improvement, this.twoInThree];
 }
 
 class SPC extends CompCard {
