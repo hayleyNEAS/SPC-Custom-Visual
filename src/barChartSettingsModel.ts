@@ -24,7 +24,7 @@ class SPCSetUp extends SimpleCard {
         name: "target",
         displayName: "Target",
         value: "7",
-        placeholder: "Target"
+        placeholder: "Value" 
 
     })
     name: string = "SPCSetUp";
@@ -101,7 +101,7 @@ class MarkerOptions extends SimpleCard {
 
     showOutlier = new formattingSettings.ToggleSwitch({
         name: "showOutlier",
-        displayName: "Outlier Color",
+        displayName: "Outlier",
         value: true
     });
 
@@ -113,7 +113,7 @@ class MarkerOptions extends SimpleCard {
 
     showTrend = new formattingSettings.ToggleSwitch({
         name: "showTrend",
-        displayName: "Trend Color",
+        displayName: "Trend",
         value: true
     });
     run = new formattingSettings.ColorPicker({
@@ -121,11 +121,11 @@ class MarkerOptions extends SimpleCard {
         displayName: undefined,
         value: { value: "#FAE100" }
     });
-/*     runNumber = new formattingSettings.NumUpDown({
-        name: "runNum",
-        displayName: undefined,
+    runNumber = new formattingSettings.NumUpDown({
+        name: "runNumber",
+        displayName: "Number of points",
         value: 7
-    }); */
+    }); 
 
     
     oneside = new formattingSettings.ColorPicker({
@@ -142,7 +142,7 @@ class MarkerOptions extends SimpleCard {
 
     name: string = "markerOptions";
     displayName?: string = "Marker Options";
-    slices: Array<FormattingSettingsSlice> = [this.showOutlier, this.outlier, this.showTrend, this.run, this.oneside, this.twoInThree];
+    slices: Array<FormattingSettingsSlice> = [this.showOutlier, this.outlier, this.runNumber, this.showTrend,  this.run, this.oneside, this.twoInThree];
 }
 
 class SPC extends CompCard {

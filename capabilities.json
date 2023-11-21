@@ -153,6 +153,11 @@
                         }
                     }
                 },
+                "runNumber": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
                 "oneside": {
                     "type": {
                         "fill": {

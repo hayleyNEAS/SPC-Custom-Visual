@@ -9,13 +9,14 @@ var barCharte052449909264a3487139638376f9e72_DEBUG;
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   DP: () => (/* binding */ CompositeCard),
 /* harmony export */   Hn: () => (/* binding */ Model),
+/* harmony export */   L_: () => (/* binding */ NumUpDown),
 /* harmony export */   Zh: () => (/* binding */ ToggleSwitch),
 /* harmony export */   oi: () => (/* binding */ TextInput),
 /* harmony export */   sF: () => (/* binding */ SimpleCard),
 /* harmony export */   zH: () => (/* binding */ ColorPicker),
 /* harmony export */   zt: () => (/* binding */ ItemDropdown)
 /* harmony export */ });
-/* unused harmony exports CardGroupEntity, Group, SimpleSlice, AlignmentGroup, NumUpDown, Slider, DatePicker, AutoDropdown, DurationPicker, ErrorRangeControl, FieldPicker, ItemFlagsSelection, AutoFlagsSelection, TextArea, FontPicker, GradientBar, ImageUpload, ListEditor, ReadOnlyText, ShapeMapSelector, CompositeSlice, FontControl, MarginPadding, Container, ContainerItem */
+/* unused harmony exports CardGroupEntity, Group, SimpleSlice, AlignmentGroup, Slider, DatePicker, AutoDropdown, DurationPicker, ErrorRangeControl, FieldPicker, ItemFlagsSelection, AutoFlagsSelection, TextArea, FontPicker, GradientBar, ImageUpload, ListEditor, ReadOnlyText, ShapeMapSelector, CompositeSlice, FontControl, MarginPadding, Container, ContainerItem */
 /* harmony import */ var _utils_FormattingSettingsUtils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3827);
 /**
  * Powerbi utils components classes for custom visual formatting pane objects
@@ -102,7 +103,7 @@ class ColorPicker extends SimpleSlice {
         return Object.assign(Object.assign({}, super.getFormattingComponent(objectName)), { defaultColor: this.defaultColor, isNoFillItemSupported: this.isNoFillItemSupported });
     }
 }
-class NumUpDown extends (/* unused pure expression or super */ null && (SimpleSlice)) {
+class NumUpDown extends SimpleSlice {
     constructor(object) {
         super(object);
         this.type = "NumUpDown" /* visuals.FormattingComponent.NumUpDown */;
@@ -1501,7 +1502,7 @@ const pass_above = __webpack_require__(4151);
 const pass_below = __webpack_require__(9525);
 const above = __webpack_require__(8119);
 const below = __webpack_require__(2762);
-const none = __webpack_require__(304);
+const none = __webpack_require__(9304);
 function logoSelector(data, option) {
     if (option == "variation") {
         //let dataPoints = data.datapoints
@@ -1672,8 +1673,7 @@ function createSelectorData(options, host, formatSettings) {
                 latest3.forEach(d => d.twoInThree = 1);
             }
         }
-        let p = 7;
-        console.log(p); //, formatSettings.SPCSettings.markerOptions.runNumber.value
+        let p = formatSettings.SPCSettings.markerOptions.runNumber.value;
         if (i > p) {
             let latest7 = SPCChartDataPoints.slice(i - p + 1, i + 1);
             //run of 7
@@ -2326,7 +2326,7 @@ class SPCSetUp extends SimpleCard {
         name: "target",
         displayName: "Target",
         value: "7",
-        placeholder: "Target"
+        placeholder: "Value"
     });
     name = "SPCSetUp";
     displayName = "SPC Set Up";
@@ -2389,7 +2389,7 @@ class MarkerOptions extends SimpleCard {
     topLevelSlice = this.showMarker;
     showOutlier = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
         name: "showOutlier",
-        displayName: "Outlier Color",
+        displayName: "Outlier",
         value: true
     });
     outlier = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
@@ -2399,7 +2399,7 @@ class MarkerOptions extends SimpleCard {
     });
     showTrend = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
         name: "showTrend",
-        displayName: "Trend Color",
+        displayName: "Trend",
         value: true
     });
     run = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
@@ -2407,11 +2407,11 @@ class MarkerOptions extends SimpleCard {
         displayName: undefined,
         value: { value: "#FAE100" }
     });
-    /*     runNumber = new formattingSettings.NumUpDown({
-            name: "runNum",
-            displayName: undefined,
-            value: 7
-        }); */
+    runNumber = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .NumUpDown */ .L_({
+        name: "runNumber",
+        displayName: "Number of points",
+        value: 7
+    });
     oneside = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
         name: "oneside",
         displayName: "Oneside of Mean Color",
@@ -2424,7 +2424,7 @@ class MarkerOptions extends SimpleCard {
     });
     name = "markerOptions";
     displayName = "Marker Options";
-    slices = [this.showOutlier, this.outlier, this.showTrend, this.run, this.oneside, this.twoInThree];
+    slices = [this.showOutlier, this.outlier, this.runNumber, this.showTrend, this.run, this.oneside, this.twoInThree];
 }
 class SPC extends CompCard {
     spcSetUp = new SPCSetUp();
@@ -2722,7 +2722,7 @@ module.exports = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXoAAAF6CAYAAAAX
 
 /***/ }),
 
-/***/ 304:
+/***/ 9304:
 /***/ ((module) => {
 
 "use strict";
