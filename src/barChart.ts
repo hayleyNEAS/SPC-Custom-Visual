@@ -38,8 +38,8 @@ import { getCategoricalObjectValue, getValue } from "./objectEnumerationUtility"
 import { MarginPadding } from "powerbi-visuals-utils-formattingmodel/lib/FormattingSettingsComponents";
 
 //Importing functions from file
-import { parseDateLabel , parseinHMS, parseYLabels} from "./formattingFunctions"
-import { yAxisDomain} from "./chartFunctions"
+import { parseDateLabel, parseinHMS, parseYLabels } from "./formattingFunctions"
+import { yAxisDomain } from "./chartFunctions"
 
 
 //import logo_variation_nochange from "./../assets/Variation_noChange.png"
@@ -58,6 +58,7 @@ const pass_above = require("./../assets/pass_above.png")
 const pass_below = require("./../assets/pass_below.png")
 const above = require("./../assets/above.png")
 const below = require("./../assets/below.png")
+const none = require("./../assets/no_image.png")
 
 
 function logoSelector(data: SPCChartData, option): any {
@@ -91,31 +92,35 @@ function logoSelector(data: SPCChartData, option): any {
     }
 
     if (option == "target") {
-        if (data.direction < 0) {
-            if (data.target < data.LCLValue) {
-                return fail_above
-            } if (data.target >= data.UCLValue) {
-                return pass_below
-            } else { //TODO Check target exists 
-                return atTarget
-            }
+        if (data.target > -Infinity) {
+            if (data.direction < 0) {
+                if (data.target < data.LCLValue) {
+                    return fail_above
+                } if (data.target >= data.UCLValue) {
+                    return pass_below
+                } else { //TODO Check target exists 
+                    return atTarget
+                }
 
-        } if (data.direction > 0) {
-            if (data.target < data.LCLValue) {
-                return pass_above
-            } if (data.target >= data.UCLValue) {
-                return fail_below
-            } else {
-                return atTarget
+            } if (data.direction > 0) {
+                if (data.target < data.LCLValue) {
+                    return pass_above
+                } if (data.target >= data.UCLValue) {
+                    return fail_below
+                } else {
+                    return atTarget
+                }
+            } if (data.direction == 0) {
+                if (data.target < data.LCLValue) {
+                    return above
+                } if (data.target >= data.UCLValue) {
+                    return below
+                } else {
+                    return atTarget
+                }
             }
-        } if (data.direction == 0) {
-            if (data.target < data.LCLValue) {
-                return above
-            } if (data.target >= data.UCLValue) {
-                return below
-            } else {
-                return atTarget
-            }
+        } else {
+            return none
         }
     }
 
@@ -186,18 +191,19 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
 
     let direction = <number>formatSettings.SPCSettings.spcSetUp.direction.value.value
     let target = 0
-    if(formatSettings.SPCSettings.spcSetUp.target.value != ''){
-        if(formatSettings.enableYAxis.formatter.time.value){
+
+    if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
+        if (formatSettings.enableYAxis.formatter.time.value) {
             let targetSplit = formatSettings.SPCSettings.spcSetUp.target.value.valueOf().split(":").reverse()
             let toSeconds = [1, 60, 3600, 86400]
-            for(let i = 0, len = targetSplit.length; i < len; i++){
-                target = target + Number(targetSplit[i])*toSeconds[i]
+            for (let i = 0, len = targetSplit.length; i < len; i++) {
+                target = target + Number(targetSplit[i]) * toSeconds[i]
             }
-         } else {
+        } else {
             target = Number(formatSettings.SPCSettings.spcSetUp.target.value.valueOf())
         }
     } else {
-        target = 0 
+        target = -Infinity
     }
 
     let metadata = options.dataViews[0].metadata.columns
@@ -228,12 +234,12 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
         .map((d) => <number>d.value)
         .reduce((a, b) => a + b, 0) / nPoints;
 
-    
+
     let avgDiff = SPCChartDataPoints
         .map((d) => <number>Math.abs(d.difference))
         .reduce((a, b) => a + b, 0) / (nPoints - 1);
 
-    if (nPoints == 1){
+    if (nPoints == 1) {
         avgDiff = null
     }
 
@@ -265,7 +271,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
                 latest3.forEach(d => d.twoInThree = 1)
             }
         }
-        let p = 7 
+        let p = 7
         console.log(p)//, formatSettings.SPCSettings.markerOptions.runNumber.value
         if (i > p) {
             let latest7 = SPCChartDataPoints.slice(i - p + 1, i + 1)
@@ -307,12 +313,12 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     for (let i = 0, len = nPoints; i < len; i++) {
         if (<number>SPCChartDataPoints[i].value > UCLValue) {
             SPCChartDataPoints[i].color = outlierColor
-            SPCChartDataPoints[i].markerSize = displayMarkerSize*Number(formatSettings.SPCSettings.markerOptions.showOutlier.value)
+            SPCChartDataPoints[i].markerSize = displayMarkerSize * Number(formatSettings.SPCSettings.markerOptions.showOutlier.value)
             SPCChartDataPoints[i].outlier = 1
         }
         if (<number>SPCChartDataPoints[i].value < LCLValue) {
             SPCChartDataPoints[i].color = outlierColor
-            SPCChartDataPoints[i].markerSize = displayMarkerSize*Number(formatSettings.SPCSettings.markerOptions.showOutlier.value)
+            SPCChartDataPoints[i].markerSize = displayMarkerSize * Number(formatSettings.SPCSettings.markerOptions.showOutlier.value)
             SPCChartDataPoints[i].outlier = -1
         }
 
@@ -323,7 +329,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     shift = SPCChartDataPoints[nPoints - 1].shift
     twoInThree = SPCChartDataPoints[nPoints - 1].twoInThree
 
-    if(nPoints == 1){ SPCChartDataPoints.forEach(d => d.markerSize = displayMarkerSize)}
+    if (nPoints == 1) { SPCChartDataPoints.forEach(d => d.markerSize = displayMarkerSize) }
 
     return {
         datapoints: SPCChartDataPoints,
@@ -577,7 +583,7 @@ export class SPCChart implements IVisual {
         this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, options.element);
     }
 
-    
+
 
 
     // Three function that change the tooltip when user hover / move / leave a cell
@@ -639,7 +645,7 @@ export class SPCChart implements IVisual {
         //Set up the Y Axis
         let yScale = scaleLinear()
             .domain(yAxisDomain(data))
-            .range([height, 5]); 
+            .range([height, 5]);
 
         let yTicks = 5;
 
@@ -726,20 +732,16 @@ export class SPCChart implements IVisual {
             ;
 
         //Create target line
-        if(this.formattingSettings.SPCSettings.spcSetUp.target.value != ''){
-            this.lineTarget
-                .style("stroke-linecap", "round")
-                .attr("class", "target")
-                .attr("x1", widthChartStart)
-                .attr("x2", widthChartEnd)
-                .attr("y1", function (d) { return yScale(data.target); })
-                .attr("y2", function (d) { return yScale(data.target); })
-                .attr("fill", "none")
-                .attr("stroke", "red")
-                .attr("stroke-width", 2)
-
-
-        }
+        this.lineTarget
+            .style("stroke-linecap", "round")
+            .attr("class", "target")
+            .attr("x1", widthChartStart)
+            .attr("x2", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' ? widthChartStart : widthChartEnd)
+            .attr("y1", function (d) { return yScale(data.target); })
+            .attr("y2", function (d) { return yScale(data.target); })
+            .attr("fill", "none")
+            .attr("stroke", "red")
+            .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' ? 0 : 2)
 
         //Create data line
         this.lineData
@@ -756,16 +758,16 @@ export class SPCChart implements IVisual {
 
         this.svg.selectAll('.markers').remove();
 
-        if(this.formattingSettings.SPCSettings.markerOptions.showMarker.value){
+        if (this.formattingSettings.SPCSettings.markerOptions.showMarker.value) {
             this.dataMarkers
-            .data(this.dataPoints)
-            .enter()
-            .append("circle")
-            .attr("class", "markers")
-            .attr("cx", function (d) { return xScale(d.category) })
-            .attr("cy", function (d) { return yScale(<number>d.value) })
-            .attr("r", function (d) { return d.markerSize })
-            .attr("fill", function (d) { return d.color });
+                .data(this.dataPoints)
+                .enter()
+                .append("circle")
+                .attr("class", "markers")
+                .attr("cx", function (d) { return xScale(d.category) })
+                .attr("cy", function (d) { return yScale(<number>d.value) })
+                .attr("r", function (d) { return d.markerSize })
+                .attr("fill", function (d) { return d.color });
         }
 
         this.tooltipMarkers
