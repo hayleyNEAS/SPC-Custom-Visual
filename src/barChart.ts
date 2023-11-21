@@ -204,19 +204,16 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
         down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value
     }
 
-    //TARGETR
+    //TARGET
     let target = -Infinity
-
     if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
-        if (formatSettings.enableYAxis.formatter.time.value) {
+            target = 0
             let targetSplit = formatSettings.SPCSettings.spcSetUp.target.value.valueOf().split(":").reverse()
             let toSeconds = [1, 60, 3600, 86400]
             for (let i = 0, len = targetSplit.length; i < len; i++) {
                 target = target + Number(targetSplit[i]) * toSeconds[i]
             }
-        } else {
-            target = Number(formatSettings.SPCSettings.spcSetUp.target.value.valueOf())
-        }
+            console.log(formatSettings.SPCSettings.spcSetUp.target.value, target)
     } else {
         target = -Infinity
     }

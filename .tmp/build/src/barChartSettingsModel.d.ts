@@ -94,6 +94,6 @@ export declare class BarChartSettingsModel extends FormattingSettingsModel {
     SPCSettings: SPC;
     enableAxis: EnableAxisCardSettings;
     enableYAxis: EnableYAxisCardSettings;
-    cards: (SPC | EnableYAxisCardSettings | EnableAxisCardSettings)[];
+    cards: (SPC | EnableAxisCardSettings | EnableYAxisCardSettings)[];
 }
 export {};
