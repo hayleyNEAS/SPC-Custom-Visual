@@ -187,10 +187,19 @@ export interface SPCChartDataPoint {
 }
 
 function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, formatSettings: BarChartSettingsModel): SPCChartData {
-    
-    let target_input = options.dataViews[0].categorical.values[1]
-    let values_input = options.dataViews[0].categorical.values[0]
-    console.log("target", target_input, "values", values_input)
+    //MEASURES INPUT
+    let value_input = []
+    let target_input = []
+    let breakPoint_input = []
+    for(let i = 0, len = options.dataViews[0].categorical.values.length; i < len; i++) {
+        if(Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'measure'){
+            value_input = options.dataViews[0].categorical.values[i].values
+        } else if(Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'target_measure'){
+            target_input = options.dataViews[0].categorical.values[i].values
+        } else if(Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'break_points'){
+            breakPoint_input = options.dataViews[0].categorical.values[i].values
+        }
+    }
 
     let SPCChartDataPoints = createSelectorDataPoints(options, host);
 
@@ -221,6 +230,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     } else {
         target = -Infinity
     }
+    target = target_input[0] ? target_input[0] : target //if target is supplied as a measure then use that else use it from settings
 
     let metadata = options.dataViews[0].metadata.columns
     let measureFormat = ''
@@ -229,12 +239,10 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
 
     let displayMarkerSize = 3
 
-    console.log("test1", metadata)
     for (let i = 0, len = metadata.length; i < len; i++) {
         let meta = metadata[i]
         if (meta.isMeasure) {
             measureName = meta.displayName
-            console.log("test1", metadata.length, i, meta, measureName)
             if (!meta.format) {
                 measureFormat = 's'
             } else if (meta.format.includes('%')) {
@@ -247,7 +255,6 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
             }
         }
     }
-    console.log("test2")
 
     let nPoints = SPCChartDataPoints.length
 
@@ -646,7 +653,6 @@ export class SPCChart implements IVisual {
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(BarChartSettingsModel, options.dataViews[0]);
 
         let data = createSelectorData(options, this.host, this.formattingSettings); //TODO check if the issue is in this.datapoints
-        console.log("test", this.dataPoints)
 
         this.dataPoints = data.datapoints;
 
