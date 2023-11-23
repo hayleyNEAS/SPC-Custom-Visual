@@ -187,6 +187,11 @@ export interface SPCChartDataPoint {
 }
 
 function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, formatSettings: BarChartSettingsModel): SPCChartData {
+    
+    let target_input = options.dataViews[0].categorical.values[1]
+    let values_input = options.dataViews[0].categorical.values[0]
+    console.log("target", target_input, "values", values_input)
+
     let SPCChartDataPoints = createSelectorDataPoints(options, host);
 
     //DIRECTION
@@ -213,7 +218,6 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
             for (let i = 0, len = targetSplit.length; i < len; i++) {
                 target = target + Number(targetSplit[i]) * toSeconds[i]
             }
-            console.log(formatSettings.SPCSettings.spcSetUp.target.value, target)
     } else {
         target = -Infinity
     }
@@ -225,13 +229,17 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
 
     let displayMarkerSize = 3
 
+    console.log("test1", metadata)
     for (let i = 0, len = metadata.length; i < len; i++) {
         let meta = metadata[i]
         if (meta.isMeasure) {
             measureName = meta.displayName
-            if (meta.format.includes('%')) {
+            console.log("test1", metadata.length, i, meta, measureName)
+            if (!meta.format) {
+                measureFormat = 's'
+            } else if (meta.format.includes('%')) {
                 measureFormat = '%'
-            } if (meta.format.includes('.')) {
+            } else if (meta.format.includes('.')) {
                 decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1).length
                 measureFormat = 's'
             } else {
@@ -239,6 +247,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
             }
         }
     }
+    console.log("test2")
 
     let nPoints = SPCChartDataPoints.length
 
@@ -393,6 +402,7 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
     let categorical = dataViews[0].categorical;
     let category = categorical.categories[0];
     let dataValue = categorical.values[0];
+    
 
     let colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
 
@@ -635,10 +645,10 @@ export class SPCChart implements IVisual {
         //Set up the charting object 
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(BarChartSettingsModel, options.dataViews[0]);
 
-        let data = createSelectorData(options, this.host, this.formattingSettings);
+        let data = createSelectorData(options, this.host, this.formattingSettings); //TODO check if the issue is in this.datapoints
+        console.log("test", this.dataPoints)
 
         this.dataPoints = data.datapoints;
-        // this.formattingSettings.populateColorSelector(this.dataPoints);
 
         let width = options.viewport.width;
         let height = options.viewport.height;

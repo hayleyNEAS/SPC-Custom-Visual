@@ -1600,6 +1600,9 @@ function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
     }
 }
 function createSelectorData(options, host, formatSettings) {
+    let target_input = options.dataViews[0].categorical.values[1];
+    let values_input = options.dataViews[0].categorical.values[0];
+    console.log("target", target_input, "values", values_input);
     let SPCChartDataPoints = createSelectorDataPoints(options, host);
     //DIRECTION
     let direction = formatSettings.SPCSettings.spcSetUp.direction.value.value;
@@ -1626,7 +1629,6 @@ function createSelectorData(options, host, formatSettings) {
         for (let i = 0, len = targetSplit.length; i < len; i++) {
             target = target + Number(targetSplit[i]) * toSeconds[i];
         }
-        console.log(formatSettings.SPCSettings.spcSetUp.target.value, target);
     }
     else {
         target = -Infinity;
@@ -1636,14 +1638,19 @@ function createSelectorData(options, host, formatSettings) {
     let decimalPlaces = 0;
     let measureName = '';
     let displayMarkerSize = 3;
+    console.log("test1", metadata);
     for (let i = 0, len = metadata.length; i < len; i++) {
         let meta = metadata[i];
         if (meta.isMeasure) {
             measureName = meta.displayName;
-            if (meta.format.includes('%')) {
+            console.log("test1", metadata.length, i, meta, measureName);
+            if (!meta.format) {
+                measureFormat = 's';
+            }
+            else if (meta.format.includes('%')) {
                 measureFormat = '%';
             }
-            if (meta.format.includes('.')) {
+            else if (meta.format.includes('.')) {
                 decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1).length;
                 measureFormat = 's';
             }
@@ -1652,6 +1659,7 @@ function createSelectorData(options, host, formatSettings) {
             }
         }
     }
+    console.log("test2");
     let nPoints = SPCChartDataPoints.length;
     let meanValue = SPCChartDataPoints
         .map((d) => d.value)
@@ -1963,9 +1971,9 @@ class SPCChart {
     update(options) {
         //Set up the charting object 
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(_barChartSettingsModel__WEBPACK_IMPORTED_MODULE_2__/* .BarChartSettingsModel */ .f, options.dataViews[0]);
-        let data = createSelectorData(options, this.host, this.formattingSettings);
+        let data = createSelectorData(options, this.host, this.formattingSettings); //TODO check if the issue is in this.datapoints
+        console.log("test", this.dataPoints);
         this.dataPoints = data.datapoints;
-        // this.formattingSettings.populateColorSelector(this.dataPoints);
         let width = options.viewport.width;
         let height = options.viewport.height;
         let margins = SPCChart.Config.margins;
@@ -2342,7 +2350,7 @@ class SPCSetUp extends SimpleCard {
     });
     target = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .TextInput */ .oi({
         name: "target",
-        displayName: "Target",
+        displayName: "Target (if not supplied)",
         value: "7",
         placeholder: "Value"
     });
