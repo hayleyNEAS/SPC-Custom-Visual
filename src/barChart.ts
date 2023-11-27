@@ -37,7 +37,7 @@ import { getLocalizedString } from "./localisation/localisationHelper"
 //Importing functions from file
 import { parseDateLabel, parseinHMS, parseYLabels, PBIformatingKeeper } from "./formattingFunctions"
 import { yAxisDomain, getFillColor, getYAxisTextFillColor } from "./chartFunctions"
-import { identifyOutliers } from "./spcFunctions"
+import { identifyOutliers, twoInThreeRule } from "./spcFunctions"
 
 
 //import logo_variation_nochange from "./../assets/Variation_noChange.png"
@@ -124,21 +124,7 @@ function logoSelector(data: SPCChartData, option): any {
 
 }
 
-function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
-    if (Direction = 1) {
-        if (value > Upper_Zone_A) {
-            return 1
-        } else {
-            return 0
-        }
-    } else {
-        if (value < Lower_Zone_A) {
-            return -1
-        } else {
-            0
-        }
-    }
-}
+
 
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
 

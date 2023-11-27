@@ -1581,24 +1581,6 @@ function logoSelector(data, option) {
         }
     }
 }
-function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
-    if (Direction = 1) {
-        if (value > Upper_Zone_A) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
-    }
-    else {
-        if (value < Lower_Zone_A) {
-            return -1;
-        }
-        else {
-            0;
-        }
-    }
-}
 function createSelectorData(options, host, formatSettings) {
     //MEASURES INPUT
     let value_input = [];
@@ -1674,7 +1656,7 @@ function createSelectorData(options, host, formatSettings) {
         if (i > 3) { //two in three rules 
             let latest3 = SPCChartDataPoints.slice(i - 3 + 1, i + 1);
             let twoInThreeCheck = latest3
-                .map((d) => twoInThreeRule(d.value, Upper_Zone_A, Lower_Zone_A, direction))
+                .map((d) => (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .twoInThreeRule */ .S)(d.value, Upper_Zone_A, Lower_Zone_A, direction))
                 .reduce((a, b) => a + b, 0);
             if (Math.abs(twoInThreeCheck) >= 2) {
                 latest3.forEach(d => d.color = up_color);
@@ -2753,6 +2735,7 @@ function getCategoricalObjectValue(category, index, objectName, propertyName, de
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   S: () => (/* binding */ twoInThreeRule),
 /* harmony export */   b: () => (/* binding */ identifyOutliers)
 /* harmony export */ });
 function identifyOutliers(data, formatSettings, displayMarkerSize, UCLValue, LCLValue) {
@@ -2772,6 +2755,24 @@ function identifyOutliers(data, formatSettings, displayMarkerSize, UCLValue, LCL
         }
     }
     return data;
+}
+function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
+    if (Direction = 1) {
+        if (value > Upper_Zone_A) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+    else {
+        if (value < Lower_Zone_A) {
+            return -1;
+        }
+        else {
+            0;
+        }
+    }
 }
 
 

@@ -27,3 +27,19 @@ export function identifyOutliers(data: SPCChartDataPoint[], formatSettings: BarC
 
     return data
 }
+
+export function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
+    if (Direction = 1) {
+        if (value > Upper_Zone_A) {
+            return 1
+        } else {
+            return 0
+        }
+    } else {
+        if (value < Lower_Zone_A) {
+            return -1
+        } else {
+            0
+        }
+    }
+}
