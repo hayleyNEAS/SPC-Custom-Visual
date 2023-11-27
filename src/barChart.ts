@@ -30,16 +30,13 @@ import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructor
 
 import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
 import { createTooltipServiceWrapper, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
-import { textMeasurementService, valueFormatter } from "powerbi-visuals-utils-formattingutils";
 
 import { BarChartSettingsModel } from "./barChartSettingsModel";
 import { getLocalizedString } from "./localisation/localisationHelper"
-import { getCategoricalObjectValue, getValue } from "./objectEnumerationUtility";
-import { MarginPadding } from "powerbi-visuals-utils-formattingmodel/lib/FormattingSettingsComponents";
 
 //Importing functions from file
 import { parseDateLabel, parseinHMS, parseYLabels, PBIformatingKeeper } from "./formattingFunctions"
-import { yAxisDomain } from "./chartFunctions"
+import { yAxisDomain, getFillColor, getYAxisTextFillColor } from "./chartFunctions"
 import { identifyOutliers } from "./spcFunctions"
 
 
@@ -378,9 +375,6 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
     let category = categorical.categories[0];
     let dataValue = categorical.values[0];
     
-
-    let colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
-
     for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
         const selectionId: ISelectionId = host.createSelectionIdBuilder()
             .withCategory(category, i)
@@ -409,7 +403,7 @@ function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHos
     return SPCChartDataPoints;
 }
 
-function getFillColor(
+/* function getFillColor(
     objects: DataViewObjects,
     objectString: string,
     propString: string,
@@ -451,7 +445,7 @@ function getYAxisTextFillColor(
             }
         },
     ).solid.color;
-}
+} */
 
 
 

@@ -1461,21 +1461,19 @@ try {
 /* harmony export */   u: () => (/* binding */ SPCChart)
 /* harmony export */ });
 /* unused harmony export SPCChart */
-/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(5036);
-/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(7808);
-/* harmony import */ var d3_selection__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(3838);
-/* harmony import */ var d3_axis__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(924);
+/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(5036);
+/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(7808);
+/* harmony import */ var d3_selection__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(3838);
+/* harmony import */ var d3_axis__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(924);
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8976);
 /* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5666);
 /* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(4261);
-/* harmony import */ var powerbi_visuals_utils_tooltiputils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(9472);
+/* harmony import */ var powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(4261);
+/* harmony import */ var powerbi_visuals_utils_tooltiputils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(9472);
 /* harmony import */ var _barChartSettingsModel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2446);
-/* harmony import */ var _objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(6363);
 /* harmony import */ var _formattingFunctions__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(9540);
-/* harmony import */ var _chartFunctions__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(877);
+/* harmony import */ var _chartFunctions__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(877);
 /* harmony import */ var _spcFunctions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(301);
-
 
 
 
@@ -1772,7 +1770,6 @@ function createSelectorDataPoints(options, host) {
     let categorical = dataViews[0].categorical;
     let category = categorical.categories[0];
     let dataValue = categorical.values[0];
-    let colorPalette = host.colorPalette;
     for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
         const selectionId = host.createSelectionIdBuilder()
             .withCategory(category, i)
@@ -1796,26 +1793,49 @@ function createSelectorDataPoints(options, host) {
     }
     return SPCChartDataPoints;
 }
-function getFillColor(objects, objectString, propString, colorPalette, defaultColor) {
+/* function getFillColor(
+    objects: DataViewObjects,
+    objectString: string,
+    propString: string,
+    colorPalette: ISandboxExtendedColorPalette,
+    defaultColor: string
+): string {
     if (colorPalette.isHighContrast) {
         return colorPalette.foreground.value;
     }
-    return (0,_objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_5__/* .getValue */ .N)(objects, objectString, propString, {
-        solid: {
-            color: defaultColor,
-        }
-    }).solid.color;
+
+    return getValue<Fill>(
+        objects,
+        objectString,
+        propString,
+        {
+            solid: {
+                color: defaultColor,
+            }
+        },
+    ).solid.color;
 }
-function getYAxisTextFillColor(objects, colorPalette, defaultColor) {
+
+function getYAxisTextFillColor(
+    objects: DataViewObjects,
+    colorPalette: ISandboxExtendedColorPalette,
+    defaultColor: string
+): string {
     if (colorPalette.isHighContrast) {
         return colorPalette.foreground.value;
     }
-    return (0,_objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_5__/* .getValue */ .N)(objects, "enableYAxis", "fill", {
-        solid: {
-            color: defaultColor,
-        }
-    }).solid.color;
-}
+
+    return getValue<Fill>(
+        objects,
+        "enableYAxis",
+        "fill",
+        {
+            solid: {
+                color: defaultColor,
+            }
+        },
+    ).solid.color;
+} */
 class SPCChart {
     svg;
     logo;
@@ -1862,9 +1882,9 @@ class SPCChart {
     constructor(options) {
         this.host = options.host;
         const localizationManager = this.host.createLocalizationManager();
-        this.formattingSettingsService = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_6__/* ["default"] */ .Z(localizationManager);
+        this.formattingSettingsService = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_5__/* ["default"] */ .Z(localizationManager);
         this.locale = options.host.locale;
-        this.svg = (0,d3_selection__WEBPACK_IMPORTED_MODULE_7__/* ["default"] */ .Z)(options.element)
+        this.svg = (0,d3_selection__WEBPACK_IMPORTED_MODULE_6__/* ["default"] */ .Z)(options.element)
             .append('svg')
             .classed('SPCChart', true);
         this.xAxis = this.svg
@@ -1915,7 +1935,7 @@ class SPCChart {
             .append('image');
         this.logoTarget = this.svg
             .append('image');
-        this.tooltipServiceWrapper = (0,powerbi_visuals_utils_tooltiputils__WEBPACK_IMPORTED_MODULE_8__/* .createTooltipServiceWrapper */ .p)(this.host.tooltipService, options.element);
+        this.tooltipServiceWrapper = (0,powerbi_visuals_utils_tooltiputils__WEBPACK_IMPORTED_MODULE_7__/* .createTooltipServiceWrapper */ .p)(this.host.tooltipService, options.element);
     }
     // Three function that change the tooltip when user hover / move / leave a cell
     /*     private mouseover(p: [number, number], d: SPCChartData) {
@@ -1964,11 +1984,11 @@ class SPCChart {
         }
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
         //Set up the Y Axis
-        let yScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_9__/* ["default"] */ .Z)()
-            .domain((0,_chartFunctions__WEBPACK_IMPORTED_MODULE_10__/* .yAxisDomain */ .l)(data))
+        let yScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_8__/* ["default"] */ .Z)()
+            .domain((0,_chartFunctions__WEBPACK_IMPORTED_MODULE_9__/* .yAxisDomain */ .lG)(data))
             .range([height, 5]);
         let yTicks = 5;
-        let yAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_11__/* .axisLeft */ .y4)(yScale)
+        let yAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_10__/* .axisLeft */ .y4)(yScale)
             .tickSizeInner(-widthChartEnd);
         if (this.formattingSettings.enableYAxis.formatter.time.value) {
             yAxis = yAxis
@@ -1984,7 +2004,7 @@ class SPCChart {
         let yAxisObject = this.yAxis
             .call(yAxis)
             .transition().duration(500)
-            .attr("color", getYAxisTextFillColor(colorObjects, this.host.colorPalette, this.formattingSettings.enableYAxis.formatter.fill.value.value));
+            .attr("color", (0,_chartFunctions__WEBPACK_IMPORTED_MODULE_9__/* .getYAxisTextFillColor */ .F0)(colorObjects, this.host.colorPalette, this.formattingSettings.enableYAxis.formatter.fill.value.value));
         yAxisObject.selectAll('.yAxis line')
             .attr('stroke', this.formattingSettings.enableYAxis.formatter.fill.value.value)
             .attr('opacity', 0.2);
@@ -2009,16 +2029,16 @@ class SPCChart {
         //Set up the X Axis
         this.xAxis
             .style("font-size", 11);
-        let xScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_12__/* .point */ .x)()
+        let xScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_11__/* .point */ .x)()
             .domain(this.dataPoints.map(d => d.category))
             .range([widthChartStart, widthChartEnd]);
-        let xAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_11__/* .axisBottom */ .LL)(xScale)
+        let xAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_10__/* .axisBottom */ .LL)(xScale)
             .tickFormat(_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseDateLabel */ .YV);
         let xAxisObject = this.xAxis
             .attr('transform', 'translate(0, ' + (height + 2) + ')')
             .call(xAxis)
             .transition().duration(500)
-            .attr("color", getFillColor(colorObjects, 'enableAxis', 'fill', this.host.colorPalette, this.formattingSettings.enableAxis.formatter.fill.value.value));
+            .attr("color", (0,_chartFunctions__WEBPACK_IMPORTED_MODULE_9__/* .getFillColor */ .W7)(colorObjects, 'enableAxis', 'fill', this.host.colorPalette, this.formattingSettings.enableAxis.formatter.fill.value.value));
         xAxisObject.selectAll('.xAxis path, line')
             .attr('opacity', 0);
         //Create target line
@@ -2268,9 +2288,9 @@ class SPCChart {
             let tooltipmarkers = thissvg
                 .selectAll('circle.markers.tooltip')
                 .nodes();
-            (0,d3_selection__WEBPACK_IMPORTED_MODULE_7__/* ["default"] */ .Z)(tooltiplines[index])
+            (0,d3_selection__WEBPACK_IMPORTED_MODULE_6__/* ["default"] */ .Z)(tooltiplines[index])
                 .attr("opacity", 1);
-            (0,d3_selection__WEBPACK_IMPORTED_MODULE_7__/* ["default"] */ .Z)(tooltipmarkers[index])
+            (0,d3_selection__WEBPACK_IMPORTED_MODULE_6__/* ["default"] */ .Z)(tooltipmarkers[index])
                 .attr("opacity", 1);
         })
             .on('mouseleave', function () {
@@ -2520,8 +2540,12 @@ class BarChartSettingsModel extends FormattingSettingsModel {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   l: () => (/* binding */ yAxisDomain)
+/* harmony export */   F0: () => (/* binding */ getYAxisTextFillColor),
+/* harmony export */   W7: () => (/* binding */ getFillColor),
+/* harmony export */   lG: () => (/* binding */ yAxisDomain)
 /* harmony export */ });
+/* harmony import */ var _objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6363);
+
 function yAxisDomain(data) {
     let yData = data.datapoints.map(d => d.value);
     let maxData = yData.reduce((a, b) => Math.max(a, b), -Infinity);
@@ -2533,6 +2557,26 @@ function yAxisDomain(data) {
     }
     let yScale_increase_window = yScale_maxData * 1.1 - yScale_maxData;
     return [yScale_minData - yScale_increase_window, yScale_maxData + yScale_increase_window];
+}
+function getFillColor(objects, objectString, propString, colorPalette, defaultColor) {
+    if (colorPalette.isHighContrast) {
+        return colorPalette.foreground.value;
+    }
+    return (0,_objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_0__/* .getValue */ .N)(objects, objectString, propString, {
+        solid: {
+            color: defaultColor,
+        }
+    }).solid.color;
+}
+function getYAxisTextFillColor(objects, colorPalette, defaultColor) {
+    if (colorPalette.isHighContrast) {
+        return colorPalette.foreground.value;
+    }
+    return (0,_objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_0__/* .getValue */ .N)(objects, "enableYAxis", "fill", {
+        solid: {
+            color: defaultColor,
+        }
+    }).solid.color;
 }
 
 
