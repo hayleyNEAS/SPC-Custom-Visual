@@ -1487,100 +1487,6 @@ try {
 
 
 
-//import logo_variation_nochange from "./../assets/Variation_noChange.png"
-const variation_noChange = __webpack_require__(845);
-const variation_ciHigh = __webpack_require__(3484);
-const variation_ccHigh = __webpack_require__(4201);
-const variation_ciLow = __webpack_require__(4837);
-const variation_ccLow = __webpack_require__(1069);
-const variation_High = __webpack_require__(4840);
-const variation_Low = __webpack_require__(2395);
-const atTarget = __webpack_require__(7523);
-const fail_above = __webpack_require__(3359);
-const fail_below = __webpack_require__(2564);
-const pass_above = __webpack_require__(4151);
-const pass_below = __webpack_require__(9525);
-const above = __webpack_require__(8119);
-const below = __webpack_require__(2762);
-const none = __webpack_require__(9304);
-function logoSelector(data, option) {
-    if (option == "variation") {
-        //let dataPoints = data.datapoints
-        if (data.direction > 0) {
-            if (data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1) {
-                return variation_ciHigh;
-            }
-            if (data.outlier == -1 || data.run == -1 || data.shift == -1 || data.twoInThree == -1) {
-                return variation_ccLow;
-            }
-            else {
-                return variation_noChange;
-            }
-        }
-        if (data.direction < 0) {
-            if (data.outlier == -1 || data.run == -1 || data.shift == -1 || data.twoInThree == -1) {
-                return variation_ciLow;
-            }
-            if (data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1) {
-                return variation_ccHigh;
-            }
-            else {
-                return variation_noChange;
-            }
-        }
-        if (data.direction == 0) {
-            if (data.outlier == -1 || data.run == -1 || data.shift == -1 || data.twoInThree == -1) {
-                return variation_Low;
-            }
-            if (data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1) {
-                return variation_High;
-            }
-            else {
-                return variation_noChange;
-            }
-        }
-    }
-    if (option == "target") {
-        if (data.target > -Infinity) {
-            if (data.direction < 0) {
-                if (data.target < data.LCLValue) {
-                    return fail_above;
-                }
-                if (data.target >= data.UCLValue) {
-                    return pass_below;
-                }
-                else {
-                    return atTarget;
-                }
-            }
-            if (data.direction > 0) {
-                if (data.target < data.LCLValue) {
-                    return pass_above;
-                }
-                if (data.target >= data.UCLValue) {
-                    return fail_below;
-                }
-                else {
-                    return atTarget;
-                }
-            }
-            if (data.direction == 0) {
-                if (data.target < data.LCLValue) {
-                    return above;
-                }
-                if (data.target >= data.UCLValue) {
-                    return below;
-                }
-                else {
-                    return atTarget;
-                }
-            }
-        }
-        else {
-            return none;
-        }
-    }
-}
 function createSelectorData(options, host, formatSettings) {
     //MEASURES INPUT
     let value_input = [];
@@ -1656,7 +1562,7 @@ function createSelectorData(options, host, formatSettings) {
         if (i > 3) { //two in three rules 
             let latest3 = SPCChartDataPoints.slice(i - 3 + 1, i + 1);
             let twoInThreeCheck = latest3
-                .map((d) => (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .twoInThreeRule */ .S)(d.value, Upper_Zone_A, Lower_Zone_A, direction))
+                .map((d) => (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .twoInThreeRule */ .SK)(d.value, Upper_Zone_A, Lower_Zone_A, direction))
                 .reduce((a, b) => a + b, 0);
             if (Math.abs(twoInThreeCheck) >= 2) {
                 latest3.forEach(d => d.color = up_color);
@@ -1707,7 +1613,7 @@ function createSelectorData(options, host, formatSettings) {
     }
     //SPC Marker Colors Rules 
     //find outliers
-    SPCChartDataPoints = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .identifyOutliers */ .b)(SPCChartDataPoints, formatSettings, displayMarkerSize, UCLValue, LCLValue);
+    SPCChartDataPoints = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .identifyOutliers */ .b5)(SPCChartDataPoints, formatSettings, displayMarkerSize, UCLValue, LCLValue);
     outlier = SPCChartDataPoints[nPoints - 1].outlier;
     run = SPCChartDataPoints[nPoints - 1].run;
     shift = SPCChartDataPoints[nPoints - 1].shift;
@@ -2218,7 +2124,7 @@ class SPCChart {
         if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 1) {
             logoX = widthChartEnd - 100;
         }
-        let logo = logoSelector(data, "variation");
+        let logo = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .logoSelector */ .Yo)(data, "variation");
         if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
             this.logo
                 .attr('href', logo)
@@ -2232,7 +2138,7 @@ class SPCChart {
                 .attr('width', 0)
                 .attr('height', 0);
         }
-        let logoTarget = logoSelector(data, "target");
+        let logoTarget = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .logoSelector */ .Yo)(data, "target");
         if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
             this.logoTarget
                 .attr('href', logoTarget)
@@ -2735,8 +2641,9 @@ function getCategoricalObjectValue(category, index, objectName, propertyName, de
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   S: () => (/* binding */ twoInThreeRule),
-/* harmony export */   b: () => (/* binding */ identifyOutliers)
+/* harmony export */   SK: () => (/* binding */ twoInThreeRule),
+/* harmony export */   Yo: () => (/* binding */ logoSelector),
+/* harmony export */   b5: () => (/* binding */ identifyOutliers)
 /* harmony export */ });
 function identifyOutliers(data, formatSettings, displayMarkerSize, UCLValue, LCLValue) {
     let outlierColor = formatSettings.SPCSettings.markerOptions.outlier.value.value;
@@ -2771,6 +2678,100 @@ function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
         }
         else {
             0;
+        }
+    }
+}
+//import logo_variation_nochange from "./../assets/Variation_noChange.png"
+const variation_noChange = __webpack_require__(845);
+const variation_ciHigh = __webpack_require__(3484);
+const variation_ccHigh = __webpack_require__(4201);
+const variation_ciLow = __webpack_require__(4837);
+const variation_ccLow = __webpack_require__(1069);
+const variation_High = __webpack_require__(4840);
+const variation_Low = __webpack_require__(2395);
+const atTarget = __webpack_require__(7523);
+const fail_above = __webpack_require__(3359);
+const fail_below = __webpack_require__(2564);
+const pass_above = __webpack_require__(4151);
+const pass_below = __webpack_require__(9525);
+const above = __webpack_require__(8119);
+const below = __webpack_require__(2762);
+const none = __webpack_require__(9304);
+function logoSelector(data, option) {
+    if (option == "variation") {
+        //let dataPoints = data.datapoints
+        if (data.direction > 0) {
+            if (data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1) {
+                return variation_ciHigh;
+            }
+            if (data.outlier == -1 || data.run == -1 || data.shift == -1 || data.twoInThree == -1) {
+                return variation_ccLow;
+            }
+            else {
+                return variation_noChange;
+            }
+        }
+        if (data.direction < 0) {
+            if (data.outlier == -1 || data.run == -1 || data.shift == -1 || data.twoInThree == -1) {
+                return variation_ciLow;
+            }
+            if (data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1) {
+                return variation_ccHigh;
+            }
+            else {
+                return variation_noChange;
+            }
+        }
+        if (data.direction == 0) {
+            if (data.outlier == -1 || data.run == -1 || data.shift == -1 || data.twoInThree == -1) {
+                return variation_Low;
+            }
+            if (data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1) {
+                return variation_High;
+            }
+            else {
+                return variation_noChange;
+            }
+        }
+    }
+    if (option == "target") {
+        if (data.target > -Infinity) {
+            if (data.direction < 0) {
+                if (data.target < data.LCLValue) {
+                    return fail_above;
+                }
+                if (data.target >= data.UCLValue) {
+                    return pass_below;
+                }
+                else {
+                    return atTarget;
+                }
+            }
+            if (data.direction > 0) {
+                if (data.target < data.LCLValue) {
+                    return pass_above;
+                }
+                if (data.target >= data.UCLValue) {
+                    return fail_below;
+                }
+                else {
+                    return atTarget;
+                }
+            }
+            if (data.direction == 0) {
+                if (data.target < data.LCLValue) {
+                    return above;
+                }
+                if (data.target >= data.UCLValue) {
+                    return below;
+                }
+                else {
+                    return atTarget;
+                }
+            }
+        }
+        else {
+            return none;
         }
     }
 }
