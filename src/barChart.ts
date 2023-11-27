@@ -40,6 +40,7 @@ import { MarginPadding } from "powerbi-visuals-utils-formattingmodel/lib/Formatt
 //Importing functions from file
 import { parseDateLabel, parseinHMS, parseYLabels, PBIformatingKeeper } from "./formattingFunctions"
 import { yAxisDomain } from "./chartFunctions"
+import { identifyOutliers } from "./spcFunctions"
 
 
 //import logo_variation_nochange from "./../assets/Variation_noChange.png"
@@ -320,20 +321,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
 
     //SPC Marker Colors Rules 
     //find outliers
-    let outlierColor = formatSettings.SPCSettings.markerOptions.outlier.value.value
-    for (let i = 0, len = nPoints; i < len; i++) {
-        if (<number>SPCChartDataPoints[i].value > UCLValue) {
-            SPCChartDataPoints[i].color = outlierColor
-            SPCChartDataPoints[i].markerSize = displayMarkerSize * Number(formatSettings.SPCSettings.markerOptions.showOutlier.value)
-            SPCChartDataPoints[i].outlier = 1
-        }
-        if (<number>SPCChartDataPoints[i].value < LCLValue) {
-            SPCChartDataPoints[i].color = outlierColor
-            SPCChartDataPoints[i].markerSize = displayMarkerSize * Number(formatSettings.SPCSettings.markerOptions.showOutlier.value)
-            SPCChartDataPoints[i].outlier = -1
-        }
-
-    }
+    SPCChartDataPoints = identifyOutliers(SPCChartDataPoints, formatSettings, displayMarkerSize, UCLValue, LCLValue)
 
     outlier = SPCChartDataPoints[nPoints - 1].outlier
     run = SPCChartDataPoints[nPoints - 1].run
