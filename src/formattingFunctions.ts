@@ -1,4 +1,5 @@
-    
+
+import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import * as d3 from "d3";
     
     
@@ -65,4 +66,30 @@ export function parseYLabels(d: d3.NumberValue, hms:boolean){
     } else {
         return d.toLocaleString(undefined, {minimumFractionDigits : 2, maximumFractionDigits : 2})
     }
+}
+
+export function PBIformatingKeeper(options: VisualUpdateOptions){
+    let metadata = options.dataViews[0].metadata.columns
+    let measureFormat = ''
+    let decimalPlaces = 0
+    let measureName = ''
+
+    for (let i = 0, len = metadata.length; i < len; i++) {
+        let meta = metadata[i]
+        if (meta.isMeasure) {
+            measureName = meta.displayName
+            if (!meta.format) {
+                measureFormat = 's'
+            } else if (meta.format.includes('%')) {
+                measureFormat = '%'
+            } else if (meta.format.includes('.')) {
+                decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1).length
+                measureFormat = 's'
+            } else {
+                measureFormat = 's'
+            }
+        }
+    }
+    let r:[string, string, number] = [measureName, measureFormat, decimalPlaces]
+    return r
 }

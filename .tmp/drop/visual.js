@@ -1646,30 +1646,8 @@ function createSelectorData(options, host, formatSettings) {
         target = -Infinity;
     }
     target = target_input[0] ? target_input[0] : target; //if target is supplied as a measure then use that else use it from settings
-    let metadata = options.dataViews[0].metadata.columns;
-    let measureFormat = '';
-    let decimalPlaces = 0;
-    let measureName = '';
     let displayMarkerSize = 3;
-    for (let i = 0, len = metadata.length; i < len; i++) {
-        let meta = metadata[i];
-        if (meta.isMeasure) {
-            measureName = meta.displayName;
-            if (!meta.format) {
-                measureFormat = 's';
-            }
-            else if (meta.format.includes('%')) {
-                measureFormat = '%';
-            }
-            else if (meta.format.includes('.')) {
-                decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1).length;
-                measureFormat = 's';
-            }
-            else {
-                measureFormat = 's';
-            }
-        }
-    }
+    let [measureName, measureFormat, decimalPlaces] = (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .PBIformatingKeeper */ .WN)(options);
     let nPoints = SPCChartDataPoints.length;
     let meanValue = SPCChartDataPoints
         .map((d) => d.value)
@@ -2450,12 +2428,12 @@ class MarkerOptions extends SimpleCard {
     improvement = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
         name: "improvement",
         displayName: "Improvement",
-        value: { value: "orange" }
+        value: { value: "#005EB8" }
     });
     deterioration = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ColorPicker */ .zH({
         name: "deterioration",
         displayName: "Deterioration",
-        value: { value: "#005EB8" }
+        value: { value: "orange" }
     });
     name = "markerOptions";
     displayName = "Marker Options";
@@ -2577,6 +2555,7 @@ function yAxisDomain(data) {
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Fg: () => (/* binding */ parseinHMS),
 /* harmony export */   Qo: () => (/* binding */ parseYLabels),
+/* harmony export */   WN: () => (/* binding */ PBIformatingKeeper),
 /* harmony export */   YV: () => (/* binding */ parseDateLabel)
 /* harmony export */ });
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8976);
@@ -2645,6 +2624,33 @@ function parseYLabels(d, hms) {
     else {
         return d.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
+}
+function PBIformatingKeeper(options) {
+    let metadata = options.dataViews[0].metadata.columns;
+    let measureFormat = '';
+    let decimalPlaces = 0;
+    let measureName = '';
+    for (let i = 0, len = metadata.length; i < len; i++) {
+        let meta = metadata[i];
+        if (meta.isMeasure) {
+            measureName = meta.displayName;
+            if (!meta.format) {
+                measureFormat = 's';
+            }
+            else if (meta.format.includes('%')) {
+                measureFormat = '%';
+            }
+            else if (meta.format.includes('.')) {
+                decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1).length;
+                measureFormat = 's';
+            }
+            else {
+                measureFormat = 's';
+            }
+        }
+    }
+    let r = [measureName, measureFormat, decimalPlaces];
+    return r;
 }
 
 

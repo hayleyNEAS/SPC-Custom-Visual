@@ -131,13 +131,13 @@ class MarkerOptions extends SimpleCard {
     improvement = new formattingSettings.ColorPicker({
         name: "improvement",
         displayName: "Improvement",
-        value: { value: "orange" }
+        value: { value: "#005EB8" }
     });
 
     deterioration = new formattingSettings.ColorPicker({
         name: "deterioration",
         displayName: "Deterioration",
-        value: { value: "#005EB8" }
+        value: { value: "orange" }
     });
 
     name: string = "markerOptions";

@@ -38,7 +38,7 @@ import { getCategoricalObjectValue, getValue } from "./objectEnumerationUtility"
 import { MarginPadding } from "powerbi-visuals-utils-formattingmodel/lib/FormattingSettingsComponents";
 
 //Importing functions from file
-import { parseDateLabel, parseinHMS, parseYLabels } from "./formattingFunctions"
+import { parseDateLabel, parseinHMS, parseYLabels, PBIformatingKeeper } from "./formattingFunctions"
 import { yAxisDomain } from "./chartFunctions"
 
 
@@ -232,29 +232,9 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     }
     target = target_input[0] ? target_input[0] : target //if target is supplied as a measure then use that else use it from settings
 
-    let metadata = options.dataViews[0].metadata.columns
-    let measureFormat = ''
-    let decimalPlaces = 0
-    let measureName = ''
-
     let displayMarkerSize = 3
 
-    for (let i = 0, len = metadata.length; i < len; i++) {
-        let meta = metadata[i]
-        if (meta.isMeasure) {
-            measureName = meta.displayName
-            if (!meta.format) {
-                measureFormat = 's'
-            } else if (meta.format.includes('%')) {
-                measureFormat = '%'
-            } else if (meta.format.includes('.')) {
-                decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1).length
-                measureFormat = 's'
-            } else {
-                measureFormat = 's'
-            }
-        }
-    }
+    let [measureName, measureFormat, decimalPlaces] = PBIformatingKeeper(options)
 
     let nPoints = SPCChartDataPoints.length
 
@@ -381,7 +361,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
         strokeWidth: 2,
         strokeColor: 'steelblue',
 
-        measureName,
+        measureName, 
         measureFormat,
         decimalPlaces,
 
