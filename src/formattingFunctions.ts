@@ -68,7 +68,7 @@ export function parseYLabels(d: d3.NumberValue, hms:boolean){
     }
 }
 
-export function PBIformatingKeeper(options: VisualUpdateOptions){
+export function PBIformatingKeeper(options: VisualUpdateOptions):[string, string, number]{
     let metadata = options.dataViews[0].metadata.columns
     let measureFormat = ''
     let decimalPlaces = 0
@@ -90,6 +90,5 @@ export function PBIformatingKeeper(options: VisualUpdateOptions){
             }
         }
     }
-    let r:[string, string, number] = [measureName, measureFormat, decimalPlaces]
-    return r
+    return [measureName, measureFormat, decimalPlaces]
 }

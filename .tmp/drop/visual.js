@@ -2649,8 +2649,7 @@ function PBIformatingKeeper(options) {
             }
         }
     }
-    let r = [measureName, measureFormat, decimalPlaces];
-    return r;
+    return [measureName, measureFormat, decimalPlaces];
 }
 
 
