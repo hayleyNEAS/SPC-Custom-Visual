@@ -35,6 +35,7 @@ import { BarChartSettingsModel } from "./barChartSettingsModel";
 import { getLocalizedString } from "./localisation/localisationHelper"
 
 //Importing functions from file
+import { SPCChartData, SPCChartDataPoint } from "./dataStructure"; 
 import { parseDateLabel, parseinHMS, parseYLabels, PBIformatingKeeper } from "./formattingFunctions"
 import { yAxisDomain, getFillColor, getYAxisTextFillColor } from "./chartFunctions"
 import { identifyOutliers, twoInThreeRule, logoSelector, directionColors } from "./spcFunctions"
@@ -42,48 +43,6 @@ import { getTarget, createSelectorDataPoints } from "./dataLoad"
 
 
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
-
-export interface SPCChartData {
-    datapoints: SPCChartDataPoint[];
-
-    n: number;
-    direction: number;
-    target: number;
-
-    meanValue: number;
-    UCLValue: number;
-    LCLValue: number;
-    Upper_Zone_A: number;
-    Upper_Zone_B: number;
-    Lower_Zone_A: number;
-    Lower_Zone_B: number;
-
-    strokeWidth: number;
-    strokeColor: string;
-
-    measureName: string;
-    measureFormat: string;
-    decimalPlaces: number;
-
-    outlier: number;
-    run: number;
-    shift: number;
-    twoInThree: number;
-}
-
-export interface SPCChartDataPoint {
-    value: PrimitiveValue;
-    category: string;
-    difference: number;
-    color: string; //for the marker
-    markerSize: number;
-    selectionId: ISelectionId;
-
-    outlier: number;
-    run: number;
-    shift: number;
-    twoInThree: number;
-}
 
 function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, formatSettings: BarChartSettingsModel): SPCChartData {
     //MEASURES INPUT
