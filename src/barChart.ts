@@ -37,7 +37,7 @@ import { getLocalizedString } from "./localisation/localisationHelper"
 //Importing functions from file
 import { parseDateLabel, parseinHMS, parseYLabels, PBIformatingKeeper } from "./formattingFunctions"
 import { yAxisDomain, getFillColor, getYAxisTextFillColor } from "./chartFunctions"
-import { identifyOutliers, twoInThreeRule, logoSelector } from "./spcFunctions"
+import { identifyOutliers, twoInThreeRule, logoSelector, directionColors } from "./spcFunctions"
 
 
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
@@ -102,19 +102,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     let SPCChartDataPoints = createSelectorDataPoints(options, host);
 
     //DIRECTION
-    let direction = <number>formatSettings.SPCSettings.spcSetUp.direction.value.value
-    let up_color = ""
-    let down_color = ""
-    if(direction == 1){
-        up_color = formatSettings.SPCSettings.markerOptions.improvement.value.value
-        down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value
-    } else if (direction == -1) {
-        up_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value
-        down_color = formatSettings.SPCSettings.markerOptions.improvement.value.value
-    } else {
-        up_color = formatSettings.SPCSettings.markerOptions.improvement.value.value
-        down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value
-    }
+    let [direction, up_color, down_color] = directionColors(formatSettings)
 
     //TARGET
     let target = -Infinity

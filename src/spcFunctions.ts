@@ -4,7 +4,29 @@ import * as d3 from "d3";
 
 import { SPCChartDataPoint, SPCChartData, PrimitiveValue} from "./dataStructure" 
 import { BarChartSettingsModel } from "./barChartSettingsModel";
-    
+
+
+//Images
+
+const variation_noChange = require("./../assets/Variation_noChange.png")
+const variation_ciHigh = require("./../assets/variation_ciHigh.png")
+const variation_ccHigh = require("./../assets/variation_ccHigh.png")
+const variation_ciLow = require("./../assets/variation_ciLow.png")
+const variation_ccLow = require("./../assets/variation_ccLow.png")
+const variation_High = require("./../assets/variation_high.png")
+const variation_Low = require("./../assets/variation_low.png")
+
+const atTarget = require("./../assets/assurance_atTarget.png")
+const fail_above = require("./../assets/fail_above.png")
+const fail_below = require("./../assets/fail_below.png")
+const pass_above = require("./../assets/pass_above.png")
+const pass_below = require("./../assets/pass_below.png")
+const above = require("./../assets/above.png")
+const below = require("./../assets/below.png")
+const none = require("./../assets/no_image.png")
+
+//Functions
+
 export function identifyOutliers(data: SPCChartDataPoint[], formatSettings: BarChartSettingsModel, displayMarkerSize: number, UCLValue: number, LCLValue: number) {
     let outlierColor = formatSettings.SPCSettings.markerOptions.outlier.value.value
     let outlierShow = Number(formatSettings.SPCSettings.markerOptions.showOutlier.value)
@@ -43,25 +65,6 @@ export function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
         }
     }
 }
-
-//import logo_variation_nochange from "./../assets/Variation_noChange.png"
-const variation_noChange = require("./../assets/Variation_noChange.png")
-const variation_ciHigh = require("./../assets/variation_ciHigh.png")
-const variation_ccHigh = require("./../assets/variation_ccHigh.png")
-const variation_ciLow = require("./../assets/variation_ciLow.png")
-const variation_ccLow = require("./../assets/variation_ccLow.png")
-const variation_High = require("./../assets/variation_high.png")
-const variation_Low = require("./../assets/variation_low.png")
-
-const atTarget = require("./../assets/assurance_atTarget.png")
-const fail_above = require("./../assets/fail_above.png")
-const fail_below = require("./../assets/fail_below.png")
-const pass_above = require("./../assets/pass_above.png")
-const pass_below = require("./../assets/pass_below.png")
-const above = require("./../assets/above.png")
-const below = require("./../assets/below.png")
-const none = require("./../assets/no_image.png")
-
 
 export function logoSelector(data: SPCChartData, option): any {
     if (option == "variation") {
@@ -126,4 +129,21 @@ export function logoSelector(data: SPCChartData, option): any {
         }
     }
 
+}
+
+export function directionColors(formatSettings: BarChartSettingsModel):[number, string, string]{
+    let direction = <number>formatSettings.SPCSettings.spcSetUp.direction.value.value
+    let up_color = ""
+    let down_color = ""
+    if(direction == 1){
+        up_color = formatSettings.SPCSettings.markerOptions.improvement.value.value
+        down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value
+    } else if (direction == -1) {
+        up_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value
+        down_color = formatSettings.SPCSettings.markerOptions.improvement.value.value
+    } else {
+        up_color = formatSettings.SPCSettings.markerOptions.improvement.value.value
+        down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value
+    }
+    return [direction, up_color, down_color]
 }

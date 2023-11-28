@@ -1505,21 +1505,8 @@ function createSelectorData(options, host, formatSettings) {
     }
     let SPCChartDataPoints = createSelectorDataPoints(options, host);
     //DIRECTION
-    let direction = formatSettings.SPCSettings.spcSetUp.direction.value.value;
-    let up_color = "";
-    let down_color = "";
-    if (direction == 1) {
-        up_color = formatSettings.SPCSettings.markerOptions.improvement.value.value;
-        down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value;
-    }
-    else if (direction == -1) {
-        up_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value;
-        down_color = formatSettings.SPCSettings.markerOptions.improvement.value.value;
-    }
-    else {
-        up_color = formatSettings.SPCSettings.markerOptions.improvement.value.value;
-        down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value;
-    }
+    let [direction, up_color, down_color] = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .directionColors */ .yz)(formatSettings);
+    console.log(up_color, down_color);
     //TARGET
     let target = -Infinity;
     if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
@@ -2643,8 +2630,26 @@ function getCategoricalObjectValue(category, index, objectName, propertyName, de
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   SK: () => (/* binding */ twoInThreeRule),
 /* harmony export */   Yo: () => (/* binding */ logoSelector),
-/* harmony export */   b5: () => (/* binding */ identifyOutliers)
+/* harmony export */   b5: () => (/* binding */ identifyOutliers),
+/* harmony export */   yz: () => (/* binding */ directionColors)
 /* harmony export */ });
+//Images
+const variation_noChange = __webpack_require__(845);
+const variation_ciHigh = __webpack_require__(3484);
+const variation_ccHigh = __webpack_require__(4201);
+const variation_ciLow = __webpack_require__(4837);
+const variation_ccLow = __webpack_require__(1069);
+const variation_High = __webpack_require__(4840);
+const variation_Low = __webpack_require__(2395);
+const atTarget = __webpack_require__(7523);
+const fail_above = __webpack_require__(3359);
+const fail_below = __webpack_require__(2564);
+const pass_above = __webpack_require__(4151);
+const pass_below = __webpack_require__(9525);
+const above = __webpack_require__(8119);
+const below = __webpack_require__(2762);
+const none = __webpack_require__(9304);
+//Functions
 function identifyOutliers(data, formatSettings, displayMarkerSize, UCLValue, LCLValue) {
     let outlierColor = formatSettings.SPCSettings.markerOptions.outlier.value.value;
     let outlierShow = Number(formatSettings.SPCSettings.markerOptions.showOutlier.value);
@@ -2681,22 +2686,6 @@ function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
         }
     }
 }
-//import logo_variation_nochange from "./../assets/Variation_noChange.png"
-const variation_noChange = __webpack_require__(845);
-const variation_ciHigh = __webpack_require__(3484);
-const variation_ccHigh = __webpack_require__(4201);
-const variation_ciLow = __webpack_require__(4837);
-const variation_ccLow = __webpack_require__(1069);
-const variation_High = __webpack_require__(4840);
-const variation_Low = __webpack_require__(2395);
-const atTarget = __webpack_require__(7523);
-const fail_above = __webpack_require__(3359);
-const fail_below = __webpack_require__(2564);
-const pass_above = __webpack_require__(4151);
-const pass_below = __webpack_require__(9525);
-const above = __webpack_require__(8119);
-const below = __webpack_require__(2762);
-const none = __webpack_require__(9304);
 function logoSelector(data, option) {
     if (option == "variation") {
         //let dataPoints = data.datapoints
@@ -2774,6 +2763,24 @@ function logoSelector(data, option) {
             return none;
         }
     }
+}
+function directionColors(formatSettings) {
+    let direction = formatSettings.SPCSettings.spcSetUp.direction.value.value;
+    let up_color = "";
+    let down_color = "";
+    if (direction == 1) {
+        up_color = formatSettings.SPCSettings.markerOptions.improvement.value.value;
+        down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value;
+    }
+    else if (direction == -1) {
+        up_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value;
+        down_color = formatSettings.SPCSettings.markerOptions.improvement.value.value;
+    }
+    else {
+        up_color = formatSettings.SPCSettings.markerOptions.improvement.value.value;
+        down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value;
+    }
+    return [direction, up_color, down_color];
 }
 
 
