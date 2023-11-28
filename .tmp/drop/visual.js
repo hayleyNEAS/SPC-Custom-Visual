@@ -1506,21 +1506,8 @@ function createSelectorData(options, host, formatSettings) {
     let SPCChartDataPoints = createSelectorDataPoints(options, host);
     //DIRECTION
     let [direction, up_color, down_color] = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .directionColors */ .yz)(formatSettings);
-    console.log(up_color, down_color);
     //TARGET
-    let target = -Infinity;
-    if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
-        target = 0;
-        let targetSplit = formatSettings.SPCSettings.spcSetUp.target.value.valueOf().split(":").reverse();
-        let toSeconds = [1, 60, 3600, 86400];
-        for (let i = 0, len = targetSplit.length; i < len; i++) {
-            target = target + Number(targetSplit[i]) * toSeconds[i];
-        }
-    }
-    else {
-        target = -Infinity;
-    }
-    target = target_input[0] ? target_input[0] : target; //if target is supplied as a measure then use that else use it from settings
+    let target = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getTarget */ .U9)(target_input, formatSettings);
     let displayMarkerSize = 3;
     let [measureName, measureFormat, decimalPlaces] = (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .PBIformatingKeeper */ .WN)(options);
     let nPoints = SPCChartDataPoints.length;
@@ -1844,7 +1831,7 @@ class SPCChart {
     update(options) {
         //Set up the charting object 
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(_barChartSettingsModel__WEBPACK_IMPORTED_MODULE_2__/* .BarChartSettingsModel */ .f, options.dataViews[0]);
-        let data = createSelectorData(options, this.host, this.formattingSettings); //TODO check if the issue is in this.datapoints
+        let data = createSelectorData(options, this.host, this.formattingSettings);
         this.dataPoints = data.datapoints;
         let width = options.viewport.width;
         let height = options.viewport.height;
@@ -1921,12 +1908,12 @@ class SPCChart {
             .style("stroke-linecap", "round")
             .attr("class", "target")
             .attr("x1", widthChartStart)
-            .attr("x2", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' ? widthChartStart : widthChartEnd)
+            .attr("x2", widthChartEnd)
             .attr("y1", function (d) { return yScale(data.target); })
             .attr("y2", function (d) { return yScale(data.target); })
             .attr("fill", "none")
             .attr("stroke", "red")
-            .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' ? 0 : 2);
+            .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' && data.target == -Infinity ? 0 : 2);
         //Create data line
         this.lineData
             .datum(this.dataPoints)
@@ -2629,6 +2616,7 @@ function getCategoricalObjectValue(category, index, objectName, propertyName, de
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   SK: () => (/* binding */ twoInThreeRule),
+/* harmony export */   U9: () => (/* binding */ getTarget),
 /* harmony export */   Yo: () => (/* binding */ logoSelector),
 /* harmony export */   b5: () => (/* binding */ identifyOutliers),
 /* harmony export */   yz: () => (/* binding */ directionColors)
@@ -2781,6 +2769,22 @@ function directionColors(formatSettings) {
         down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value;
     }
     return [direction, up_color, down_color];
+}
+function getTarget(target_input, formatSettings) {
+    let target = -Infinity;
+    if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
+        target = 0;
+        let targetSplit = formatSettings.SPCSettings.spcSetUp.target.value.valueOf().split(":").reverse();
+        let toSeconds = [1, 60, 3600, 86400];
+        for (let i = 0, len = targetSplit.length; i < len; i++) {
+            target = target + Number(targetSplit[i]) * toSeconds[i];
+        }
+    }
+    else {
+        target = -Infinity;
+    }
+    target = target_input[0] ? target_input[0] : target; //if target is supplied as a measure then use that else use it from settings
+    return target;
 }
 
 

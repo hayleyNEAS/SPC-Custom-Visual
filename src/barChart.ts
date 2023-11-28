@@ -37,7 +37,7 @@ import { getLocalizedString } from "./localisation/localisationHelper"
 //Importing functions from file
 import { parseDateLabel, parseinHMS, parseYLabels, PBIformatingKeeper } from "./formattingFunctions"
 import { yAxisDomain, getFillColor, getYAxisTextFillColor } from "./chartFunctions"
-import { identifyOutliers, twoInThreeRule, logoSelector, directionColors } from "./spcFunctions"
+import { identifyOutliers, twoInThreeRule, logoSelector, directionColors, getTarget } from "./spcFunctions"
 
 
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
@@ -105,18 +105,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     let [direction, up_color, down_color] = directionColors(formatSettings)
 
     //TARGET
-    let target = -Infinity
-    if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
-            target = 0
-            let targetSplit = formatSettings.SPCSettings.spcSetUp.target.value.valueOf().split(":").reverse()
-            let toSeconds = [1, 60, 3600, 86400]
-            for (let i = 0, len = targetSplit.length; i < len; i++) {
-                target = target + Number(targetSplit[i]) * toSeconds[i]
-            }
-    } else {
-        target = -Infinity
-    }
-    target = target_input[0] ? target_input[0] : target //if target is supplied as a measure then use that else use it from settings
+    let target = getTarget(target_input, formatSettings)
 
     let displayMarkerSize = 3
 
@@ -502,7 +491,7 @@ export class SPCChart implements IVisual {
         //Set up the charting object 
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(BarChartSettingsModel, options.dataViews[0]);
 
-        let data = createSelectorData(options, this.host, this.formattingSettings); //TODO check if the issue is in this.datapoints
+        let data = createSelectorData(options, this.host, this.formattingSettings); 
 
         this.dataPoints = data.datapoints;
 
@@ -617,12 +606,12 @@ export class SPCChart implements IVisual {
             .style("stroke-linecap", "round")
             .attr("class", "target")
             .attr("x1", widthChartStart)
-            .attr("x2", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' ? widthChartStart : widthChartEnd)
+            .attr("x2", widthChartEnd)
             .attr("y1", function (d) { return yScale(data.target); })
             .attr("y2", function (d) { return yScale(data.target); })
             .attr("fill", "none")
             .attr("stroke", "red")
-            .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' ? 0 : 2)
+            .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' && data.target == -Infinity ? 0 : 2)
 
         //Create data line
         this.lineData
