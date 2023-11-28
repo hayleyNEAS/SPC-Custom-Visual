@@ -1461,19 +1461,20 @@ try {
 /* harmony export */   u: () => (/* binding */ SPCChart)
 /* harmony export */ });
 /* unused harmony export SPCChart */
-/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(5036);
-/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(7808);
-/* harmony import */ var d3_selection__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(3838);
-/* harmony import */ var d3_axis__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(924);
+/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(5036);
+/* harmony import */ var d3_scale__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(7808);
+/* harmony import */ var d3_selection__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(3838);
+/* harmony import */ var d3_axis__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(924);
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8976);
 /* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5666);
 /* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(4261);
-/* harmony import */ var powerbi_visuals_utils_tooltiputils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(9472);
+/* harmony import */ var powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(4261);
+/* harmony import */ var powerbi_visuals_utils_tooltiputils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(9472);
 /* harmony import */ var _barChartSettingsModel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2446);
 /* harmony import */ var _formattingFunctions__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(9540);
-/* harmony import */ var _chartFunctions__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(877);
+/* harmony import */ var _chartFunctions__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(877);
 /* harmony import */ var _spcFunctions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(301);
+/* harmony import */ var _dataLoad__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(790);
 
 
 
@@ -1484,6 +1485,7 @@ try {
 
 
 //Importing functions from file
+
 
 
 
@@ -1503,11 +1505,11 @@ function createSelectorData(options, host, formatSettings) {
             breakPoint_input = options.dataViews[0].categorical.values[i].values;
         }
     }
-    let SPCChartDataPoints = createSelectorDataPoints(options, host);
+    let SPCChartDataPoints = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .createSelectorDataPoints */ .Q)(options, host);
     //DIRECTION
     let [direction, up_color, down_color] = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .directionColors */ .yz)(formatSettings);
     //TARGET
-    let target = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getTarget */ .U9)(target_input, formatSettings);
+    let target = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .getTarget */ .U)(target_input, formatSettings);
     let displayMarkerSize = 3;
     let [measureName, measureFormat, decimalPlaces] = (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .PBIformatingKeeper */ .WN)(options);
     let nPoints = SPCChartDataPoints.length;
@@ -1618,86 +1620,6 @@ function createSelectorData(options, host, formatSettings) {
         twoInThree
     };
 }
-function createSelectorDataPoints(options, host) {
-    let SPCChartDataPoints = [];
-    let dataViews = options.dataViews;
-    if (!dataViews //checks data exists
-        || !dataViews[0]
-        || !dataViews[0].categorical
-        || !dataViews[0].categorical.categories
-        || !dataViews[0].categorical.categories[0].source
-        || !dataViews[0].categorical.values) {
-        return SPCChartDataPoints;
-    }
-    let categorical = dataViews[0].categorical;
-    let category = categorical.categories[0];
-    let dataValue = categorical.values[0];
-    for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
-        const selectionId = host.createSelectionIdBuilder()
-            .withCategory(category, i)
-            .createSelectionId();
-        let diff = 0;
-        if (i > 0) {
-            diff = dataValue.values[i] - dataValue.values[i - 1];
-        }
-        SPCChartDataPoints.push({
-            color: 'steelblue',
-            markerSize: 0,
-            selectionId,
-            value: dataValue.values[i],
-            difference: diff,
-            category: category.values[i],
-            outlier: 0,
-            run: 0,
-            shift: 0,
-            twoInThree: 0
-        });
-    }
-    return SPCChartDataPoints;
-}
-/* function getFillColor(
-    objects: DataViewObjects,
-    objectString: string,
-    propString: string,
-    colorPalette: ISandboxExtendedColorPalette,
-    defaultColor: string
-): string {
-    if (colorPalette.isHighContrast) {
-        return colorPalette.foreground.value;
-    }
-
-    return getValue<Fill>(
-        objects,
-        objectString,
-        propString,
-        {
-            solid: {
-                color: defaultColor,
-            }
-        },
-    ).solid.color;
-}
-
-function getYAxisTextFillColor(
-    objects: DataViewObjects,
-    colorPalette: ISandboxExtendedColorPalette,
-    defaultColor: string
-): string {
-    if (colorPalette.isHighContrast) {
-        return colorPalette.foreground.value;
-    }
-
-    return getValue<Fill>(
-        objects,
-        "enableYAxis",
-        "fill",
-        {
-            solid: {
-                color: defaultColor,
-            }
-        },
-    ).solid.color;
-} */
 class SPCChart {
     svg;
     logo;
@@ -1744,9 +1666,9 @@ class SPCChart {
     constructor(options) {
         this.host = options.host;
         const localizationManager = this.host.createLocalizationManager();
-        this.formattingSettingsService = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_5__/* ["default"] */ .Z(localizationManager);
+        this.formattingSettingsService = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_6__/* ["default"] */ .Z(localizationManager);
         this.locale = options.host.locale;
-        this.svg = (0,d3_selection__WEBPACK_IMPORTED_MODULE_6__/* ["default"] */ .Z)(options.element)
+        this.svg = (0,d3_selection__WEBPACK_IMPORTED_MODULE_7__/* ["default"] */ .Z)(options.element)
             .append('svg')
             .classed('SPCChart', true);
         this.xAxis = this.svg
@@ -1797,29 +1719,8 @@ class SPCChart {
             .append('image');
         this.logoTarget = this.svg
             .append('image');
-        this.tooltipServiceWrapper = (0,powerbi_visuals_utils_tooltiputils__WEBPACK_IMPORTED_MODULE_7__/* .createTooltipServiceWrapper */ .p)(this.host.tooltipService, options.element);
+        this.tooltipServiceWrapper = (0,powerbi_visuals_utils_tooltiputils__WEBPACK_IMPORTED_MODULE_8__/* .createTooltipServiceWrapper */ .p)(this.host.tooltipService, options.element);
     }
-    // Three function that change the tooltip when user hover / move / leave a cell
-    /*     private mouseover(p: [number, number], d: SPCChartData) {
-            this.tooltip
-                .style("opacity", 1)
-                .style("stroke", "black")
-                .style("opacity", 1)
-        }
-        private mousemove(p: [number, number], d: SPCChartData) {
-            this.tooltip
-                .html("The exact value of<br>this cell is: " + d.datapoints.values)
-                .style("left", (p[0] + 70) + "px")
-                .style("top", (p[1]) + "px")
-        }
-    
-    
-        private mouseleave(p: [number, number], d: SPCChartData) {
-            this.tooltip
-                .style("opacity", 0)
-                .style("stroke", "none")
-                .style("opacity", 0.8)
-        } */
     /**
      * Updates the state of the visual. Every sequential databinding and resize will call update.
      *
@@ -1846,11 +1747,11 @@ class SPCChart {
         }
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
         //Set up the Y Axis
-        let yScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_8__/* ["default"] */ .Z)()
-            .domain((0,_chartFunctions__WEBPACK_IMPORTED_MODULE_9__/* .yAxisDomain */ .lG)(data))
+        let yScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_9__/* ["default"] */ .Z)()
+            .domain((0,_chartFunctions__WEBPACK_IMPORTED_MODULE_10__/* .yAxisDomain */ .lG)(data))
             .range([height, 5]);
         let yTicks = 5;
-        let yAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_10__/* .axisLeft */ .y4)(yScale)
+        let yAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_11__/* .axisLeft */ .y4)(yScale)
             .tickSizeInner(-widthChartEnd);
         if (this.formattingSettings.enableYAxis.formatter.time.value) {
             yAxis = yAxis
@@ -1866,7 +1767,7 @@ class SPCChart {
         let yAxisObject = this.yAxis
             .call(yAxis)
             .transition().duration(500)
-            .attr("color", (0,_chartFunctions__WEBPACK_IMPORTED_MODULE_9__/* .getYAxisTextFillColor */ .F0)(colorObjects, this.host.colorPalette, this.formattingSettings.enableYAxis.formatter.fill.value.value));
+            .attr("color", (0,_chartFunctions__WEBPACK_IMPORTED_MODULE_10__/* .getYAxisTextFillColor */ .F0)(colorObjects, this.host.colorPalette, this.formattingSettings.enableYAxis.formatter.fill.value.value));
         yAxisObject.selectAll('.yAxis line')
             .attr('stroke', this.formattingSettings.enableYAxis.formatter.fill.value.value)
             .attr('opacity', 0.2);
@@ -1891,16 +1792,16 @@ class SPCChart {
         //Set up the X Axis
         this.xAxis
             .style("font-size", 11);
-        let xScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_11__/* .point */ .x)()
+        let xScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_12__/* .point */ .x)()
             .domain(this.dataPoints.map(d => d.category))
             .range([widthChartStart, widthChartEnd]);
-        let xAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_10__/* .axisBottom */ .LL)(xScale)
+        let xAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_11__/* .axisBottom */ .LL)(xScale)
             .tickFormat(_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseDateLabel */ .YV);
         let xAxisObject = this.xAxis
             .attr('transform', 'translate(0, ' + (height + 2) + ')')
             .call(xAxis)
             .transition().duration(500)
-            .attr("color", (0,_chartFunctions__WEBPACK_IMPORTED_MODULE_9__/* .getFillColor */ .W7)(colorObjects, 'enableAxis', 'fill', this.host.colorPalette, this.formattingSettings.enableAxis.formatter.fill.value.value));
+            .attr("color", (0,_chartFunctions__WEBPACK_IMPORTED_MODULE_10__/* .getFillColor */ .W7)(colorObjects, 'enableAxis', 'fill', this.host.colorPalette, this.formattingSettings.enableAxis.formatter.fill.value.value));
         xAxisObject.selectAll('.xAxis path, line')
             .attr('opacity', 0);
         //Create target line
@@ -2150,9 +2051,9 @@ class SPCChart {
             let tooltipmarkers = thissvg
                 .selectAll('circle.markers.tooltip')
                 .nodes();
-            (0,d3_selection__WEBPACK_IMPORTED_MODULE_6__/* ["default"] */ .Z)(tooltiplines[index])
+            (0,d3_selection__WEBPACK_IMPORTED_MODULE_7__/* ["default"] */ .Z)(tooltiplines[index])
                 .attr("opacity", 1);
-            (0,d3_selection__WEBPACK_IMPORTED_MODULE_6__/* ["default"] */ .Z)(tooltipmarkers[index])
+            (0,d3_selection__WEBPACK_IMPORTED_MODULE_7__/* ["default"] */ .Z)(tooltipmarkers[index])
                 .attr("opacity", 1);
         })
             .on('mouseleave', function () {
@@ -2444,6 +2345,71 @@ function getYAxisTextFillColor(objects, colorPalette, defaultColor) {
 
 /***/ }),
 
+/***/ 790:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Q: () => (/* binding */ createSelectorDataPoints),
+/* harmony export */   U: () => (/* binding */ getTarget)
+/* harmony export */ });
+function getTarget(target_input, formatSettings) {
+    let target = -Infinity;
+    if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
+        target = 0;
+        let targetSplit = formatSettings.SPCSettings.spcSetUp.target.value.valueOf().split(":").reverse();
+        let toSeconds = [1, 60, 3600, 86400];
+        for (let i = 0, len = targetSplit.length; i < len; i++) {
+            target = target + Number(targetSplit[i]) * toSeconds[i];
+        }
+    }
+    else {
+        target = -Infinity;
+    }
+    target = target_input[0] ? target_input[0] : target; //if target is supplied as a measure then use that else use it from settings
+    return target;
+}
+function createSelectorDataPoints(options, host) {
+    let SPCChartDataPoints = [];
+    let dataViews = options.dataViews;
+    if (!dataViews //checks data exists
+        || !dataViews[0]
+        || !dataViews[0].categorical
+        || !dataViews[0].categorical.categories
+        || !dataViews[0].categorical.categories[0].source
+        || !dataViews[0].categorical.values) {
+        return SPCChartDataPoints;
+    }
+    let categorical = dataViews[0].categorical;
+    let category = categorical.categories[0];
+    let dataValue = categorical.values[0];
+    for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
+        const selectionId = host.createSelectionIdBuilder()
+            .withCategory(category, i)
+            .createSelectionId();
+        let diff = 0;
+        if (i > 0) {
+            diff = dataValue.values[i] - dataValue.values[i - 1];
+        }
+        SPCChartDataPoints.push({
+            color: 'steelblue',
+            markerSize: 0,
+            selectionId,
+            value: dataValue.values[i],
+            difference: diff,
+            category: category.values[i],
+            outlier: 0,
+            run: 0,
+            shift: 0,
+            twoInThree: 0
+        });
+    }
+    return SPCChartDataPoints;
+}
+
+
+/***/ }),
+
 /***/ 9540:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -2616,7 +2582,6 @@ function getCategoricalObjectValue(category, index, objectName, propertyName, de
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   SK: () => (/* binding */ twoInThreeRule),
-/* harmony export */   U9: () => (/* binding */ getTarget),
 /* harmony export */   Yo: () => (/* binding */ logoSelector),
 /* harmony export */   b5: () => (/* binding */ identifyOutliers),
 /* harmony export */   yz: () => (/* binding */ directionColors)
@@ -2769,22 +2734,6 @@ function directionColors(formatSettings) {
         down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value;
     }
     return [direction, up_color, down_color];
-}
-function getTarget(target_input, formatSettings) {
-    let target = -Infinity;
-    if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
-        target = 0;
-        let targetSplit = formatSettings.SPCSettings.spcSetUp.target.value.valueOf().split(":").reverse();
-        let toSeconds = [1, 60, 3600, 86400];
-        for (let i = 0, len = targetSplit.length; i < len; i++) {
-            target = target + Number(targetSplit[i]) * toSeconds[i];
-        }
-    }
-    else {
-        target = -Infinity;
-    }
-    target = target_input[0] ? target_input[0] : target; //if target is supplied as a measure then use that else use it from settings
-    return target;
 }
 
 

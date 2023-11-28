@@ -147,19 +147,3 @@ export function directionColors(formatSettings: BarChartSettingsModel):[number, 
     }
     return [direction, up_color, down_color]
 }
-
-export function getTarget(target_input: any[], formatSettings: BarChartSettingsModel):number {
-    let target = -Infinity
-    if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
-            target = 0
-            let targetSplit = formatSettings.SPCSettings.spcSetUp.target.value.valueOf().split(":").reverse()
-            let toSeconds = [1, 60, 3600, 86400]
-            for (let i = 0, len = targetSplit.length; i < len; i++) {
-                target = target + Number(targetSplit[i]) * toSeconds[i]
-            }
-    } else {
-        target = -Infinity
-    }
-    target = target_input[0] ? target_input[0] : target //if target is supplied as a measure then use that else use it from settings
-    return target
-}

@@ -37,7 +37,8 @@ import { getLocalizedString } from "./localisation/localisationHelper"
 //Importing functions from file
 import { parseDateLabel, parseinHMS, parseYLabels, PBIformatingKeeper } from "./formattingFunctions"
 import { yAxisDomain, getFillColor, getYAxisTextFillColor } from "./chartFunctions"
-import { identifyOutliers, twoInThreeRule, logoSelector, directionColors, getTarget } from "./spcFunctions"
+import { identifyOutliers, twoInThreeRule, logoSelector, directionColors } from "./spcFunctions"
+import { getTarget, createSelectorDataPoints } from "./dataLoad"
 
 
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
@@ -234,97 +235,6 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     }
 }
 
-function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHost): SPCChartDataPoint[] {
-    let SPCChartDataPoints: SPCChartDataPoint[] = []
-    let dataViews = options.dataViews;
-
-    if (!dataViews //checks data exists
-        || !dataViews[0]
-        || !dataViews[0].categorical
-        || !dataViews[0].categorical.categories
-        || !dataViews[0].categorical.categories[0].source
-        || !dataViews[0].categorical.values
-    ) {
-        return SPCChartDataPoints;
-    }
-
-    let categorical = dataViews[0].categorical;
-    let category = categorical.categories[0];
-    let dataValue = categorical.values[0];
-    
-    for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
-        const selectionId: ISelectionId = host.createSelectionIdBuilder()
-            .withCategory(category, i)
-            .createSelectionId();
-
-        let diff = 0
-        if (i > 0) {
-            diff = <number>dataValue.values[i] - <number>dataValue.values[i - 1]
-        }
-
-        SPCChartDataPoints.push({
-            color: 'steelblue',
-            markerSize: 0,
-            selectionId,
-            value: dataValue.values[i],
-            difference: diff,
-            category: <string>category.values[i],
-
-            outlier: 0,
-            run: 0,
-            shift: 0,
-            twoInThree: 0
-        });
-    }
-
-    return SPCChartDataPoints;
-}
-
-/* function getFillColor(
-    objects: DataViewObjects,
-    objectString: string,
-    propString: string,
-    colorPalette: ISandboxExtendedColorPalette,
-    defaultColor: string
-): string {
-    if (colorPalette.isHighContrast) {
-        return colorPalette.foreground.value;
-    }
-
-    return getValue<Fill>(
-        objects,
-        objectString,
-        propString,
-        {
-            solid: {
-                color: defaultColor,
-            }
-        },
-    ).solid.color;
-}
-
-function getYAxisTextFillColor(
-    objects: DataViewObjects,
-    colorPalette: ISandboxExtendedColorPalette,
-    defaultColor: string
-): string {
-    if (colorPalette.isHighContrast) {
-        return colorPalette.foreground.value;
-    }
-
-    return getValue<Fill>(
-        objects,
-        "enableYAxis",
-        "fill",
-        {
-            solid: {
-                color: defaultColor,
-            }
-        },
-    ).solid.color;
-} */
-
-
 
 export class SPCChart implements IVisual {
     private svg: Selection<any>;
@@ -455,29 +365,6 @@ export class SPCChart implements IVisual {
     }
 
 
-
-
-    // Three function that change the tooltip when user hover / move / leave a cell
-    /*     private mouseover(p: [number, number], d: SPCChartData) {
-            this.tooltip
-                .style("opacity", 1)
-                .style("stroke", "black")
-                .style("opacity", 1)
-        }
-        private mousemove(p: [number, number], d: SPCChartData) {
-            this.tooltip
-                .html("The exact value of<br>this cell is: " + d.datapoints.values)
-                .style("left", (p[0] + 70) + "px")
-                .style("top", (p[1]) + "px")
-        }
-    
-    
-        private mouseleave(p: [number, number], d: SPCChartData) {
-            this.tooltip
-                .style("opacity", 0)
-                .style("stroke", "none")
-                .style("opacity", 0.8)
-        } */
 
     /**
      * Updates the state of the visual. Every sequential databinding and resize will call update.
