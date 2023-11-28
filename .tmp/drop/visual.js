@@ -1484,32 +1484,18 @@ try {
 
 
 
-//Importing functions from file
 
 
 
 
 function createSelectorData(options, host, formatSettings) {
     //MEASURES INPUT
-    let value_input = [];
-    let target_input = [];
-    let breakPoint_input = [];
-    for (let i = 0, len = options.dataViews[0].categorical.values.length; i < len; i++) {
-        if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'measure') {
-            value_input = options.dataViews[0].categorical.values[i].values;
-        }
-        else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'target_measure') {
-            target_input = options.dataViews[0].categorical.values[i].values;
-        }
-        else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'break_points') {
-            breakPoint_input = options.dataViews[0].categorical.values[i].values;
-        }
-    }
-    let SPCChartDataPoints = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .createSelectorDataPoints */ .Q)(options, host);
+    let [value_input, target_input, breakPoint_input] = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .dataLoad */ .IR)(options, host);
+    let SPCChartDataPoints = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .createSelectorDataPoints */ .QF)(options, host);
     //DIRECTION
     let [direction, up_color, down_color] = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .directionColors */ .yz)(formatSettings);
     //TARGET
-    let target = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .getTarget */ .U)(target_input, formatSettings);
+    let target = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .getTarget */ .U9)(target_input, formatSettings);
     let displayMarkerSize = 3;
     let [measureName, measureFormat, decimalPlaces] = (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .PBIformatingKeeper */ .WN)(options);
     let nPoints = SPCChartDataPoints.length;
@@ -2350,8 +2336,9 @@ function getYAxisTextFillColor(objects, colorPalette, defaultColor) {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   Q: () => (/* binding */ createSelectorDataPoints),
-/* harmony export */   U: () => (/* binding */ getTarget)
+/* harmony export */   IR: () => (/* binding */ dataLoad),
+/* harmony export */   QF: () => (/* binding */ createSelectorDataPoints),
+/* harmony export */   U9: () => (/* binding */ getTarget)
 /* harmony export */ });
 function getTarget(target_input, formatSettings) {
     let target = -Infinity;
@@ -2405,6 +2392,23 @@ function createSelectorDataPoints(options, host) {
         });
     }
     return SPCChartDataPoints;
+}
+function dataLoad(options, host) {
+    let value_input = [];
+    let target_input = [];
+    let breakPoint_input = [];
+    for (let i = 0, len = options.dataViews[0].categorical.values.length; i < len; i++) {
+        if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'measure') {
+            value_input = options.dataViews[0].categorical.values[i].values;
+        }
+        else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'target_measure') {
+            target_input = options.dataViews[0].categorical.values[i].values;
+        }
+        else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'break_points') {
+            breakPoint_input = options.dataViews[0].categorical.values[i].values;
+        }
+    }
+    return [value_input, target_input, breakPoint_input];
 }
 
 

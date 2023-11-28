@@ -69,3 +69,19 @@ export function createSelectorDataPoints(options: VisualUpdateOptions, host: IVi
 
     return SPCChartDataPoints;
 }
+
+export function dataLoad(options: VisualUpdateOptions, host: IVisualHost):[any[], any[], any[]]{
+    let value_input = []
+    let target_input = []
+    let breakPoint_input = []
+    for(let i = 0, len = options.dataViews[0].categorical.values.length; i < len; i++) {
+        if(Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'measure'){
+            value_input = options.dataViews[0].categorical.values[i].values
+        } else if(Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'target_measure'){
+            target_input = options.dataViews[0].categorical.values[i].values
+        } else if(Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'break_points'){
+            breakPoint_input = options.dataViews[0].categorical.values[i].values
+        }
+    }
+    return [value_input, target_input, breakPoint_input]
+}

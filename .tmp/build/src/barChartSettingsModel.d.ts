@@ -49,7 +49,7 @@ declare class SPC extends CompCard {
     markerOptions: MarkerOptions;
     name: string;
     displayName: string;
-    groups: (SPCSetUp | MarkerOptions | LogoOptions | LineOptions)[];
+    groups: (MarkerOptions | SPCSetUp | LogoOptions | LineOptions)[];
 }
 /**
  * Enable x-Axis Formatting Card

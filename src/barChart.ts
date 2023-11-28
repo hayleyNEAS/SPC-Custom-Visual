@@ -39,25 +39,14 @@ import { SPCChartData, SPCChartDataPoint } from "./dataStructure";
 import { parseDateLabel, parseinHMS, parseYLabels, PBIformatingKeeper } from "./formattingFunctions"
 import { yAxisDomain, getFillColor, getYAxisTextFillColor } from "./chartFunctions"
 import { identifyOutliers, twoInThreeRule, logoSelector, directionColors } from "./spcFunctions"
-import { getTarget, createSelectorDataPoints } from "./dataLoad"
+import { getTarget, createSelectorDataPoints, dataLoad } from "./dataLoad"
 
 
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
 
 function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, formatSettings: BarChartSettingsModel): SPCChartData {
     //MEASURES INPUT
-    let value_input = []
-    let target_input = []
-    let breakPoint_input = []
-    for(let i = 0, len = options.dataViews[0].categorical.values.length; i < len; i++) {
-        if(Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'measure'){
-            value_input = options.dataViews[0].categorical.values[i].values
-        } else if(Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'target_measure'){
-            target_input = options.dataViews[0].categorical.values[i].values
-        } else if(Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'break_points'){
-            breakPoint_input = options.dataViews[0].categorical.values[i].values
-        }
-    }
+    let [value_input, target_input, breakPoint_input] = dataLoad(options, host)
 
     let SPCChartDataPoints = createSelectorDataPoints(options, host);
 
