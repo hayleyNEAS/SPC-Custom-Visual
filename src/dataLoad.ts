@@ -108,6 +108,7 @@ export function fullData(options: VisualUpdateOptions, formatSettings: BarChartS
 
         strokeWidth: 2,
         strokeColor: 'steelblue',
+        markerSize: 3,
 
         measureName, 
         measureFormat,

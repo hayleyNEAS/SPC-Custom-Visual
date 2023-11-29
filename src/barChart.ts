@@ -32,7 +32,7 @@ import { getLocalizedString } from "./localisation/localisationHelper"
 import { SPCChartData, SPCChartDataPoint } from "./dataStructure"; 
 import { parseDateLabel, parseinHMS, parseYLabels, PBIformatingKeeper } from "./formattingFunctions"
 import { yAxisDomain, getFillColor, getYAxisTextFillColor } from "./chartFunctions"
-import { identifyOutliers, twoInThreeRule, logoSelector, directionColors, getMean, getControlLimits } from "./spcFunctions"
+import { identifyOutliers, twoInThreeRule, logoSelector, directionColors, getMean, getControlLimits, getMarkerColors } from "./spcFunctions"
 import { dataLoad, dataSet, fullData } from "./dataLoad"
 
 
@@ -62,73 +62,21 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
 
     allData = getControlLimits(allData)
 
-    //SPC Marker Colors Rules        
-    for (let i = 0; i < nPoints; i++) {
-        if (i > 3) { //two in three rules 
-            let latest3 = SPCChartDataPoints.slice(i - 3 + 1, i + 1)
-            let twoInThreeCheck = latest3
-                .map((d) => twoInThreeRule(d.value, allData.Upper_Zone_A, allData.Lower_Zone_A, allData.direction))
-                .reduce((a, b) => a + b, 0)
-            if (Math.abs(twoInThreeCheck) >= 2) {
-                latest3.forEach(d => d.color = up_color)
-                latest3.forEach(d => d.markerSize = displayMarkerSize)
-                latest3.forEach(d => d.twoInThree = 1)
-            } else if (Math.abs(twoInThreeCheck) <= -2) {
-                latest3.forEach(d => d.color = down_color)
-                latest3.forEach(d => d.markerSize = displayMarkerSize)
-                latest3.forEach(d => d.twoInThree = 1)
-            }
-        }
-        let p = formatSettings.SPCSettings.markerOptions.runNumber.value
-        if (i > p) {
-            let latest7 = SPCChartDataPoints.slice(i - p + 1, i + 1)
-            //run of 7
-            let runOfNumbers = latest7
-                .map((d) => Math.sign(d.difference))
-                .reduce((a, b) => a + b, 0)
-            if (runOfNumbers == p) {
-                latest7.forEach(d => d.color = up_color)
-                latest7.forEach(d => d.markerSize = displayMarkerSize)
-                latest7.forEach(d => d.run = 1)
-            } if (runOfNumbers == -1 * p) {
-                latest7.forEach(d => d.color = down_color)
-                latest7.forEach(d => d.markerSize = displayMarkerSize)
-                latest7.forEach(d => d.run = -1)
-            }
-            //oneside of mean 
-            let shift7 = latest7
-                .map((d) => Math.sign(<number>d.value - meanValue))
-                .reduce((a, b) => a + b, 0)
-            if (shift7 == p) {
-                latest7.forEach(d => d.color = up_color)
-                latest7.forEach(d => d.markerSize = displayMarkerSize)
-                latest7.forEach(d => d.shift = 1)
-            } if (shift7 == -1 * p) {
-                latest7.forEach(d => d.color = down_color)
-                latest7.forEach(d => d.markerSize = displayMarkerSize)
-                latest7.forEach(d => d.shift = -1)
-            }
-        }
-        if (i > 15) {
-            let latest15 = SPCChartDataPoints.slice(i - 15 + 1, i + 1)
-        }
-    }
-
     //SPC Marker Colors Rules 
-    //find outliers
-    SPCChartDataPoints = identifyOutliers(SPCChartDataPoints, formatSettings, displayMarkerSize, allData.UCLValue, allData.LCLValue)
+    allData = getMarkerColors(allData, formatSettings)
+    SPCChartDataPoints = identifyOutliers(allData.datapoints, formatSettings, displayMarkerSize, allData.UCLValue, allData.LCLValue)
 
-    let outlier = SPCChartDataPoints[nPoints - 1].outlier
-    let run = SPCChartDataPoints[nPoints - 1].run
-    let shift = SPCChartDataPoints[nPoints - 1].shift
-    let twoInThree = SPCChartDataPoints[nPoints - 1].twoInThree
+    let outlier = allData.datapoints[nPoints - 1].outlier
+    let run = allData.datapoints[nPoints - 1].run
+    let shift = allData.datapoints[nPoints - 1].shift
+    let twoInThree = allData.datapoints[nPoints - 1].twoInThree
 
-    if (nPoints == 1) { SPCChartDataPoints.forEach(d => d.markerSize = displayMarkerSize) }
+    if (nPoints == 1) { allData.datapoints.forEach(d => d.markerSize = displayMarkerSize) }
 
     return {
-        datapoints: SPCChartDataPoints,
+        datapoints: allData.datapoints,
 
-        n: SPCChartDataPoints.length,
+        n: allData.n,
         direction,
         target,
 
@@ -143,6 +91,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
 
         strokeWidth: 2,
         strokeColor: 'steelblue',
+        markerSize: allData.markerSize,
 
         measureName, 
         measureFormat,

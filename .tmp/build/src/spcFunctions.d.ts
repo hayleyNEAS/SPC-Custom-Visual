@@ -1,8 +1,9 @@
 import { SPCChartDataPoint, SPCChartData } from "./dataStructure";
 import { BarChartSettingsModel } from "./barChartSettingsModel";
 export declare function identifyOutliers(data: SPCChartDataPoint[], formatSettings: BarChartSettingsModel, displayMarkerSize: number, UCLValue: number, LCLValue: number): SPCChartDataPoint[];
-export declare function twoInThreeRule(value: any, Upper_Zone_A: any, Lower_Zone_A: any, Direction: any): 0 | 1 | -1;
+export declare function twoInThreeRule(value: any, Upper_Zone_A: any, Lower_Zone_A: any, Direction: any): 1 | 0 | -1;
 export declare function logoSelector(data: SPCChartData, option: any): any;
 export declare function directionColors(formatSettings: BarChartSettingsModel): [number, string, string];
 export declare function getMean(dataset: SPCChartData): SPCChartData;
 export declare function getControlLimits(dataset: SPCChartData): SPCChartData;
+export declare function getMarkerColors(dataset: SPCChartData, formatSettings: BarChartSettingsModel): SPCChartData;

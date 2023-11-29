@@ -33,6 +33,7 @@ export interface SPCChartData {
 
     strokeWidth: number;
     strokeColor: string;
+    markerSize: number;
 
     measureName: string;
     measureFormat: string;

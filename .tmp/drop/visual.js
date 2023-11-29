@@ -1505,73 +1505,19 @@ function createSelectorData(options, host, formatSettings) {
     allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getMean */ .iV)(allData);
     let meanValue = allData.meanValue; //remove
     allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getControlLimits */ .Qv)(allData);
-    //SPC Marker Colors Rules        
-    for (let i = 0; i < nPoints; i++) {
-        if (i > 3) { //two in three rules 
-            let latest3 = SPCChartDataPoints.slice(i - 3 + 1, i + 1);
-            let twoInThreeCheck = latest3
-                .map((d) => (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .twoInThreeRule */ .SK)(d.value, allData.Upper_Zone_A, allData.Lower_Zone_A, allData.direction))
-                .reduce((a, b) => a + b, 0);
-            if (Math.abs(twoInThreeCheck) >= 2) {
-                latest3.forEach(d => d.color = up_color);
-                latest3.forEach(d => d.markerSize = displayMarkerSize);
-                latest3.forEach(d => d.twoInThree = 1);
-            }
-            else if (Math.abs(twoInThreeCheck) <= -2) {
-                latest3.forEach(d => d.color = down_color);
-                latest3.forEach(d => d.markerSize = displayMarkerSize);
-                latest3.forEach(d => d.twoInThree = 1);
-            }
-        }
-        let p = formatSettings.SPCSettings.markerOptions.runNumber.value;
-        if (i > p) {
-            let latest7 = SPCChartDataPoints.slice(i - p + 1, i + 1);
-            //run of 7
-            let runOfNumbers = latest7
-                .map((d) => Math.sign(d.difference))
-                .reduce((a, b) => a + b, 0);
-            if (runOfNumbers == p) {
-                latest7.forEach(d => d.color = up_color);
-                latest7.forEach(d => d.markerSize = displayMarkerSize);
-                latest7.forEach(d => d.run = 1);
-            }
-            if (runOfNumbers == -1 * p) {
-                latest7.forEach(d => d.color = down_color);
-                latest7.forEach(d => d.markerSize = displayMarkerSize);
-                latest7.forEach(d => d.run = -1);
-            }
-            //oneside of mean 
-            let shift7 = latest7
-                .map((d) => Math.sign(d.value - meanValue))
-                .reduce((a, b) => a + b, 0);
-            if (shift7 == p) {
-                latest7.forEach(d => d.color = up_color);
-                latest7.forEach(d => d.markerSize = displayMarkerSize);
-                latest7.forEach(d => d.shift = 1);
-            }
-            if (shift7 == -1 * p) {
-                latest7.forEach(d => d.color = down_color);
-                latest7.forEach(d => d.markerSize = displayMarkerSize);
-                latest7.forEach(d => d.shift = -1);
-            }
-        }
-        if (i > 15) {
-            let latest15 = SPCChartDataPoints.slice(i - 15 + 1, i + 1);
-        }
-    }
     //SPC Marker Colors Rules 
-    //find outliers
-    SPCChartDataPoints = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .identifyOutliers */ .b5)(SPCChartDataPoints, formatSettings, displayMarkerSize, allData.UCLValue, allData.LCLValue);
-    let outlier = SPCChartDataPoints[nPoints - 1].outlier;
-    let run = SPCChartDataPoints[nPoints - 1].run;
-    let shift = SPCChartDataPoints[nPoints - 1].shift;
-    let twoInThree = SPCChartDataPoints[nPoints - 1].twoInThree;
+    allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getMarkerColors */ .gT)(allData, formatSettings);
+    SPCChartDataPoints = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .identifyOutliers */ .b5)(allData.datapoints, formatSettings, displayMarkerSize, allData.UCLValue, allData.LCLValue);
+    let outlier = allData.datapoints[nPoints - 1].outlier;
+    let run = allData.datapoints[nPoints - 1].run;
+    let shift = allData.datapoints[nPoints - 1].shift;
+    let twoInThree = allData.datapoints[nPoints - 1].twoInThree;
     if (nPoints == 1) {
-        SPCChartDataPoints.forEach(d => d.markerSize = displayMarkerSize);
+        allData.datapoints.forEach(d => d.markerSize = displayMarkerSize);
     }
     return {
-        datapoints: SPCChartDataPoints,
-        n: SPCChartDataPoints.length,
+        datapoints: allData.datapoints,
+        n: allData.n,
         direction,
         target,
         meanValue,
@@ -1583,6 +1529,7 @@ function createSelectorData(options, host, formatSettings) {
         Lower_Zone_B: allData.Lower_Zone_B,
         strokeWidth: 2,
         strokeColor: 'steelblue',
+        markerSize: allData.markerSize,
         measureName,
         measureFormat,
         decimalPlaces,
@@ -2413,6 +2360,7 @@ function fullData(options, formatSettings) {
         Lower_Zone_B: -Infinity,
         strokeWidth: 2,
         strokeColor: 'steelblue',
+        markerSize: 3,
         measureName,
         measureFormat,
         decimalPlaces,
@@ -2598,12 +2546,13 @@ function getCategoricalObjectValue(category, index, objectName, propertyName, de
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Qv: () => (/* binding */ getControlLimits),
-/* harmony export */   SK: () => (/* binding */ twoInThreeRule),
 /* harmony export */   Yo: () => (/* binding */ logoSelector),
 /* harmony export */   b5: () => (/* binding */ identifyOutliers),
+/* harmony export */   gT: () => (/* binding */ getMarkerColors),
 /* harmony export */   iV: () => (/* binding */ getMean),
 /* harmony export */   yz: () => (/* binding */ directionColors)
 /* harmony export */ });
+/* unused harmony export twoInThreeRule */
 //Images
 const variation_noChange = __webpack_require__(845);
 const variation_ciHigh = __webpack_require__(3484);
@@ -2772,6 +2721,7 @@ function getMean(dataset) {
         Lower_Zone_B: dataset.Lower_Zone_B,
         strokeWidth: dataset.strokeWidth,
         strokeColor: dataset.strokeColor,
+        markerSize: dataset.markerSize,
         measureName: dataset.measureName,
         measureFormat: dataset.measureFormat,
         decimalPlaces: dataset.decimalPlaces,
@@ -2808,6 +2758,87 @@ function getControlLimits(dataset) {
         Lower_Zone_B: Lower_Zone_B,
         strokeWidth: dataset.strokeWidth,
         strokeColor: dataset.strokeColor,
+        markerSize: dataset.markerSize,
+        measureName: dataset.measureName,
+        measureFormat: dataset.measureFormat,
+        decimalPlaces: dataset.decimalPlaces,
+        outlier: dataset.outlier,
+        run: dataset.run,
+        shift: dataset.shift,
+        twoInThree: dataset.twoInThree
+    };
+}
+function getMarkerColors(dataset, formatSettings) {
+    let data = dataset.datapoints;
+    let [direction, up_color, down_color] = directionColors(formatSettings);
+    for (let i = 0; i < dataset.n; i++) {
+        if (i > 3) { //two in three rules 
+            let latest3 = data.slice(i - 3 + 1, i + 1);
+            let twoInThreeCheck = latest3
+                .map((d) => twoInThreeRule(d.value, dataset.Upper_Zone_A, dataset.Lower_Zone_A, dataset.direction))
+                .reduce((a, b) => a + b, 0);
+            if (Math.abs(twoInThreeCheck) >= 2) {
+                latest3.forEach(d => d.color = up_color);
+                latest3.forEach(d => d.markerSize = dataset.markerSize);
+                latest3.forEach(d => d.twoInThree = 1);
+            }
+            else if (Math.abs(twoInThreeCheck) <= -2) {
+                latest3.forEach(d => d.color = down_color);
+                latest3.forEach(d => d.markerSize = dataset.markerSize);
+                latest3.forEach(d => d.twoInThree = 1);
+            }
+        }
+        let p = formatSettings.SPCSettings.markerOptions.runNumber.value;
+        if (i > p) {
+            let latest7 = data.slice(i - p + 1, i + 1);
+            //run of 7
+            let runOfNumbers = latest7
+                .map((d) => Math.sign(d.difference))
+                .reduce((a, b) => a + b, 0);
+            if (runOfNumbers == p) {
+                latest7.forEach(d => d.color = up_color);
+                latest7.forEach(d => d.markerSize = dataset.markerSize);
+                latest7.forEach(d => d.run = 1);
+            }
+            if (runOfNumbers == -1 * p) {
+                latest7.forEach(d => d.color = down_color);
+                latest7.forEach(d => d.markerSize = dataset.markerSize);
+                latest7.forEach(d => d.run = -1);
+            }
+            //oneside of mean 
+            let shift7 = latest7
+                .map((d) => Math.sign(d.value - dataset.meanValue))
+                .reduce((a, b) => a + b, 0);
+            if (shift7 == p) {
+                latest7.forEach(d => d.color = up_color);
+                latest7.forEach(d => d.markerSize = dataset.markerSize);
+                latest7.forEach(d => d.shift = 1);
+            }
+            if (shift7 == -1 * p) {
+                latest7.forEach(d => d.color = down_color);
+                latest7.forEach(d => d.markerSize = dataset.markerSize);
+                latest7.forEach(d => d.shift = -1);
+            }
+        }
+        if (i > 15) {
+            let latest15 = data.slice(i - 15 + 1, i + 1);
+        }
+    }
+    return {
+        datapoints: data,
+        n: dataset.n,
+        direction: dataset.direction,
+        target: dataset.target,
+        meanValue: dataset.meanValue,
+        UCLValue: dataset.UCLValue,
+        LCLValue: dataset.LCLValue,
+        Upper_Zone_A: dataset.Upper_Zone_A,
+        Upper_Zone_B: dataset.Upper_Zone_B,
+        Lower_Zone_A: dataset.Lower_Zone_A,
+        Lower_Zone_B: dataset.Lower_Zone_B,
+        strokeWidth: dataset.strokeWidth,
+        strokeColor: dataset.strokeColor,
+        markerSize: dataset.markerSize,
         measureName: dataset.measureName,
         measureFormat: dataset.measureFormat,
         decimalPlaces: dataset.decimalPlaces,
