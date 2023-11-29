@@ -1473,8 +1473,8 @@ try {
 /* harmony import */ var _barChartSettingsModel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2446);
 /* harmony import */ var _formattingFunctions__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(9540);
 /* harmony import */ var _chartFunctions__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(877);
-/* harmony import */ var _spcFunctions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(301);
-/* harmony import */ var _dataLoad__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(790);
+/* harmony import */ var _dataLoad__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(790);
+/* harmony import */ var _spcFunctions__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(301);
 
 
 
@@ -1488,42 +1488,6 @@ try {
 
 
 
-function createSelectorData(options, host, formatSettings) {
-    //MEASURES INPUT
-    let allData = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .fullData */ .nu)(options, formatSettings);
-    allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getMean */ .iV)(allData);
-    allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getControlLimits */ .Qv)(allData);
-    //SPC Marker Colors Rules 
-    allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getMarkerColors */ .gT)(allData, formatSettings);
-    allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .identifyOutliers */ .b5)(allData, formatSettings);
-    let outlier = allData.datapoints[allData.n - 1].outlier;
-    let run = allData.datapoints[allData.n - 1].run;
-    let shift = allData.datapoints[allData.n - 1].shift;
-    let twoInThree = allData.datapoints[allData.n - 1].twoInThree;
-    return {
-        datapoints: allData.datapoints,
-        n: allData.n,
-        direction: allData.direction,
-        target: allData.target,
-        meanValue: allData.meanValue,
-        UCLValue: allData.UCLValue,
-        LCLValue: allData.LCLValue,
-        Upper_Zone_A: allData.Upper_Zone_A,
-        Upper_Zone_B: allData.Upper_Zone_B,
-        Lower_Zone_A: allData.Lower_Zone_A,
-        Lower_Zone_B: allData.Lower_Zone_B,
-        strokeWidth: allData.strokeWidth,
-        strokeColor: allData.strokeColor,
-        markerSize: allData.markerSize,
-        measureName: allData.measureName,
-        measureFormat: allData.measureFormat,
-        decimalPlaces: allData.decimalPlaces,
-        outlier,
-        run,
-        shift,
-        twoInThree
-    };
-}
 class SPCChart {
     svg;
     logo;
@@ -1636,7 +1600,7 @@ class SPCChart {
     update(options) {
         //Set up the charting object 
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(_barChartSettingsModel__WEBPACK_IMPORTED_MODULE_2__/* .BarChartSettingsModel */ .f, options.dataViews[0]);
-        let data = createSelectorData(options, this.host, this.formattingSettings);
+        let data = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_4__/* .createDataset */ .Ty)(options, this.host, this.formattingSettings);
         this.dataPoints = data.datapoints;
         let width = options.viewport.width;
         let height = options.viewport.height;
@@ -1903,7 +1867,7 @@ class SPCChart {
         if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 1) {
             logoX = widthChartEnd - 100;
         }
-        let logo = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .logoSelector */ .Yo)(data, "variation");
+        let logo = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_5__/* .logoSelector */ .Yo)(data, "variation");
         if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
             this.logo
                 .attr('href', logo)
@@ -1917,7 +1881,7 @@ class SPCChart {
                 .attr('width', 0)
                 .attr('height', 0);
         }
-        let logoTarget = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .logoSelector */ .Yo)(data, "target");
+        let logoTarget = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_5__/* .logoSelector */ .Yo)(data, "target");
         if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
             this.logoTarget
                 .attr('href', logoTarget)
@@ -2254,10 +2218,12 @@ function getYAxisTextFillColor(objects, colorPalette, defaultColor) {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   nu: () => (/* binding */ fullData)
+/* harmony export */   Ty: () => (/* binding */ createDataset)
 /* harmony export */ });
-/* unused harmony exports getTarget, dataLoad, dataSet */
+/* unused harmony exports getTarget, dataLoad, dataSet, fullData */
 /* harmony import */ var _formattingFunctions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9540);
+/* harmony import */ var _spcFunctions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(301);
+
 
 function getTarget(target_input, formatSettings) {
     let target = -Infinity;
@@ -2351,6 +2317,42 @@ function fullData(options, formatSettings) {
         run: 0,
         shift: 0,
         twoInThree: 0
+    };
+}
+function createDataset(options, host, formatSettings) {
+    //MEASURES INPUT
+    let allData = fullData(options, formatSettings);
+    allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_1__/* .getMean */ .iV)(allData);
+    allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_1__/* .getControlLimits */ .Qv)(allData);
+    //SPC Marker Colors Rules 
+    allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_1__/* .getMarkerColors */ .gT)(allData, formatSettings);
+    allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_1__/* .identifyOutliers */ .b5)(allData, formatSettings);
+    let outlier = allData.datapoints[allData.n - 1].outlier;
+    let run = allData.datapoints[allData.n - 1].run;
+    let shift = allData.datapoints[allData.n - 1].shift;
+    let twoInThree = allData.datapoints[allData.n - 1].twoInThree;
+    return {
+        datapoints: allData.datapoints,
+        n: allData.n,
+        direction: allData.direction,
+        target: allData.target,
+        meanValue: allData.meanValue,
+        UCLValue: allData.UCLValue,
+        LCLValue: allData.LCLValue,
+        Upper_Zone_A: allData.Upper_Zone_A,
+        Upper_Zone_B: allData.Upper_Zone_B,
+        Lower_Zone_A: allData.Lower_Zone_A,
+        Lower_Zone_B: allData.Lower_Zone_B,
+        strokeWidth: allData.strokeWidth,
+        strokeColor: allData.strokeColor,
+        markerSize: allData.markerSize,
+        measureName: allData.measureName,
+        measureFormat: allData.measureFormat,
+        decimalPlaces: allData.decimalPlaces,
+        outlier,
+        run,
+        shift,
+        twoInThree
     };
 }
 

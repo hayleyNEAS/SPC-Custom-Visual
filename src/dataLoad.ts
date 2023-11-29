@@ -7,6 +7,7 @@ import * as d3 from "d3";
 import { SPCChartData, SPCChartDataPoint } from "./dataStructure"
 import { BarChartSettingsModel } from "./barChartSettingsModel";
 import { PBIformatingKeeper } from "./formattingFunctions";
+import { getMean, getControlLimits, getMarkerColors, identifyOutliers } from "./spcFunctions";
 
 
 export function getTarget(target_input: any[], formatSettings: BarChartSettingsModel): number {
@@ -119,4 +120,52 @@ export function fullData(options: VisualUpdateOptions, formatSettings: BarChartS
         shift: 0,
         twoInThree: 0
     };
+}
+
+export function createDataset(options: VisualUpdateOptions, host: IVisualHost, formatSettings: BarChartSettingsModel): SPCChartData {
+    //MEASURES INPUT
+    let allData = fullData(options, formatSettings)
+    
+    allData = getMean(allData)
+    allData = getControlLimits(allData)
+
+    //SPC Marker Colors Rules 
+    allData = getMarkerColors(allData, formatSettings)
+    allData = identifyOutliers(allData, formatSettings)
+
+    let outlier = allData.datapoints[allData.n - 1].outlier
+    let run = allData.datapoints[allData.n - 1].run
+    let shift = allData.datapoints[allData.n - 1].shift
+    let twoInThree = allData.datapoints[allData.n - 1].twoInThree
+
+
+    return {
+        datapoints: allData.datapoints,
+
+        n: allData.n,
+        direction: allData.direction,
+        target: allData.target,
+
+        meanValue: allData.meanValue,
+        UCLValue: allData.UCLValue,
+        LCLValue: allData.LCLValue,
+
+        Upper_Zone_A: allData.Upper_Zone_A,
+        Upper_Zone_B: allData.Upper_Zone_B,
+        Lower_Zone_A: allData.Lower_Zone_A,
+        Lower_Zone_B: allData.Lower_Zone_B,
+
+        strokeWidth: allData.strokeWidth,
+        strokeColor: allData.strokeColor,
+        markerSize: allData.markerSize,
+
+        measureName: allData.measureName, 
+        measureFormat: allData.measureFormat,
+        decimalPlaces: allData.decimalPlaces,
+
+        outlier,
+        run,
+        shift,
+        twoInThree
+    }
 }
