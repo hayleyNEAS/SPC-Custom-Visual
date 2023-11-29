@@ -32,8 +32,8 @@ import { getLocalizedString } from "./localisation/localisationHelper"
 import { SPCChartData, SPCChartDataPoint } from "./dataStructure"; 
 import { parseDateLabel, parseinHMS, parseYLabels, PBIformatingKeeper } from "./formattingFunctions"
 import { yAxisDomain, getFillColor, getYAxisTextFillColor } from "./chartFunctions"
-import { identifyOutliers, twoInThreeRule, logoSelector, directionColors, getMean } from "./spcFunctions"
-import { getTarget, dataLoad, dataSet, fullData } from "./dataLoad"
+import { identifyOutliers, twoInThreeRule, logoSelector, directionColors, getMean, getControlLimits } from "./spcFunctions"
+import { dataLoad, dataSet, fullData } from "./dataLoad"
 
 
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
@@ -60,34 +60,14 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     allData = getMean(allData)
     let meanValue = allData.meanValue //remove
 
-    let avgDiff = SPCChartDataPoints
-        .map((d) => <number>Math.abs(d.difference))
-        .reduce((a, b) => a + b, 0) / (nPoints - 1);
+    allData = getControlLimits(allData)
 
-    if (nPoints == 1) {
-        avgDiff = null
-    }
-
-    let UCLValue = meanValue + 2.66 * avgDiff
-    let LCLValue = meanValue - 2.66 * avgDiff
-
-    let Upper_Zone_A = meanValue + 2.66 * avgDiff * 2 / 3
-    let Lower_Zone_A = meanValue - 2.66 * avgDiff * 2 / 3
-
-    let Upper_Zone_B = meanValue + 2.66 * avgDiff * 1 / 3
-    let Lower_Zone_B = meanValue - 2.66 * avgDiff * 1 / 3
-
-
-    let outlier = 0
-    let run = 0
-    let shift = 0
-    let twoInThree = 0
     //SPC Marker Colors Rules        
     for (let i = 0; i < nPoints; i++) {
         if (i > 3) { //two in three rules 
             let latest3 = SPCChartDataPoints.slice(i - 3 + 1, i + 1)
             let twoInThreeCheck = latest3
-                .map((d) => twoInThreeRule(d.value, Upper_Zone_A, Lower_Zone_A, direction))
+                .map((d) => twoInThreeRule(d.value, allData.Upper_Zone_A, allData.Lower_Zone_A, allData.direction))
                 .reduce((a, b) => a + b, 0)
             if (Math.abs(twoInThreeCheck) >= 2) {
                 latest3.forEach(d => d.color = up_color)
@@ -136,12 +116,12 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
 
     //SPC Marker Colors Rules 
     //find outliers
-    SPCChartDataPoints = identifyOutliers(SPCChartDataPoints, formatSettings, displayMarkerSize, UCLValue, LCLValue)
+    SPCChartDataPoints = identifyOutliers(SPCChartDataPoints, formatSettings, displayMarkerSize, allData.UCLValue, allData.LCLValue)
 
-    outlier = SPCChartDataPoints[nPoints - 1].outlier
-    run = SPCChartDataPoints[nPoints - 1].run
-    shift = SPCChartDataPoints[nPoints - 1].shift
-    twoInThree = SPCChartDataPoints[nPoints - 1].twoInThree
+    let outlier = SPCChartDataPoints[nPoints - 1].outlier
+    let run = SPCChartDataPoints[nPoints - 1].run
+    let shift = SPCChartDataPoints[nPoints - 1].shift
+    let twoInThree = SPCChartDataPoints[nPoints - 1].twoInThree
 
     if (nPoints == 1) { SPCChartDataPoints.forEach(d => d.markerSize = displayMarkerSize) }
 
@@ -153,13 +133,13 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
         target,
 
         meanValue,
-        UCLValue,
-        LCLValue,
+        UCLValue: allData.UCLValue,
+        LCLValue: allData.LCLValue,
 
-        Upper_Zone_A,
-        Upper_Zone_B,
-        Lower_Zone_A,
-        Lower_Zone_B,
+        Upper_Zone_A: allData.Upper_Zone_A,
+        Upper_Zone_B: allData.Upper_Zone_B,
+        Lower_Zone_A: allData.Lower_Zone_A,
+        Lower_Zone_B: allData.Lower_Zone_B,
 
         strokeWidth: 2,
         strokeColor: 'steelblue',

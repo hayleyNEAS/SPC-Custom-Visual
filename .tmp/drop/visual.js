@@ -1492,40 +1492,25 @@ function createSelectorData(options, host, formatSettings) {
     //MEASURES INPUT
     let [dates_input, value_input, target_input, breakPoint_input] = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .dataLoad */ .IR)(options);
     let SPCChartDataPoints = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .dataSet */ .Zm)(dates_input, value_input);
-    let allData2 = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .fullData2 */ .fp)(options, formatSettings);
+    let allData = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .fullData */ .nu)(options, formatSettings);
     //Constants
     let displayMarkerSize = 3;
-    let nPoints = SPCChartDataPoints.length;
+    let nPoints = allData.n; //remove
     //DIRECTION
     let [direction, up_color, down_color] = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .directionColors */ .yz)(formatSettings);
     //TARGET
-    let target = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .getTarget */ .U9)(target_input, formatSettings);
+    let target = allData.target; // remove
     //FORMATTING
-    let [measureName, measureFormat, decimalPlaces] = [allData2.measureName, allData2.measureFormat, allData2.decimalPlaces]; //remove
-    allData2 = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getMean */ .iV)(allData2);
-    let meanValue = allData2.meanValue; //remove
-    let avgDiff = SPCChartDataPoints
-        .map((d) => Math.abs(d.difference))
-        .reduce((a, b) => a + b, 0) / (nPoints - 1);
-    if (nPoints == 1) {
-        avgDiff = null;
-    }
-    let UCLValue = meanValue + 2.66 * avgDiff;
-    let LCLValue = meanValue - 2.66 * avgDiff;
-    let Upper_Zone_A = meanValue + 2.66 * avgDiff * 2 / 3;
-    let Lower_Zone_A = meanValue - 2.66 * avgDiff * 2 / 3;
-    let Upper_Zone_B = meanValue + 2.66 * avgDiff * 1 / 3;
-    let Lower_Zone_B = meanValue - 2.66 * avgDiff * 1 / 3;
-    let outlier = 0;
-    let run = 0;
-    let shift = 0;
-    let twoInThree = 0;
+    let [measureName, measureFormat, decimalPlaces] = [allData.measureName, allData.measureFormat, allData.decimalPlaces]; //remove
+    allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getMean */ .iV)(allData);
+    let meanValue = allData.meanValue; //remove
+    allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getControlLimits */ .Qv)(allData);
     //SPC Marker Colors Rules        
     for (let i = 0; i < nPoints; i++) {
         if (i > 3) { //two in three rules 
             let latest3 = SPCChartDataPoints.slice(i - 3 + 1, i + 1);
             let twoInThreeCheck = latest3
-                .map((d) => (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .twoInThreeRule */ .SK)(d.value, Upper_Zone_A, Lower_Zone_A, direction))
+                .map((d) => (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .twoInThreeRule */ .SK)(d.value, allData.Upper_Zone_A, allData.Lower_Zone_A, allData.direction))
                 .reduce((a, b) => a + b, 0);
             if (Math.abs(twoInThreeCheck) >= 2) {
                 latest3.forEach(d => d.color = up_color);
@@ -1576,11 +1561,11 @@ function createSelectorData(options, host, formatSettings) {
     }
     //SPC Marker Colors Rules 
     //find outliers
-    SPCChartDataPoints = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .identifyOutliers */ .b5)(SPCChartDataPoints, formatSettings, displayMarkerSize, UCLValue, LCLValue);
-    outlier = SPCChartDataPoints[nPoints - 1].outlier;
-    run = SPCChartDataPoints[nPoints - 1].run;
-    shift = SPCChartDataPoints[nPoints - 1].shift;
-    twoInThree = SPCChartDataPoints[nPoints - 1].twoInThree;
+    SPCChartDataPoints = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .identifyOutliers */ .b5)(SPCChartDataPoints, formatSettings, displayMarkerSize, allData.UCLValue, allData.LCLValue);
+    let outlier = SPCChartDataPoints[nPoints - 1].outlier;
+    let run = SPCChartDataPoints[nPoints - 1].run;
+    let shift = SPCChartDataPoints[nPoints - 1].shift;
+    let twoInThree = SPCChartDataPoints[nPoints - 1].twoInThree;
     if (nPoints == 1) {
         SPCChartDataPoints.forEach(d => d.markerSize = displayMarkerSize);
     }
@@ -1590,12 +1575,12 @@ function createSelectorData(options, host, formatSettings) {
         direction,
         target,
         meanValue,
-        UCLValue,
-        LCLValue,
-        Upper_Zone_A,
-        Upper_Zone_B,
-        Lower_Zone_A,
-        Lower_Zone_B,
+        UCLValue: allData.UCLValue,
+        LCLValue: allData.LCLValue,
+        Upper_Zone_A: allData.Upper_Zone_A,
+        Upper_Zone_B: allData.Upper_Zone_B,
+        Lower_Zone_A: allData.Lower_Zone_A,
+        Lower_Zone_B: allData.Lower_Zone_B,
         strokeWidth: 2,
         strokeColor: 'steelblue',
         measureName,
@@ -2338,11 +2323,10 @@ function getYAxisTextFillColor(objects, colorPalette, defaultColor) {
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   IR: () => (/* binding */ dataLoad),
-/* harmony export */   U9: () => (/* binding */ getTarget),
 /* harmony export */   Zm: () => (/* binding */ dataSet),
-/* harmony export */   fp: () => (/* binding */ fullData2)
+/* harmony export */   nu: () => (/* binding */ fullData)
 /* harmony export */ });
-/* unused harmony export fullData */
+/* unused harmony export getTarget */
 /* harmony import */ var _formattingFunctions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9540);
 
 function getTarget(target_input, formatSettings) {
@@ -2410,32 +2394,7 @@ function dataSet(dates, input) {
     }
     return SPCChartDataPoints;
 }
-function fullData(data, options) {
-    let [measureName, measureFormat, decimalPlaces] = PBIformatingKeeper(options);
-    return {
-        datapoints: data,
-        n: data.length,
-        direction: 0,
-        target: -Infinity,
-        meanValue: null,
-        UCLValue: Infinity,
-        LCLValue: -Infinity,
-        Upper_Zone_A: Infinity,
-        Upper_Zone_B: Infinity,
-        Lower_Zone_A: -Infinity,
-        Lower_Zone_B: -Infinity,
-        strokeWidth: 2,
-        strokeColor: 'steelblue',
-        measureName,
-        measureFormat,
-        decimalPlaces,
-        outlier: 0,
-        run: 0,
-        shift: 0,
-        twoInThree: 0
-    };
-}
-function fullData2(options, formatSettings) {
+function fullData(options, formatSettings) {
     let [dates_input, value_input, target_input, breakPoint_input] = dataLoad(options);
     let data = dataSet(dates_input, value_input);
     let [measureName, measureFormat, decimalPlaces] = (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .PBIformatingKeeper */ .WN)(options);
@@ -2638,6 +2597,7 @@ function getCategoricalObjectValue(category, index, objectName, propertyName, de
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Qv: () => (/* binding */ getControlLimits),
 /* harmony export */   SK: () => (/* binding */ twoInThreeRule),
 /* harmony export */   Yo: () => (/* binding */ logoSelector),
 /* harmony export */   b5: () => (/* binding */ identifyOutliers),
@@ -2810,6 +2770,42 @@ function getMean(dataset) {
         Upper_Zone_B: dataset.Upper_Zone_B,
         Lower_Zone_A: dataset.Lower_Zone_A,
         Lower_Zone_B: dataset.Lower_Zone_B,
+        strokeWidth: dataset.strokeWidth,
+        strokeColor: dataset.strokeColor,
+        measureName: dataset.measureName,
+        measureFormat: dataset.measureFormat,
+        decimalPlaces: dataset.decimalPlaces,
+        outlier: dataset.outlier,
+        run: dataset.run,
+        shift: dataset.shift,
+        twoInThree: dataset.twoInThree
+    };
+}
+function getControlLimits(dataset) {
+    let avgDiff = dataset.datapoints
+        .map((d) => Math.abs(d.difference))
+        .reduce((a, b) => a + b, 0) / (dataset.n - 1);
+    if (dataset.n == 1) {
+        avgDiff = null;
+    }
+    let UCLValue = dataset.meanValue + 2.66 * avgDiff;
+    let LCLValue = dataset.meanValue - 2.66 * avgDiff;
+    let Upper_Zone_A = dataset.meanValue + 2.66 * avgDiff * 2 / 3;
+    let Lower_Zone_A = dataset.meanValue - 2.66 * avgDiff * 2 / 3;
+    let Upper_Zone_B = dataset.meanValue + 2.66 * avgDiff * 1 / 3;
+    let Lower_Zone_B = dataset.meanValue - 2.66 * avgDiff * 1 / 3;
+    return {
+        datapoints: dataset.datapoints,
+        n: dataset.n,
+        direction: dataset.direction,
+        target: dataset.target,
+        meanValue: dataset.meanValue,
+        UCLValue: UCLValue,
+        LCLValue: LCLValue,
+        Upper_Zone_A: Upper_Zone_A,
+        Upper_Zone_B: Upper_Zone_B,
+        Lower_Zone_A: Lower_Zone_A,
+        Lower_Zone_B: Lower_Zone_B,
         strokeWidth: dataset.strokeWidth,
         strokeColor: dataset.strokeColor,
         measureName: dataset.measureName,

@@ -5,3 +5,4 @@ export declare function twoInThreeRule(value: any, Upper_Zone_A: any, Lower_Zone
 export declare function logoSelector(data: SPCChartData, option: any): any;
 export declare function directionColors(formatSettings: BarChartSettingsModel): [number, string, string];
 export declare function getMean(dataset: SPCChartData): SPCChartData;
+export declare function getControlLimits(dataset: SPCChartData): SPCChartData;

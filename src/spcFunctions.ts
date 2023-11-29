@@ -2,7 +2,7 @@
 import * as d3 from "d3";
 
 
-import { SPCChartDataPoint, SPCChartData} from "./dataStructure" 
+import { SPCChartDataPoint, SPCChartData } from "./dataStructure"
 import { BarChartSettingsModel } from "./barChartSettingsModel";
 
 
@@ -30,7 +30,7 @@ const none = require("./../assets/no_image.png")
 export function identifyOutliers(data: SPCChartDataPoint[], formatSettings: BarChartSettingsModel, displayMarkerSize: number, UCLValue: number, LCLValue: number) {
     let outlierColor = formatSettings.SPCSettings.markerOptions.outlier.value.value
     let outlierShow = Number(formatSettings.SPCSettings.markerOptions.showOutlier.value)
-    
+
     let nPoints = data.length
 
     for (let i = 0, len = nPoints; i < len; i++) {
@@ -103,7 +103,7 @@ export function logoSelector(data: SPCChartData, option): any {
                     return fail_above
                 } if (data.target >= data.UCLValue) {
                     return pass_below
-                } else { 
+                } else {
                     return atTarget
                 }
 
@@ -131,11 +131,11 @@ export function logoSelector(data: SPCChartData, option): any {
 
 }
 
-export function directionColors(formatSettings: BarChartSettingsModel):[number, string, string]{
+export function directionColors(formatSettings: BarChartSettingsModel): [number, string, string] {
     let direction = <number>formatSettings.SPCSettings.spcSetUp.direction.value.value
     let up_color = ""
     let down_color = ""
-    if(direction == 1){
+    if (direction == 1) {
         up_color = formatSettings.SPCSettings.markerOptions.improvement.value.value
         down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value
     } else if (direction == -1) {
@@ -149,8 +149,8 @@ export function directionColors(formatSettings: BarChartSettingsModel):[number, 
 }
 
 export function getMean(dataset: SPCChartData): SPCChartData {
-    let data = dataset.datapoints 
-    
+    let data = dataset.datapoints
+
     let meanValue = data
         .map((d) => <number>d.value)
         .reduce((a, b) => a + b, 0) / dataset.n;
@@ -174,7 +174,55 @@ export function getMean(dataset: SPCChartData): SPCChartData {
         strokeWidth: dataset.strokeWidth,
         strokeColor: dataset.strokeColor,
 
-        measureName: dataset.measureName, 
+        measureName: dataset.measureName,
+        measureFormat: dataset.measureFormat,
+        decimalPlaces: dataset.decimalPlaces,
+
+        outlier: dataset.outlier,
+        run: dataset.run,
+        shift: dataset.shift,
+        twoInThree: dataset.twoInThree
+    }
+}
+
+export function getControlLimits(dataset: SPCChartData): SPCChartData {
+    let avgDiff = dataset.datapoints
+        .map((d) => <number>Math.abs(d.difference))
+        .reduce((a, b) => a + b, 0) / (dataset.n - 1);
+
+    if (dataset.n == 1) {
+        avgDiff = null
+    }
+
+    let UCLValue = dataset.meanValue + 2.66 * avgDiff
+    let LCLValue = dataset.meanValue - 2.66 * avgDiff
+
+    let Upper_Zone_A = dataset.meanValue + 2.66 * avgDiff * 2 / 3
+    let Lower_Zone_A = dataset.meanValue - 2.66 * avgDiff * 2 / 3
+
+    let Upper_Zone_B = dataset.meanValue + 2.66 * avgDiff * 1 / 3
+    let Lower_Zone_B = dataset.meanValue - 2.66 * avgDiff * 1 / 3
+
+    return {
+        datapoints: dataset.datapoints,
+
+        n: dataset.n,
+        direction: dataset.direction,
+        target: dataset.target,
+
+        meanValue: dataset.meanValue,
+        UCLValue: UCLValue,
+        LCLValue: LCLValue,
+
+        Upper_Zone_A: Upper_Zone_A,
+        Upper_Zone_B: Upper_Zone_B,
+        Lower_Zone_A: Lower_Zone_A,
+        Lower_Zone_B: Lower_Zone_B,
+
+        strokeWidth: dataset.strokeWidth,
+        strokeColor: dataset.strokeColor,
+
+        measureName: dataset.measureName,
         measureFormat: dataset.measureFormat,
         decimalPlaces: dataset.decimalPlaces,
 
