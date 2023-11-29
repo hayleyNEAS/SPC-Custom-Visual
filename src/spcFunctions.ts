@@ -290,6 +290,8 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: BarChartS
         }
     }
 
+    if (dataset.n == 1) { dataset.datapoints.forEach(d => d.markerSize = dataset.markerSize) }
+    
     return {
         datapoints: data, //this is the pivitol step
 

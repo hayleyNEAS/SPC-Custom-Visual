@@ -1512,9 +1512,6 @@ function createSelectorData(options, host, formatSettings) {
     let run = allData.datapoints[nPoints - 1].run;
     let shift = allData.datapoints[nPoints - 1].shift;
     let twoInThree = allData.datapoints[nPoints - 1].twoInThree;
-    if (nPoints == 1) {
-        allData.datapoints.forEach(d => d.markerSize = displayMarkerSize);
-    }
     return {
         datapoints: allData.datapoints,
         n: allData.n,
@@ -2823,6 +2820,9 @@ function getMarkerColors(dataset, formatSettings) {
         if (i > 15) {
             let latest15 = data.slice(i - 15 + 1, i + 1);
         }
+    }
+    if (dataset.n == 1) {
+        dataset.datapoints.forEach(d => d.markerSize = dataset.markerSize);
     }
     return {
         datapoints: data,

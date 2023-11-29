@@ -71,7 +71,6 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     let shift = allData.datapoints[nPoints - 1].shift
     let twoInThree = allData.datapoints[nPoints - 1].twoInThree
 
-    if (nPoints == 1) { allData.datapoints.forEach(d => d.markerSize = displayMarkerSize) }
 
     return {
         datapoints: allData.datapoints,
