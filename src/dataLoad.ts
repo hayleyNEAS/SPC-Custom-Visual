@@ -25,7 +25,7 @@ export function getTarget(target_input: any[], formatSettings: BarChartSettingsM
     return target
 }
 
-export function dataLoad(options: VisualUpdateOptions, host: IVisualHost): [any[], any[], any[], any[]] {
+export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], any[]] {
     let value_input = []
     let target_input = []
     let breakPoint_input = []
@@ -84,14 +84,18 @@ export function dataSet(dates:any, input: any): SPCChartDataPoint[] {
     return SPCChartDataPoints;
 }
 
-export function fullData(data: SPCChartDataPoint[], options: VisualUpdateOptions): SPCChartData {
+export function fullData(options: VisualUpdateOptions, formatSettings: BarChartSettingsModel): SPCChartData {
+    let [dates_input, value_input, target_input, breakPoint_input] = dataLoad(options)
+    let data = dataSet(dates_input, value_input)
     let [measureName, measureFormat, decimalPlaces] = PBIformatingKeeper(options)
+    let target = getTarget(target_input, formatSettings)
+
     return {
         datapoints: data,
 
         n: data.length,
-        direction: 0,
-        target: -Infinity,
+        direction: <number>formatSettings.SPCSettings.spcSetUp.direction.value.value,
+        target,
 
         meanValue: null,
         UCLValue: Infinity,

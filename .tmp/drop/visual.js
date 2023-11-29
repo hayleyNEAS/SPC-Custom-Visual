@@ -1490,9 +1490,9 @@ try {
 
 function createSelectorData(options, host, formatSettings) {
     //MEASURES INPUT
-    let [dates_input, value_input, target_input, breakPoint_input] = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .dataLoad */ .IR)(options, host);
+    let [dates_input, value_input, target_input, breakPoint_input] = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .dataLoad */ .IR)(options);
     let SPCChartDataPoints = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .dataSet */ .Zm)(dates_input, value_input);
-    let allData = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .fullData */ .nu)(SPCChartDataPoints, options);
+    let allData2 = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .fullData2 */ .fp)(options, formatSettings);
     //Constants
     let displayMarkerSize = 3;
     let nPoints = SPCChartDataPoints.length;
@@ -1501,9 +1501,9 @@ function createSelectorData(options, host, formatSettings) {
     //TARGET
     let target = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .getTarget */ .U9)(target_input, formatSettings);
     //FORMATTING
-    let [measureName, measureFormat, decimalPlaces] = [allData.measureName, allData.measureFormat, allData.decimalPlaces]; //remove
-    allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getMean */ .iV)(allData);
-    let meanValue = allData.meanValue; //remove
+    let [measureName, measureFormat, decimalPlaces] = [allData2.measureName, allData2.measureFormat, allData2.decimalPlaces]; //remove
+    allData2 = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getMean */ .iV)(allData2);
+    let meanValue = allData2.meanValue; //remove
     let avgDiff = SPCChartDataPoints
         .map((d) => Math.abs(d.difference))
         .reduce((a, b) => a + b, 0) / (nPoints - 1);
@@ -2340,8 +2340,9 @@ function getYAxisTextFillColor(objects, colorPalette, defaultColor) {
 /* harmony export */   IR: () => (/* binding */ dataLoad),
 /* harmony export */   U9: () => (/* binding */ getTarget),
 /* harmony export */   Zm: () => (/* binding */ dataSet),
-/* harmony export */   nu: () => (/* binding */ fullData)
+/* harmony export */   fp: () => (/* binding */ fullData2)
 /* harmony export */ });
+/* unused harmony export fullData */
 /* harmony import */ var _formattingFunctions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9540);
 
 function getTarget(target_input, formatSettings) {
@@ -2360,7 +2361,7 @@ function getTarget(target_input, formatSettings) {
     target = target_input[0] ? target_input[0] : target; //if target is supplied as a measure then use that else use it from settings
     return target;
 }
-function dataLoad(options, host) {
+function dataLoad(options) {
     let value_input = [];
     let target_input = [];
     let breakPoint_input = [];
@@ -2410,12 +2411,40 @@ function dataSet(dates, input) {
     return SPCChartDataPoints;
 }
 function fullData(data, options) {
-    let [measureName, measureFormat, decimalPlaces] = (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .PBIformatingKeeper */ .WN)(options);
+    let [measureName, measureFormat, decimalPlaces] = PBIformatingKeeper(options);
     return {
         datapoints: data,
         n: data.length,
         direction: 0,
         target: -Infinity,
+        meanValue: null,
+        UCLValue: Infinity,
+        LCLValue: -Infinity,
+        Upper_Zone_A: Infinity,
+        Upper_Zone_B: Infinity,
+        Lower_Zone_A: -Infinity,
+        Lower_Zone_B: -Infinity,
+        strokeWidth: 2,
+        strokeColor: 'steelblue',
+        measureName,
+        measureFormat,
+        decimalPlaces,
+        outlier: 0,
+        run: 0,
+        shift: 0,
+        twoInThree: 0
+    };
+}
+function fullData2(options, formatSettings) {
+    let [dates_input, value_input, target_input, breakPoint_input] = dataLoad(options);
+    let data = dataSet(dates_input, value_input);
+    let [measureName, measureFormat, decimalPlaces] = (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .PBIformatingKeeper */ .WN)(options);
+    let target = getTarget(target_input, formatSettings);
+    return {
+        datapoints: data,
+        n: data.length,
+        direction: formatSettings.SPCSettings.spcSetUp.direction.value.value,
+        target,
         meanValue: null,
         UCLValue: Infinity,
         LCLValue: -Infinity,

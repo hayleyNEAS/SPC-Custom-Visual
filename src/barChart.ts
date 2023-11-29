@@ -40,19 +40,19 @@ type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
 
 function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, formatSettings: BarChartSettingsModel): SPCChartData {
     //MEASURES INPUT
-    let [dates_input, value_input, target_input, breakPoint_input] = dataLoad(options, host)
+    let [dates_input, value_input, target_input, breakPoint_input] = dataLoad(options)
     let SPCChartDataPoints = dataSet(dates_input, value_input)
-    let allData = fullData(SPCChartDataPoints, options)
+    let allData = fullData(options, formatSettings)
     
     //Constants
     let displayMarkerSize = 3
-    let nPoints = SPCChartDataPoints.length
+    let nPoints = allData.n//remove
 
     //DIRECTION
     let [direction, up_color, down_color] = directionColors(formatSettings)
 
     //TARGET
-    let target = getTarget(target_input, formatSettings)
+    let target = allData.target // remove
 
     //FORMATTING
     let [measureName, measureFormat, decimalPlaces] = [allData.measureName, allData.measureFormat, allData.decimalPlaces] //remove
