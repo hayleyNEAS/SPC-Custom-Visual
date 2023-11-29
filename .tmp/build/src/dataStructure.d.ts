@@ -1,19 +1,5 @@
-import powerbi from "powerbi-visuals-api";
-import ISelectionId = powerbi.visuals.ISelectionId;
 export type PrimitiveValue = string | number | boolean | Date;
 export interface SPCChartDataPoint {
-    value: PrimitiveValue;
-    category: string;
-    difference: number;
-    color: string;
-    markerSize: number;
-    selectionId: ISelectionId;
-    outlier: number;
-    run: number;
-    shift: number;
-    twoInThree: number;
-}
-export interface SPCChartDataPoint2 {
     value: PrimitiveValue;
     category: string;
     difference: number;

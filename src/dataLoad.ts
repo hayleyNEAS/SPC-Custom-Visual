@@ -1,11 +1,12 @@
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import IVisualHost = powerbi.extensibility.visual.IVisualHost;
-import ISelectionId = powerbi.visuals.ISelectionId;
+
 import * as d3 from "d3";
 
 
 import { SPCChartData, SPCChartDataPoint } from "./dataStructure"
 import { BarChartSettingsModel } from "./barChartSettingsModel";
+import { PBIformatingKeeper } from "./formattingFunctions";
 
 
 export function getTarget(target_input: any[], formatSettings: BarChartSettingsModel): number {
@@ -83,7 +84,8 @@ export function dataSet(dates:any, input: any): SPCChartDataPoint[] {
     return SPCChartDataPoints;
 }
 
-export function fullData(data: SPCChartDataPoint[]): SPCChartData {
+export function fullData(data: SPCChartDataPoint[], options: VisualUpdateOptions): SPCChartData {
+    let [measureName, measureFormat, decimalPlaces] = PBIformatingKeeper(options)
     return {
         datapoints: data,
 
@@ -103,9 +105,9 @@ export function fullData(data: SPCChartDataPoint[]): SPCChartData {
         strokeWidth: 2,
         strokeColor: 'steelblue',
 
-        measureName: null, 
-        measureFormat: '',
-        decimalPlaces: null,
+        measureName, 
+        measureFormat,
+        decimalPlaces,
 
         outlier: 0,
         run: 0,

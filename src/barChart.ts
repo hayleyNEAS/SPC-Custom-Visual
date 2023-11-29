@@ -42,7 +42,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     //MEASURES INPUT
     let [dates_input, value_input, target_input, breakPoint_input] = dataLoad(options, host)
     let SPCChartDataPoints = dataSet(dates_input, value_input)
-    let allData = fullData(SPCChartDataPoints)
+    let allData = fullData(SPCChartDataPoints, options)
     
     //Constants
     let displayMarkerSize = 3
@@ -55,10 +55,10 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     let target = getTarget(target_input, formatSettings)
 
     //FORMATTING
-    let [measureName, measureFormat, decimalPlaces] = PBIformatingKeeper(options)
+    let [measureName, measureFormat, decimalPlaces] = [allData.measureName, allData.measureFormat, allData.decimalPlaces] //remove
 
     allData = getMean(allData)
-    let meanValue = allData.meanValue
+    let meanValue = allData.meanValue //remove
 
     let avgDiff = SPCChartDataPoints
         .map((d) => <number>Math.abs(d.difference))

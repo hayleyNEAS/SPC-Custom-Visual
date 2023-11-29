@@ -1492,7 +1492,7 @@ function createSelectorData(options, host, formatSettings) {
     //MEASURES INPUT
     let [dates_input, value_input, target_input, breakPoint_input] = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .dataLoad */ .IR)(options, host);
     let SPCChartDataPoints = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .dataSet */ .Zm)(dates_input, value_input);
-    let allData = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .fullData */ .nu)(SPCChartDataPoints);
+    let allData = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .fullData */ .nu)(SPCChartDataPoints, options);
     //Constants
     let displayMarkerSize = 3;
     let nPoints = SPCChartDataPoints.length;
@@ -1501,9 +1501,9 @@ function createSelectorData(options, host, formatSettings) {
     //TARGET
     let target = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .getTarget */ .U9)(target_input, formatSettings);
     //FORMATTING
-    let [measureName, measureFormat, decimalPlaces] = (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .PBIformatingKeeper */ .WN)(options);
+    let [measureName, measureFormat, decimalPlaces] = [allData.measureName, allData.measureFormat, allData.decimalPlaces]; //remove
     allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getMean */ .iV)(allData);
-    let meanValue = allData.meanValue;
+    let meanValue = allData.meanValue; //remove
     let avgDiff = SPCChartDataPoints
         .map((d) => Math.abs(d.difference))
         .reduce((a, b) => a + b, 0) / (nPoints - 1);
@@ -2342,6 +2342,8 @@ function getYAxisTextFillColor(objects, colorPalette, defaultColor) {
 /* harmony export */   Zm: () => (/* binding */ dataSet),
 /* harmony export */   nu: () => (/* binding */ fullData)
 /* harmony export */ });
+/* harmony import */ var _formattingFunctions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9540);
+
 function getTarget(target_input, formatSettings) {
     let target = -Infinity;
     if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
@@ -2407,7 +2409,8 @@ function dataSet(dates, input) {
     }
     return SPCChartDataPoints;
 }
-function fullData(data) {
+function fullData(data, options) {
+    let [measureName, measureFormat, decimalPlaces] = (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .PBIformatingKeeper */ .WN)(options);
     return {
         datapoints: data,
         n: data.length,
@@ -2422,9 +2425,9 @@ function fullData(data) {
         Lower_Zone_B: -Infinity,
         strokeWidth: 2,
         strokeColor: 'steelblue',
-        measureName: null,
-        measureFormat: '',
-        decimalPlaces: null,
+        measureName,
+        measureFormat,
+        decimalPlaces,
         outlier: 0,
         run: 0,
         shift: 0,
