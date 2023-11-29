@@ -13,6 +13,17 @@ export interface SPCChartDataPoint {
     shift: number;
     twoInThree: number;
 }
+export interface SPCChartDataPoint2 {
+    value: PrimitiveValue;
+    category: string;
+    difference: number;
+    color: string;
+    markerSize: number;
+    outlier: number;
+    run: number;
+    shift: number;
+    twoInThree: number;
+}
 export interface SPCChartData {
     datapoints: SPCChartDataPoint[];
     n: number;

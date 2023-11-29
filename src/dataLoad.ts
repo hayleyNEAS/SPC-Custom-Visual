@@ -4,19 +4,19 @@ import ISelectionId = powerbi.visuals.ISelectionId;
 import * as d3 from "d3";
 
 
-import { SPCChartDataPoint, SPCChartData, PrimitiveValue} from "./dataStructure" 
+import { SPCChartDataPoint } from "./dataStructure"
 import { BarChartSettingsModel } from "./barChartSettingsModel";
 
 
-export function getTarget(target_input: any[], formatSettings: BarChartSettingsModel):number {
+export function getTarget(target_input: any[], formatSettings: BarChartSettingsModel): number {
     let target = -Infinity
     if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
-            target = 0
-            let targetSplit = formatSettings.SPCSettings.spcSetUp.target.value.valueOf().split(":").reverse()
-            let toSeconds = [1, 60, 3600, 86400]
-            for (let i = 0, len = targetSplit.length; i < len; i++) {
-                target = target + Number(targetSplit[i]) * toSeconds[i]
-            }
+        target = 0
+        let targetSplit = formatSettings.SPCSettings.spcSetUp.target.value.valueOf().split(":").reverse()
+        let toSeconds = [1, 60, 3600, 86400]
+        for (let i = 0, len = targetSplit.length; i < len; i++) {
+            target = target + Number(targetSplit[i]) * toSeconds[i]
+        }
     } else {
         target = -Infinity
     }
@@ -24,10 +24,13 @@ export function getTarget(target_input: any[], formatSettings: BarChartSettingsM
     return target
 }
 
-export function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHost): SPCChartDataPoint[] {
-    let SPCChartDataPoints: SPCChartDataPoint[] = []
-    let dataViews = options.dataViews;
+export function dataLoad(options: VisualUpdateOptions, host: IVisualHost): [any[], any[], any[], any[]] {
+    let value_input = []
+    let target_input = []
+    let breakPoint_input = []
+    let dates_input = []
 
+    let dataViews = options.dataViews;
     if (!dataViews //checks data exists
         || !dataViews[0]
         || !dataViews[0].categorical
@@ -35,30 +38,40 @@ export function createSelectorDataPoints(options: VisualUpdateOptions, host: IVi
         || !dataViews[0].categorical.categories[0].source
         || !dataViews[0].categorical.values
     ) {
-        return SPCChartDataPoints;
+        return [[], [], [], []];
     }
 
-    let categorical = dataViews[0].categorical;
-    let category = categorical.categories[0];
-    let dataValue = categorical.values[0];
-    
-    for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
-        const selectionId: ISelectionId = host.createSelectionIdBuilder()
-            .withCategory(category, i)
-            .createSelectionId();
+    for (let i = 0, len = options.dataViews[0].categorical.values.length; i < len; i++) {
+        if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'measure') {
+            value_input = options.dataViews[0].categorical.values[i].values
+        } else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'target_measure') {
+            target_input = options.dataViews[0].categorical.values[i].values
+        } else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'break_points') {
+            breakPoint_input = options.dataViews[0].categorical.values[i].values
+        }
+    }
+
+    dates_input = dataViews[0].categorical.categories[0].values
+
+    return [dates_input, value_input, target_input, breakPoint_input]
+}
+
+export function dataSet(dates:any, input: any): SPCChartDataPoint[] {
+    let SPCChartDataPoints: SPCChartDataPoint[] = []
+
+    for (let i = 0, len = input.length; i < len; i++) {
 
         let diff = 0
         if (i > 0) {
-            diff = <number>dataValue.values[i] - <number>dataValue.values[i - 1]
+            diff = <number>input[i] - <number>input[i - 1]
         }
 
         SPCChartDataPoints.push({
             color: 'steelblue',
             markerSize: 0,
-            selectionId,
-            value: dataValue.values[i],
+            value: input[i],
             difference: diff,
-            category: <string>category.values[i],
+            category: <string>dates[i],
 
             outlier: 0,
             run: 0,
@@ -68,20 +81,4 @@ export function createSelectorDataPoints(options: VisualUpdateOptions, host: IVi
     }
 
     return SPCChartDataPoints;
-}
-
-export function dataLoad(options: VisualUpdateOptions, host: IVisualHost):[any[], any[], any[]]{
-    let value_input = []
-    let target_input = []
-    let breakPoint_input = []
-    for(let i = 0, len = options.dataViews[0].categorical.values.length; i < len; i++) {
-        if(Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'measure'){
-            value_input = options.dataViews[0].categorical.values[i].values
-        } else if(Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'target_measure'){
-            target_input = options.dataViews[0].categorical.values[i].values
-        } else if(Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'break_points'){
-            breakPoint_input = options.dataViews[0].categorical.values[i].values
-        }
-    }
-    return [value_input, target_input, breakPoint_input]
 }

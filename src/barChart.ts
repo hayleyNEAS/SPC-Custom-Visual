@@ -16,15 +16,9 @@ import powerbi from "powerbi-visuals-api";
 import "regenerator-runtime/runtime";
 
 
-import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
-import DataViewObjects = powerbi.DataViewObjects;
-import Fill = powerbi.Fill;
-import ISandboxExtendedColorPalette = powerbi.extensibility.ISandboxExtendedColorPalette;
-import ISelectionId = powerbi.visuals.ISelectionId;
 import IVisual = powerbi.extensibility.IVisual;
 import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
-import PrimitiveValue = powerbi.PrimitiveValue;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 
@@ -39,16 +33,15 @@ import { SPCChartData, SPCChartDataPoint } from "./dataStructure";
 import { parseDateLabel, parseinHMS, parseYLabels, PBIformatingKeeper } from "./formattingFunctions"
 import { yAxisDomain, getFillColor, getYAxisTextFillColor } from "./chartFunctions"
 import { identifyOutliers, twoInThreeRule, logoSelector, directionColors } from "./spcFunctions"
-import { getTarget, createSelectorDataPoints, dataLoad } from "./dataLoad"
+import { getTarget, dataLoad, dataSet } from "./dataLoad"
 
 
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
 
 function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, formatSettings: BarChartSettingsModel): SPCChartData {
     //MEASURES INPUT
-    let [value_input, target_input, breakPoint_input] = dataLoad(options, host)
-
-    let SPCChartDataPoints = createSelectorDataPoints(options, host);
+    let [dates_input, value_input, target_input, breakPoint_input] = dataLoad(options, host)
+    let SPCChartDataPoints = dataSet(dates_input, value_input)
 
     //DIRECTION
     let [direction, up_color, down_color] = directionColors(formatSettings)

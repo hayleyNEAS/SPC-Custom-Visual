@@ -10,7 +10,6 @@ export interface SPCChartDataPoint {
     difference: number;
     color: string; //for the marker
     markerSize: number;
-    selectionId: ISelectionId;
 
     outlier: number;
     run: number;

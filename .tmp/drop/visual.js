@@ -1490,8 +1490,8 @@ try {
 
 function createSelectorData(options, host, formatSettings) {
     //MEASURES INPUT
-    let [value_input, target_input, breakPoint_input] = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .dataLoad */ .IR)(options, host);
-    let SPCChartDataPoints = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .createSelectorDataPoints */ .QF)(options, host);
+    let [dates_input, value_input, target_input, breakPoint_input] = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .dataLoad */ .IR)(options, host);
+    let SPCChartDataPoints = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .dataSet */ .Zm)(dates_input, value_input);
     //DIRECTION
     let [direction, up_color, down_color] = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .directionColors */ .yz)(formatSettings);
     //TARGET
@@ -2337,8 +2337,8 @@ function getYAxisTextFillColor(objects, colorPalette, defaultColor) {
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   IR: () => (/* binding */ dataLoad),
-/* harmony export */   QF: () => (/* binding */ createSelectorDataPoints),
-/* harmony export */   U9: () => (/* binding */ getTarget)
+/* harmony export */   U9: () => (/* binding */ getTarget),
+/* harmony export */   Zm: () => (/* binding */ dataSet)
 /* harmony export */ });
 function getTarget(target_input, formatSettings) {
     let target = -Infinity;
@@ -2356,8 +2356,11 @@ function getTarget(target_input, formatSettings) {
     target = target_input[0] ? target_input[0] : target; //if target is supplied as a measure then use that else use it from settings
     return target;
 }
-function createSelectorDataPoints(options, host) {
-    let SPCChartDataPoints = [];
+function dataLoad(options, host) {
+    let value_input = [];
+    let target_input = [];
+    let breakPoint_input = [];
+    let dates_input = [];
     let dataViews = options.dataViews;
     if (!dataViews //checks data exists
         || !dataViews[0]
@@ -2365,38 +2368,8 @@ function createSelectorDataPoints(options, host) {
         || !dataViews[0].categorical.categories
         || !dataViews[0].categorical.categories[0].source
         || !dataViews[0].categorical.values) {
-        return SPCChartDataPoints;
+        return [[], [], [], []];
     }
-    let categorical = dataViews[0].categorical;
-    let category = categorical.categories[0];
-    let dataValue = categorical.values[0];
-    for (let i = 0, len = Math.max(category.values.length, dataValue.values.length); i < len; i++) {
-        const selectionId = host.createSelectionIdBuilder()
-            .withCategory(category, i)
-            .createSelectionId();
-        let diff = 0;
-        if (i > 0) {
-            diff = dataValue.values[i] - dataValue.values[i - 1];
-        }
-        SPCChartDataPoints.push({
-            color: 'steelblue',
-            markerSize: 0,
-            selectionId,
-            value: dataValue.values[i],
-            difference: diff,
-            category: category.values[i],
-            outlier: 0,
-            run: 0,
-            shift: 0,
-            twoInThree: 0
-        });
-    }
-    return SPCChartDataPoints;
-}
-function dataLoad(options, host) {
-    let value_input = [];
-    let target_input = [];
-    let breakPoint_input = [];
     for (let i = 0, len = options.dataViews[0].categorical.values.length; i < len; i++) {
         if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'measure') {
             value_input = options.dataViews[0].categorical.values[i].values;
@@ -2408,7 +2381,29 @@ function dataLoad(options, host) {
             breakPoint_input = options.dataViews[0].categorical.values[i].values;
         }
     }
-    return [value_input, target_input, breakPoint_input];
+    dates_input = dataViews[0].categorical.categories[0].values;
+    return [dates_input, value_input, target_input, breakPoint_input];
+}
+function dataSet(dates, input) {
+    let SPCChartDataPoints = [];
+    for (let i = 0, len = input.length; i < len; i++) {
+        let diff = 0;
+        if (i > 0) {
+            diff = input[i] - input[i - 1];
+        }
+        SPCChartDataPoints.push({
+            color: 'steelblue',
+            markerSize: 0,
+            value: input[i],
+            difference: diff,
+            category: dates[i],
+            outlier: 0,
+            run: 0,
+            shift: 0,
+            twoInThree: 0
+        });
+    }
+    return SPCChartDataPoints;
 }
 
 
