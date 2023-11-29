@@ -1490,19 +1490,8 @@ try {
 
 function createSelectorData(options, host, formatSettings) {
     //MEASURES INPUT
-    let [dates_input, value_input, target_input, breakPoint_input] = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .dataLoad */ .IR)(options);
-    let SPCChartDataPoints = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .dataSet */ .Zm)(dates_input, value_input);
     let allData = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .fullData */ .nu)(options, formatSettings);
-    //Constants
-    let displayMarkerSize = 3;
-    //DIRECTION
-    let [direction, up_color, down_color] = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .directionColors */ .yz)(formatSettings);
-    //TARGET
-    let target = allData.target; // remove
-    //FORMATTING
-    let [measureName, measureFormat, decimalPlaces] = [allData.measureName, allData.measureFormat, allData.decimalPlaces]; //remove
     allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getMean */ .iV)(allData);
-    let meanValue = allData.meanValue; //remove
     allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getControlLimits */ .Qv)(allData);
     //SPC Marker Colors Rules 
     allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getMarkerColors */ .gT)(allData, formatSettings);
@@ -1514,21 +1503,21 @@ function createSelectorData(options, host, formatSettings) {
     return {
         datapoints: allData.datapoints,
         n: allData.n,
-        direction,
-        target,
-        meanValue,
+        direction: allData.direction,
+        target: allData.target,
+        meanValue: allData.meanValue,
         UCLValue: allData.UCLValue,
         LCLValue: allData.LCLValue,
         Upper_Zone_A: allData.Upper_Zone_A,
         Upper_Zone_B: allData.Upper_Zone_B,
         Lower_Zone_A: allData.Lower_Zone_A,
         Lower_Zone_B: allData.Lower_Zone_B,
-        strokeWidth: 2,
-        strokeColor: 'steelblue',
+        strokeWidth: allData.strokeWidth,
+        strokeColor: allData.strokeColor,
         markerSize: allData.markerSize,
-        measureName,
-        measureFormat,
-        decimalPlaces,
+        measureName: allData.measureName,
+        measureFormat: allData.measureFormat,
+        decimalPlaces: allData.decimalPlaces,
         outlier,
         run,
         shift,
@@ -2265,11 +2254,9 @@ function getYAxisTextFillColor(objects, colorPalette, defaultColor) {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   IR: () => (/* binding */ dataLoad),
-/* harmony export */   Zm: () => (/* binding */ dataSet),
 /* harmony export */   nu: () => (/* binding */ fullData)
 /* harmony export */ });
-/* unused harmony export getTarget */
+/* unused harmony exports getTarget, dataLoad, dataSet */
 /* harmony import */ var _formattingFunctions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9540);
 
 function getTarget(target_input, formatSettings) {
@@ -2545,10 +2532,9 @@ function getCategoricalObjectValue(category, index, objectName, propertyName, de
 /* harmony export */   Yo: () => (/* binding */ logoSelector),
 /* harmony export */   b5: () => (/* binding */ identifyOutliers),
 /* harmony export */   gT: () => (/* binding */ getMarkerColors),
-/* harmony export */   iV: () => (/* binding */ getMean),
-/* harmony export */   yz: () => (/* binding */ directionColors)
+/* harmony export */   iV: () => (/* binding */ getMean)
 /* harmony export */ });
-/* unused harmony export twoInThreeRule */
+/* unused harmony exports twoInThreeRule, directionColors */
 //Images
 const variation_noChange = __webpack_require__(845);
 const variation_ciHigh = __webpack_require__(3484);

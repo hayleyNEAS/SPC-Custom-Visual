@@ -40,24 +40,9 @@ type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
 
 function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, formatSettings: BarChartSettingsModel): SPCChartData {
     //MEASURES INPUT
-    let [dates_input, value_input, target_input, breakPoint_input] = dataLoad(options)
-    let SPCChartDataPoints = dataSet(dates_input, value_input)
     let allData = fullData(options, formatSettings)
     
-    //Constants
-    let displayMarkerSize = 3
-    //DIRECTION
-    let [direction, up_color, down_color] = directionColors(formatSettings)
-
-    //TARGET
-    let target = allData.target // remove
-
-    //FORMATTING
-    let [measureName, measureFormat, decimalPlaces] = [allData.measureName, allData.measureFormat, allData.decimalPlaces] //remove
-
     allData = getMean(allData)
-    let meanValue = allData.meanValue //remove
-
     allData = getControlLimits(allData)
 
     //SPC Marker Colors Rules 
@@ -74,10 +59,10 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
         datapoints: allData.datapoints,
 
         n: allData.n,
-        direction,
-        target,
+        direction: allData.direction,
+        target: allData.target,
 
-        meanValue,
+        meanValue: allData.meanValue,
         UCLValue: allData.UCLValue,
         LCLValue: allData.LCLValue,
 
@@ -86,13 +71,13 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
         Lower_Zone_A: allData.Lower_Zone_A,
         Lower_Zone_B: allData.Lower_Zone_B,
 
-        strokeWidth: 2,
-        strokeColor: 'steelblue',
+        strokeWidth: allData.strokeWidth,
+        strokeColor: allData.strokeColor,
         markerSize: allData.markerSize,
 
-        measureName, 
-        measureFormat,
-        decimalPlaces,
+        measureName: allData.measureName, 
+        measureFormat: allData.measureFormat,
+        decimalPlaces: allData.decimalPlaces,
 
         outlier,
         run,
