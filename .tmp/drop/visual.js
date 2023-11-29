@@ -1506,7 +1506,7 @@ function createSelectorData(options, host, formatSettings) {
     allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getControlLimits */ .Qv)(allData);
     //SPC Marker Colors Rules 
     allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getMarkerColors */ .gT)(allData, formatSettings);
-    SPCChartDataPoints = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .identifyOutliers */ .b5)(allData.datapoints, formatSettings, displayMarkerSize, allData.UCLValue, allData.LCLValue);
+    allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .identifyOutliers */ .b5)(allData, formatSettings);
     let outlier = allData.datapoints[allData.n - 1].outlier;
     let run = allData.datapoints[allData.n - 1].run;
     let shift = allData.datapoints[allData.n - 1].shift;
@@ -2566,23 +2566,45 @@ const above = __webpack_require__(8119);
 const below = __webpack_require__(2762);
 const none = __webpack_require__(9304);
 //Functions
-function identifyOutliers(data, formatSettings, displayMarkerSize, UCLValue, LCLValue) {
+function identifyOutliers(dataset, formatSettings) {
+    let data = dataset.datapoints;
     let outlierColor = formatSettings.SPCSettings.markerOptions.outlier.value.value;
     let outlierShow = Number(formatSettings.SPCSettings.markerOptions.showOutlier.value);
-    let nPoints = data.length;
-    for (let i = 0, len = nPoints; i < len; i++) {
-        if (data[i].value > UCLValue) {
+    for (let i = 0, len = dataset.n; i < len; i++) {
+        if (data[i].value > dataset.UCLValue) {
             data[i].color = outlierColor;
-            data[i].markerSize = displayMarkerSize * outlierShow;
+            data[i].markerSize = dataset.markerSize * outlierShow;
             data[i].outlier = 1;
         }
-        if (data[i].value < LCLValue) {
+        if (data[i].value < dataset.LCLValue) {
             data[i].color = outlierColor;
-            data[i].markerSize = displayMarkerSize * outlierShow;
+            data[i].markerSize = dataset.markerSize * outlierShow;
             data[i].outlier = -1;
         }
     }
-    return data;
+    return {
+        datapoints: data,
+        n: dataset.n,
+        direction: dataset.direction,
+        target: dataset.target,
+        meanValue: dataset.meanValue,
+        UCLValue: dataset.UCLValue,
+        LCLValue: dataset.LCLValue,
+        Upper_Zone_A: dataset.Upper_Zone_A,
+        Upper_Zone_B: dataset.Upper_Zone_B,
+        Lower_Zone_A: dataset.Lower_Zone_A,
+        Lower_Zone_B: dataset.Lower_Zone_B,
+        strokeWidth: dataset.strokeWidth,
+        strokeColor: dataset.strokeColor,
+        markerSize: dataset.markerSize,
+        measureName: dataset.measureName,
+        measureFormat: dataset.measureFormat,
+        decimalPlaces: dataset.decimalPlaces,
+        outlier: dataset.outlier,
+        run: dataset.run,
+        shift: dataset.shift,
+        twoInThree: dataset.twoInThree
+    };
 }
 function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
     if (Direction = 1) {

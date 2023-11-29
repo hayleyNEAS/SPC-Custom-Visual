@@ -27,27 +27,55 @@ const none = require("./../assets/no_image.png")
 
 //Functions
 
-export function identifyOutliers(data: SPCChartDataPoint[], formatSettings: BarChartSettingsModel, displayMarkerSize: number, UCLValue: number, LCLValue: number) {
+export function identifyOutliers(dataset: SPCChartData, formatSettings: BarChartSettingsModel) {
+    let data = dataset.datapoints
     let outlierColor = formatSettings.SPCSettings.markerOptions.outlier.value.value
     let outlierShow = Number(formatSettings.SPCSettings.markerOptions.showOutlier.value)
 
-    let nPoints = data.length
 
-    for (let i = 0, len = nPoints; i < len; i++) {
-        if (<number>data[i].value > UCLValue) {
+    for (let i = 0, len = dataset.n; i < len; i++) {
+        if (<number>data[i].value > dataset.UCLValue) {
             data[i].color = outlierColor
-            data[i].markerSize = displayMarkerSize * outlierShow
+            data[i].markerSize = dataset.markerSize * outlierShow
             data[i].outlier = 1
         }
-        if (<number>data[i].value < LCLValue) {
+        if (<number>data[i].value < dataset.LCLValue) {
             data[i].color = outlierColor
-            data[i].markerSize = displayMarkerSize * outlierShow
+            data[i].markerSize = dataset.markerSize * outlierShow
             data[i].outlier = -1
         }
 
     }
 
-    return data
+    return {
+        datapoints: data,
+
+        n: dataset.n,
+        direction: dataset.direction,
+        target: dataset.target,
+
+        meanValue: dataset.meanValue,
+        UCLValue: dataset.UCLValue,
+        LCLValue: dataset.LCLValue,
+
+        Upper_Zone_A: dataset.Upper_Zone_A,
+        Upper_Zone_B: dataset.Upper_Zone_B,
+        Lower_Zone_A: dataset.Lower_Zone_A,
+        Lower_Zone_B: dataset.Lower_Zone_B,
+
+        strokeWidth: dataset.strokeWidth,
+        strokeColor: dataset.strokeColor,
+        markerSize: dataset.markerSize,
+
+        measureName: dataset.measureName,
+        measureFormat: dataset.measureFormat,
+        decimalPlaces: dataset.decimalPlaces,
+
+        outlier: dataset.outlier,
+        run: dataset.run,
+        shift: dataset.shift,
+        twoInThree: dataset.twoInThree
+    }
 }
 
 export function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
@@ -291,7 +319,7 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: BarChartS
     }
 
     if (dataset.n == 1) { dataset.datapoints.forEach(d => d.markerSize = dataset.markerSize) }
-    
+
     return {
         datapoints: data, //this is the pivitol step
 

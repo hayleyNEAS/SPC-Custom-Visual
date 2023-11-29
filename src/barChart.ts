@@ -62,7 +62,7 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
 
     //SPC Marker Colors Rules 
     allData = getMarkerColors(allData, formatSettings)
-    SPCChartDataPoints = identifyOutliers(allData.datapoints, formatSettings, displayMarkerSize, allData.UCLValue, allData.LCLValue)
+    allData = identifyOutliers(allData, formatSettings)
 
     let outlier = allData.datapoints[allData.n - 1].outlier
     let run = allData.datapoints[allData.n - 1].run
