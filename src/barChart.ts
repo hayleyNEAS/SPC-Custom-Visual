@@ -32,8 +32,8 @@ import { getLocalizedString } from "./localisation/localisationHelper"
 import { SPCChartData, SPCChartDataPoint } from "./dataStructure"; 
 import { parseDateLabel, parseinHMS, parseYLabels, PBIformatingKeeper } from "./formattingFunctions"
 import { yAxisDomain, getFillColor, getYAxisTextFillColor } from "./chartFunctions"
-import { identifyOutliers, twoInThreeRule, logoSelector, directionColors } from "./spcFunctions"
-import { getTarget, dataLoad, dataSet } from "./dataLoad"
+import { identifyOutliers, twoInThreeRule, logoSelector, directionColors, getMean } from "./spcFunctions"
+import { getTarget, dataLoad, dataSet, fullData } from "./dataLoad"
 
 
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
@@ -42,6 +42,11 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     //MEASURES INPUT
     let [dates_input, value_input, target_input, breakPoint_input] = dataLoad(options, host)
     let SPCChartDataPoints = dataSet(dates_input, value_input)
+    let allData = fullData(SPCChartDataPoints)
+    
+    //Constants
+    let displayMarkerSize = 3
+    let nPoints = SPCChartDataPoints.length
 
     //DIRECTION
     let [direction, up_color, down_color] = directionColors(formatSettings)
@@ -49,16 +54,11 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     //TARGET
     let target = getTarget(target_input, formatSettings)
 
-    let displayMarkerSize = 3
-
+    //FORMATTING
     let [measureName, measureFormat, decimalPlaces] = PBIformatingKeeper(options)
 
-    let nPoints = SPCChartDataPoints.length
-
-    let meanValue = SPCChartDataPoints
-        .map((d) => <number>d.value)
-        .reduce((a, b) => a + b, 0) / nPoints;
-
+    allData = getMean(allData)
+    let meanValue = allData.meanValue
 
     let avgDiff = SPCChartDataPoints
         .map((d) => <number>Math.abs(d.difference))
@@ -83,7 +83,6 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     let shift = 0
     let twoInThree = 0
     //SPC Marker Colors Rules        
-    //find group of 7
     for (let i = 0; i < nPoints; i++) {
         if (i > 3) { //two in three rules 
             let latest3 = SPCChartDataPoints.slice(i - 3 + 1, i + 1)

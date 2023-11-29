@@ -1492,16 +1492,18 @@ function createSelectorData(options, host, formatSettings) {
     //MEASURES INPUT
     let [dates_input, value_input, target_input, breakPoint_input] = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .dataLoad */ .IR)(options, host);
     let SPCChartDataPoints = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .dataSet */ .Zm)(dates_input, value_input);
+    let allData = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .fullData */ .nu)(SPCChartDataPoints);
+    //Constants
+    let displayMarkerSize = 3;
+    let nPoints = SPCChartDataPoints.length;
     //DIRECTION
     let [direction, up_color, down_color] = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .directionColors */ .yz)(formatSettings);
     //TARGET
     let target = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .getTarget */ .U9)(target_input, formatSettings);
-    let displayMarkerSize = 3;
+    //FORMATTING
     let [measureName, measureFormat, decimalPlaces] = (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .PBIformatingKeeper */ .WN)(options);
-    let nPoints = SPCChartDataPoints.length;
-    let meanValue = SPCChartDataPoints
-        .map((d) => d.value)
-        .reduce((a, b) => a + b, 0) / nPoints;
+    allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getMean */ .iV)(allData);
+    let meanValue = allData.meanValue;
     let avgDiff = SPCChartDataPoints
         .map((d) => Math.abs(d.difference))
         .reduce((a, b) => a + b, 0) / (nPoints - 1);
@@ -1519,7 +1521,6 @@ function createSelectorData(options, host, formatSettings) {
     let shift = 0;
     let twoInThree = 0;
     //SPC Marker Colors Rules        
-    //find group of 7
     for (let i = 0; i < nPoints; i++) {
         if (i > 3) { //two in three rules 
             let latest3 = SPCChartDataPoints.slice(i - 3 + 1, i + 1);
@@ -2338,7 +2339,8 @@ function getYAxisTextFillColor(objects, colorPalette, defaultColor) {
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   IR: () => (/* binding */ dataLoad),
 /* harmony export */   U9: () => (/* binding */ getTarget),
-/* harmony export */   Zm: () => (/* binding */ dataSet)
+/* harmony export */   Zm: () => (/* binding */ dataSet),
+/* harmony export */   nu: () => (/* binding */ fullData)
 /* harmony export */ });
 function getTarget(target_input, formatSettings) {
     let target = -Infinity;
@@ -2404,6 +2406,30 @@ function dataSet(dates, input) {
         });
     }
     return SPCChartDataPoints;
+}
+function fullData(data) {
+    return {
+        datapoints: data,
+        n: data.length,
+        direction: 0,
+        target: -Infinity,
+        meanValue: null,
+        UCLValue: Infinity,
+        LCLValue: -Infinity,
+        Upper_Zone_A: Infinity,
+        Upper_Zone_B: Infinity,
+        Lower_Zone_A: -Infinity,
+        Lower_Zone_B: -Infinity,
+        strokeWidth: 2,
+        strokeColor: 'steelblue',
+        measureName: null,
+        measureFormat: '',
+        decimalPlaces: null,
+        outlier: 0,
+        run: 0,
+        shift: 0,
+        twoInThree: 0
+    };
 }
 
 
@@ -2583,6 +2609,7 @@ function getCategoricalObjectValue(category, index, objectName, propertyName, de
 /* harmony export */   SK: () => (/* binding */ twoInThreeRule),
 /* harmony export */   Yo: () => (/* binding */ logoSelector),
 /* harmony export */   b5: () => (/* binding */ identifyOutliers),
+/* harmony export */   iV: () => (/* binding */ getMean),
 /* harmony export */   yz: () => (/* binding */ directionColors)
 /* harmony export */ });
 //Images
@@ -2733,6 +2760,34 @@ function directionColors(formatSettings) {
         down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value;
     }
     return [direction, up_color, down_color];
+}
+function getMean(dataset) {
+    let data = dataset.datapoints;
+    let meanValue = data
+        .map((d) => d.value)
+        .reduce((a, b) => a + b, 0) / dataset.n;
+    return {
+        datapoints: data,
+        n: dataset.n,
+        direction: dataset.direction,
+        target: dataset.target,
+        meanValue,
+        UCLValue: dataset.UCLValue,
+        LCLValue: dataset.LCLValue,
+        Upper_Zone_A: dataset.Upper_Zone_A,
+        Upper_Zone_B: dataset.Upper_Zone_B,
+        Lower_Zone_A: dataset.Lower_Zone_A,
+        Lower_Zone_B: dataset.Lower_Zone_B,
+        strokeWidth: dataset.strokeWidth,
+        strokeColor: dataset.strokeColor,
+        measureName: dataset.measureName,
+        measureFormat: dataset.measureFormat,
+        decimalPlaces: dataset.decimalPlaces,
+        outlier: dataset.outlier,
+        run: dataset.run,
+        shift: dataset.shift,
+        twoInThree: dataset.twoInThree
+    };
 }
 
 

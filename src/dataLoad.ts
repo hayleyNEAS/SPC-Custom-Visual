@@ -4,7 +4,7 @@ import ISelectionId = powerbi.visuals.ISelectionId;
 import * as d3 from "d3";
 
 
-import { SPCChartDataPoint } from "./dataStructure"
+import { SPCChartData, SPCChartDataPoint } from "./dataStructure"
 import { BarChartSettingsModel } from "./barChartSettingsModel";
 
 
@@ -81,4 +81,35 @@ export function dataSet(dates:any, input: any): SPCChartDataPoint[] {
     }
 
     return SPCChartDataPoints;
+}
+
+export function fullData(data: SPCChartDataPoint[]): SPCChartData {
+    return {
+        datapoints: data,
+
+        n: data.length,
+        direction: 0,
+        target: -Infinity,
+
+        meanValue: null,
+        UCLValue: Infinity,
+        LCLValue: -Infinity,
+
+        Upper_Zone_A: Infinity,
+        Upper_Zone_B: Infinity,
+        Lower_Zone_A: -Infinity,
+        Lower_Zone_B: -Infinity,
+
+        strokeWidth: 2,
+        strokeColor: 'steelblue',
+
+        measureName: null, 
+        measureFormat: '',
+        decimalPlaces: null,
+
+        outlier: 0,
+        run: 0,
+        shift: 0,
+        twoInThree: 0
+    };
 }

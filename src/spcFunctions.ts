@@ -2,7 +2,7 @@
 import * as d3 from "d3";
 
 
-import { SPCChartDataPoint, SPCChartData, PrimitiveValue} from "./dataStructure" 
+import { SPCChartDataPoint, SPCChartData} from "./dataStructure" 
 import { BarChartSettingsModel } from "./barChartSettingsModel";
 
 
@@ -146,4 +146,41 @@ export function directionColors(formatSettings: BarChartSettingsModel):[number, 
         down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value
     }
     return [direction, up_color, down_color]
+}
+
+export function getMean(dataset: SPCChartData): SPCChartData {
+    let data = dataset.datapoints 
+    
+    let meanValue = data
+        .map((d) => <number>d.value)
+        .reduce((a, b) => a + b, 0) / dataset.n;
+
+    return {
+        datapoints: data,
+
+        n: dataset.n,
+        direction: dataset.direction,
+        target: dataset.target,
+
+        meanValue,
+        UCLValue: dataset.UCLValue,
+        LCLValue: dataset.LCLValue,
+
+        Upper_Zone_A: dataset.Upper_Zone_A,
+        Upper_Zone_B: dataset.Upper_Zone_B,
+        Lower_Zone_A: dataset.Lower_Zone_A,
+        Lower_Zone_B: dataset.Lower_Zone_B,
+
+        strokeWidth: dataset.strokeWidth,
+        strokeColor: dataset.strokeColor,
+
+        measureName: dataset.measureName, 
+        measureFormat: dataset.measureFormat,
+        decimalPlaces: dataset.decimalPlaces,
+
+        outlier: dataset.outlier,
+        run: dataset.run,
+        shift: dataset.shift,
+        twoInThree: dataset.twoInThree
+    }
 }
