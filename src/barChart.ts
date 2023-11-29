@@ -46,8 +46,6 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     
     //Constants
     let displayMarkerSize = 3
-    let nPoints = allData.n//remove
-
     //DIRECTION
     let [direction, up_color, down_color] = directionColors(formatSettings)
 
@@ -66,10 +64,10 @@ function createSelectorData(options: VisualUpdateOptions, host: IVisualHost, for
     allData = getMarkerColors(allData, formatSettings)
     SPCChartDataPoints = identifyOutliers(allData.datapoints, formatSettings, displayMarkerSize, allData.UCLValue, allData.LCLValue)
 
-    let outlier = allData.datapoints[nPoints - 1].outlier
-    let run = allData.datapoints[nPoints - 1].run
-    let shift = allData.datapoints[nPoints - 1].shift
-    let twoInThree = allData.datapoints[nPoints - 1].twoInThree
+    let outlier = allData.datapoints[allData.n - 1].outlier
+    let run = allData.datapoints[allData.n - 1].run
+    let shift = allData.datapoints[allData.n - 1].shift
+    let twoInThree = allData.datapoints[allData.n - 1].twoInThree
 
 
     return {

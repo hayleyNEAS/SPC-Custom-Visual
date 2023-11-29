@@ -1495,7 +1495,6 @@ function createSelectorData(options, host, formatSettings) {
     let allData = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_5__/* .fullData */ .nu)(options, formatSettings);
     //Constants
     let displayMarkerSize = 3;
-    let nPoints = allData.n; //remove
     //DIRECTION
     let [direction, up_color, down_color] = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .directionColors */ .yz)(formatSettings);
     //TARGET
@@ -1508,10 +1507,10 @@ function createSelectorData(options, host, formatSettings) {
     //SPC Marker Colors Rules 
     allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .getMarkerColors */ .gT)(allData, formatSettings);
     SPCChartDataPoints = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_4__/* .identifyOutliers */ .b5)(allData.datapoints, formatSettings, displayMarkerSize, allData.UCLValue, allData.LCLValue);
-    let outlier = allData.datapoints[nPoints - 1].outlier;
-    let run = allData.datapoints[nPoints - 1].run;
-    let shift = allData.datapoints[nPoints - 1].shift;
-    let twoInThree = allData.datapoints[nPoints - 1].twoInThree;
+    let outlier = allData.datapoints[allData.n - 1].outlier;
+    let run = allData.datapoints[allData.n - 1].run;
+    let shift = allData.datapoints[allData.n - 1].shift;
+    let twoInThree = allData.datapoints[allData.n - 1].twoInThree;
     return {
         datapoints: allData.datapoints,
         n: allData.n,
