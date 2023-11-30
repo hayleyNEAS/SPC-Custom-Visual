@@ -34,18 +34,20 @@ export function identifyOutliers(dataset: SPCChartData, formatSettings: BarChart
 
 
     for (let i = 0, len = dataset.n; i < len; i++) {
-        if (<number>data[i].value > dataset.UCLValue) {
+        if (<number>data[i].value > data[i].UCLValue) {
             data[i].color = outlierColor
             data[i].markerSize = dataset.markerSize * outlierShow
             data[i].outlier = 1
         }
-        if (<number>data[i].value < dataset.LCLValue) {
+        if (<number>data[i].value < data[i].LCLValue) {
             data[i].color = outlierColor
             data[i].markerSize = dataset.markerSize * outlierShow
             data[i].outlier = -1
         }
 
     }
+
+    console.log(data[dataset.n - 1].outlier)
 
     return {
         datapoints: data,
@@ -54,14 +56,6 @@ export function identifyOutliers(dataset: SPCChartData, formatSettings: BarChart
         numberOfTimePeriods: dataset.numberOfTimePeriods,
         direction: dataset.direction,
         target: dataset.target,
-
-        UCLValue: dataset.UCLValue,
-        LCLValue: dataset.LCLValue,
-
-        Upper_Zone_A: dataset.Upper_Zone_A,
-        Upper_Zone_B: dataset.Upper_Zone_B,
-        Lower_Zone_A: dataset.Lower_Zone_A,
-        Lower_Zone_B: dataset.Lower_Zone_B,
 
         strokeWidth: dataset.strokeWidth,
         strokeColor: dataset.strokeColor,
@@ -127,26 +121,26 @@ export function logoSelector(data: SPCChartData, option): any {
     if (option == "target") {
         if (data.target > -Infinity) {
             if (data.direction < 0) {
-                if (data.target < data.LCLValue) {
+                if (data.target < data.datapoints[data.n - 1].LCLValue) {
                     return fail_above
-                } if (data.target >= data.UCLValue) {
+                } if (data.target >= data.datapoints[data.n - 1].UCLValue) {
                     return pass_below
                 } else {
                     return atTarget
                 }
 
             } if (data.direction > 0) {
-                if (data.target < data.LCLValue) {
+                if (data.target < data.datapoints[data.n - 1].LCLValue) {
                     return pass_above
-                } if (data.target >= data.UCLValue) {
+                } if (data.target >= data.datapoints[data.n - 1].UCLValue) {
                     return fail_below
                 } else {
                     return atTarget
                 }
             } if (data.direction == 0) {
-                if (data.target < data.LCLValue) {
+                if (data.target < data.datapoints[data.n - 1].LCLValue) {
                     return above
-                } if (data.target >= data.UCLValue) {
+                } if (data.target >= data.datapoints[data.n - 1].UCLValue) {
                     return below
                 } else {
                     return atTarget
@@ -180,12 +174,12 @@ export function getMean(dataset: SPCChartData): SPCChartData {
     let data = dataset.datapoints
     let numberTimePeriods = dataset.numberOfTimePeriods
 
-    for (let i = 0, len = numberTimePeriods+1; i < len; i++) {
+    for (let i = 0, len = numberTimePeriods + 1; i < len; i++) {
         let subset = data.filter((d) => d.breakP == i)
         let meanValue = subset
-        .map((d) => <number>d.value)
-        .reduce((a, b) => a + b, 0) / subset.length;
-                
+            .map((d) => <number>d.value)
+            .reduce((a, b) => a + b, 0) / subset.length;
+
         subset.forEach((d) => d.mean = meanValue)
     }
 
@@ -196,14 +190,6 @@ export function getMean(dataset: SPCChartData): SPCChartData {
         numberOfTimePeriods: dataset.numberOfTimePeriods,
         direction: dataset.direction,
         target: dataset.target,
-
-        UCLValue: dataset.UCLValue,
-        LCLValue: dataset.LCLValue,
-
-        Upper_Zone_A: dataset.Upper_Zone_A,
-        Upper_Zone_B: dataset.Upper_Zone_B,
-        Lower_Zone_A: dataset.Lower_Zone_A,
-        Lower_Zone_B: dataset.Lower_Zone_B,
 
         strokeWidth: dataset.strokeWidth,
         strokeColor: dataset.strokeColor,
@@ -221,39 +207,36 @@ export function getMean(dataset: SPCChartData): SPCChartData {
 }
 
 export function getControlLimits(dataset: SPCChartData): SPCChartData {
-    let avgDiff = dataset.datapoints
-        .map((d) => <number>Math.abs(d.difference))
-        .reduce((a, b) => a + b, 0) / (dataset.n - 1);
+    let data = dataset.datapoints;
+    let numberTimePeriods = dataset.numberOfTimePeriods;
 
-    if (dataset.n == 1) {
-        avgDiff = null
+    for (let i = 0, len = numberTimePeriods + 1; i < len; i++) {
+        let subset = data.filter((d) => d.breakP == i);
+        let avgDiff = subset
+            .map((d) => <number>Math.abs(d.difference))
+            .reduce((a, b) => a + b, 0) / (subset.length - 1);
+
+        if (subset.length == 1) {
+            avgDiff = null
+        };
+
+        subset.forEach((d) => d.UCLValue = d.mean + 2.66 * avgDiff);
+        subset.forEach((d) => d.LCLValue = d.mean - 2.66 * avgDiff);
+
+        subset.forEach((d) => d.Upper_Zone_A = d.mean + 2.66 * avgDiff * 2 / 3);
+        subset.forEach((d) => d.Lower_Zone_A = d.mean - 2.66 * avgDiff * 2 / 3);
+
+        subset.forEach((d) => d.Upper_Zone_B = d.mean + 2.66 * avgDiff * 1 / 3);
+        subset.forEach((d) => d.Lower_Zone_B = d.mean - 2.66 * avgDiff * 1 / 3);
     }
-    let temp_mean = dataset.datapoints.map((d) => d.mean).reduce((a,b) => Math.max(a,b), -Infinity)
-
-    let UCLValue = temp_mean + 2.66 * avgDiff
-    let LCLValue = temp_mean - 2.66 * avgDiff
-
-    let Upper_Zone_A = temp_mean + 2.66 * avgDiff * 2 / 3
-    let Lower_Zone_A = temp_mean - 2.66 * avgDiff * 2 / 3
-
-    let Upper_Zone_B = temp_mean + 2.66 * avgDiff * 1 / 3
-    let Lower_Zone_B = temp_mean - 2.66 * avgDiff * 1 / 3
 
     return {
-        datapoints: dataset.datapoints,
+        datapoints: data,
 
         n: dataset.n,
         numberOfTimePeriods: dataset.numberOfTimePeriods,
         direction: dataset.direction,
         target: dataset.target,
-
-        UCLValue: UCLValue,
-        LCLValue: LCLValue,
-
-        Upper_Zone_A: Upper_Zone_A,
-        Upper_Zone_B: Upper_Zone_B,
-        Lower_Zone_A: Lower_Zone_A,
-        Lower_Zone_B: Lower_Zone_B,
 
         strokeWidth: dataset.strokeWidth,
         strokeColor: dataset.strokeColor,
@@ -278,7 +261,7 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: BarChartS
         if (i > 3) { //two in three rules 
             let latest3 = data.slice(i - 3 + 1, i + 1)
             let twoInThreeCheck = latest3
-                .map((d) => twoInThreeRule(d.value, dataset.Upper_Zone_A, dataset.Lower_Zone_A, dataset.direction))
+                .map((d) => twoInThreeRule(d.value, d.Upper_Zone_A, d.Lower_Zone_A, dataset.direction))
                 .reduce((a, b) => a + b, 0)
             if (Math.abs(twoInThreeCheck) >= 2) {
                 latest3.forEach(d => d.color = up_color)
@@ -335,14 +318,6 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: BarChartS
         direction: dataset.direction,
         target: dataset.target,
 
-        UCLValue: dataset.UCLValue,
-        LCLValue: dataset.LCLValue,
-
-        Upper_Zone_A: dataset.Upper_Zone_A,
-        Upper_Zone_B: dataset.Upper_Zone_B,
-        Lower_Zone_A: dataset.Lower_Zone_A,
-        Lower_Zone_B: dataset.Lower_Zone_B,
-
         strokeWidth: dataset.strokeWidth,
         strokeColor: dataset.strokeColor,
         markerSize: dataset.markerSize,
@@ -352,8 +327,8 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: BarChartS
         decimalPlaces: dataset.decimalPlaces,
 
         outlier: dataset.outlier,
-        run: dataset.run,
-        shift: dataset.shift,
-        twoInThree: dataset.twoInThree
+        run: data[dataset.n - 1].run,
+        shift: data[dataset.n - 1].shift,
+        twoInThree: data[dataset.n - 1].twoInThree
     }
 }

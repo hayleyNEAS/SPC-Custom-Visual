@@ -6,12 +6,6 @@ export declare function identifyOutliers(dataset: SPCChartData, formatSettings: 
     numberOfTimePeriods: number;
     direction: number;
     target: number;
-    UCLValue: number;
-    LCLValue: number;
-    Upper_Zone_A: number;
-    Upper_Zone_B: number;
-    Lower_Zone_A: number;
-    Lower_Zone_B: number;
     strokeWidth: number;
     strokeColor: string;
     markerSize: number;

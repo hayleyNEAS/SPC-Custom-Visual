@@ -83,6 +83,13 @@ export function dataSet(dates:any, input: any[], breakP: any[]): SPCChartDataPoi
 
             difference: diff,
             mean: input[0],
+            UCLValue: Infinity,
+            LCLValue: -Infinity,
+    
+            Upper_Zone_A: Infinity,
+            Upper_Zone_B: Infinity,
+            Lower_Zone_A: -Infinity,
+            Lower_Zone_B: -Infinity,
 
             outlier: 0,
             run: 0,
@@ -112,14 +119,6 @@ export function fullData(options: VisualUpdateOptions, formatSettings: BarChartS
         numberOfTimePeriods,
         direction: <number>formatSettings.SPCSettings.spcSetUp.direction.value.value,
         target,
-
-        UCLValue: Infinity,
-        LCLValue: -Infinity,
-
-        Upper_Zone_A: Infinity,
-        Upper_Zone_B: Infinity,
-        Lower_Zone_A: -Infinity,
-        Lower_Zone_B: -Infinity,
 
         strokeWidth: 2,
         strokeColor: 'steelblue',
@@ -160,14 +159,6 @@ export function createDataset(options: VisualUpdateOptions, host: IVisualHost, f
         numberOfTimePeriods: allData.numberOfTimePeriods,
         direction: allData.direction,
         target: allData.target,
-
-        UCLValue: allData.UCLValue,
-        LCLValue: allData.LCLValue,
-
-        Upper_Zone_A: allData.Upper_Zone_A,
-        Upper_Zone_B: allData.Upper_Zone_B,
-        Lower_Zone_A: allData.Lower_Zone_A,
-        Lower_Zone_B: allData.Lower_Zone_B,
 
         strokeWidth: allData.strokeWidth,
         strokeColor: allData.strokeColor,

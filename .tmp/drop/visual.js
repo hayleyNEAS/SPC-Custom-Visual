@@ -1555,22 +1555,22 @@ class SPCChart {
             .append('path')
             .classed('line', true);
         this.lineUCL = this.svg
-            .append('line')
+            .append('path')
             .classed('line', true);
         this.lineLCL = this.svg
-            .append('line')
+            .append('path')
             .classed('line', true);
         this.lineUpperZoneA = this.svg
-            .append('line')
+            .append('path')
             .classed('line', true);
         this.lineUpperZoneB = this.svg
-            .append('line')
+            .append('path')
             .classed('line', true);
         this.lineLowerZoneA = this.svg
-            .append('line')
+            .append('path')
             .classed('line', true);
         this.lineLowerZoneB = this.svg
-            .append('line')
+            .append('path')
             .classed('line', true);
         this.lineTarget = this.svg
             .append('line')
@@ -1740,17 +1740,17 @@ class SPCChart {
             .attr("y", 0)
             .attr("stroke", "#777777")
             .attr("opacity", 0); //invisable rectangles 
-        /*          this.lineData_Diff
-                    .datum(this.dataPoints)
-                    .style("stroke-linecap", "round")
-                    .attr("fill", "none")
-                    .attr("stroke", "purple")
-                    .attr("stroke-width", 2)
-                    .attr("stroke-linejoin", "round")
-                    .attr("d", d3.line<SPCChartDataPoint>()
-                        .x(function (d) { return xScale(d.category) })
-                        .y(function (d) { return yScale(<number>d.mean) })
-                    )  */
+        /*   this.lineData_Diff
+            .datum(this.dataPoints)
+            .style("stroke-linecap", "round")
+            .attr("fill", "none")
+            .attr("stroke", "purple")
+            .attr("stroke-width", 2)
+            .attr("stroke-linejoin", "round")
+            .attr("d", d3.line<SPCChartDataPoint>()
+                .x(function (d) { return xScale(d.category) })
+                .y(function (d) { return yScale(<number>d.UCLValue) })
+            )   */
         //Create mean line
         if (this.formattingSettings.SPCSettings.lineOptions.showMean.value) {
             this.lineMean
@@ -1772,27 +1772,27 @@ class SPCChart {
         //Create limit lines   
         if (this.formattingSettings.SPCSettings.lineOptions.showControl.value) {
             this.lineUCL
-                .style("stroke-dasharray", ("5,5"))
-                .style("stroke-linecap", "round")
+                .datum(this.dataPoints)
                 .attr("class", "ControlLimit")
-                .attr("x1", widthChartStart)
-                .attr("x2", widthChartEnd)
-                .attr("y1", function (d) { return yScale(data.UCLValue); })
-                .attr("y2", function (d) { return yScale(data.UCLValue); })
                 .attr("fill", "none")
                 .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value)
-                .attr("stroke-width", 2);
+                .attr("stroke-width", 2)
+                .style("stroke-dasharray", ("5,5"))
+                .style("stroke-linecap", "round")
+                .attr("d", d3__WEBPACK_IMPORTED_MODULE_0__/* .line */ .jvg()
+                .x(function (d) { return xScale(d.category); })
+                .y(function (d) { return yScale(d.UCLValue); }));
             this.lineLCL
-                .style("stroke-dasharray", ("5,5"))
-                .style("stroke-linecap", "round")
+                .datum(this.dataPoints)
                 .attr("class", "ControlLimit")
-                .attr("x1", widthChartStart)
-                .attr("x2", widthChartEnd)
-                .attr("y1", function (d) { return yScale(data.LCLValue); })
-                .attr("y2", function (d) { return yScale(data.LCLValue); })
                 .attr("fill", "none")
                 .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value)
-                .attr("stroke-width", 2);
+                .attr("stroke-width", 2)
+                .style("stroke-dasharray", ("5,5"))
+                .style("stroke-linecap", "round")
+                .attr("d", d3__WEBPACK_IMPORTED_MODULE_0__/* .line */ .jvg()
+                .x(function (d) { return xScale(d.category); })
+                .y(function (d) { return yScale(d.LCLValue); }));
         }
         else {
             this.lineUCL
@@ -1803,49 +1803,49 @@ class SPCChart {
         //Create Zone lines 
         if (this.formattingSettings.SPCSettings.lineOptions.showSubControl.value) {
             this.lineUpperZoneA
+                .datum(this.dataPoints)
                 .style("stroke-dasharray", ("5,5"))
                 .style("stroke-linecap", "round")
                 .attr("class", "subControl")
-                .attr("x1", widthChartStart)
-                .attr("x2", widthChartEnd)
-                .attr("y1", function (d) { return yScale(data.Upper_Zone_A); })
-                .attr("y2", function (d) { return yScale(data.Upper_Zone_A); })
                 .attr("fill", "none")
                 .attr("stroke", "black")
-                .attr("stroke-width", 1);
+                .attr("stroke-width", 1)
+                .attr("d", d3__WEBPACK_IMPORTED_MODULE_0__/* .line */ .jvg()
+                .x(function (d) { return xScale(d.category); })
+                .y(function (d) { return yScale(d.Upper_Zone_A); }));
             this.lineUpperZoneB
+                .datum(this.dataPoints)
                 .style("stroke-dasharray", ("5,5"))
                 .style("stroke-linecap", "round")
                 .attr("class", "subControl")
-                .attr("x1", widthChartStart)
-                .attr("x2", widthChartEnd)
-                .attr("y1", function (d) { return yScale(data.Upper_Zone_B); })
-                .attr("y2", function (d) { return yScale(data.Upper_Zone_B); })
                 .attr("fill", "none")
                 .attr("stroke", "black")
-                .attr("stroke-width", 1);
+                .attr("stroke-width", 1)
+                .attr("d", d3__WEBPACK_IMPORTED_MODULE_0__/* .line */ .jvg()
+                .x(function (d) { return xScale(d.category); })
+                .y(function (d) { return yScale(d.Upper_Zone_B); }));
             this.lineLowerZoneA
+                .datum(this.dataPoints)
                 .style("stroke-dasharray", ("5,5"))
                 .style("stroke-linecap", "round")
                 .attr("class", "subControl")
-                .attr("x1", widthChartStart)
-                .attr("x2", widthChartEnd)
-                .attr("y1", function (d) { return yScale(data.Lower_Zone_A); })
-                .attr("y2", function (d) { return yScale(data.Lower_Zone_A); })
                 .attr("fill", "none")
                 .attr("stroke", "black")
-                .attr("stroke-width", 1);
+                .attr("stroke-width", 1)
+                .attr("d", d3__WEBPACK_IMPORTED_MODULE_0__/* .line */ .jvg()
+                .x(function (d) { return xScale(d.category); })
+                .y(function (d) { return yScale(d.Lower_Zone_A); }));
             this.lineLowerZoneB
+                .datum(this.dataPoints)
                 .style("stroke-dasharray", ("5,5"))
                 .style("stroke-linecap", "round")
                 .attr("class", "subControl")
-                .attr("x1", widthChartStart)
-                .attr("x2", widthChartEnd)
-                .attr("y1", function (d) { return yScale(data.Lower_Zone_B); })
-                .attr("y2", function (d) { return yScale(data.Lower_Zone_B); })
                 .attr("fill", "none")
                 .attr("stroke", "black")
-                .attr("stroke-width", 1);
+                .attr("stroke-width", 1)
+                .attr("d", d3__WEBPACK_IMPORTED_MODULE_0__/* .line */ .jvg()
+                .x(function (d) { return xScale(d.category); })
+                .y(function (d) { return yScale(d.Lower_Zone_B); }));
         }
         else {
             this.lineUpperZoneA
@@ -1952,12 +1952,12 @@ class SPCChart {
             },
             {
                 displayName: "Upper Control Limit",
-                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(data.LCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
+                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(d.LCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
                 color: "darkgrey"
             },
             {
                 displayName: "Lower Control Limit",
-                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(data.LCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
+                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(d.LCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
                 color: "darkgrey"
             },
             {
@@ -2195,12 +2195,16 @@ class BarChartSettingsModel extends FormattingSettingsModel {
 
 function yAxisDomain(data) {
     let yData = data.datapoints.map(d => d.value);
+    let UCLData = data.datapoints.map(d => d.UCLValue);
+    let LCLData = data.datapoints.map(d => d.LCLValue);
     let maxData = yData.reduce((a, b) => Math.max(a, b), -Infinity);
-    let yScale_maxData = Math.max(maxData, data.UCLValue, data.target);
+    let maxUCL = UCLData.reduce((a, b) => Math.max(a, b), -Infinity);
+    let yScale_maxData = Math.max(maxData, maxUCL, data.target);
     let minData = yData.reduce((a, b) => Math.min(a, b), Infinity);
-    let yScale_minData = Math.min(minData, data.LCLValue); //If a target is removed it get assigned the value -inf, so initially we calcualte the min of a data without it 
+    let minLCL = LCLData.reduce((a, b) => Math.min(a, b), Infinity);
+    let yScale_minData = Math.min(minData, minLCL); //If a target is removed it get assigned the value -inf, so initially we calcualte the min of a data without it 
     if (data.target > -Infinity) {
-        yScale_minData = Math.min(minData, data.LCLValue, data.target);
+        yScale_minData = Math.min(minData, minLCL, data.target);
     }
     let yScale_increase_window = yScale_maxData * 1.1 - yScale_maxData;
     return [yScale_minData - yScale_increase_window, yScale_maxData + yScale_increase_window];
@@ -2306,6 +2310,12 @@ function dataSet(dates, input, breakP) {
             breakP: breakP[i],
             difference: diff,
             mean: input[0],
+            UCLValue: Infinity,
+            LCLValue: -Infinity,
+            Upper_Zone_A: Infinity,
+            Upper_Zone_B: Infinity,
+            Lower_Zone_A: -Infinity,
+            Lower_Zone_B: -Infinity,
             outlier: 0,
             run: 0,
             shift: 0,
@@ -2328,12 +2338,6 @@ function fullData(options, formatSettings) {
         numberOfTimePeriods,
         direction: formatSettings.SPCSettings.spcSetUp.direction.value.value,
         target,
-        UCLValue: Infinity,
-        LCLValue: -Infinity,
-        Upper_Zone_A: Infinity,
-        Upper_Zone_B: Infinity,
-        Lower_Zone_A: -Infinity,
-        Lower_Zone_B: -Infinity,
         strokeWidth: 2,
         strokeColor: 'steelblue',
         markerSize: 3,
@@ -2364,12 +2368,6 @@ function createDataset(options, host, formatSettings) {
         numberOfTimePeriods: allData.numberOfTimePeriods,
         direction: allData.direction,
         target: allData.target,
-        UCLValue: allData.UCLValue,
-        LCLValue: allData.LCLValue,
-        Upper_Zone_A: allData.Upper_Zone_A,
-        Upper_Zone_B: allData.Upper_Zone_B,
-        Lower_Zone_A: allData.Lower_Zone_A,
-        Lower_Zone_B: allData.Lower_Zone_B,
         strokeWidth: allData.strokeWidth,
         strokeColor: allData.strokeColor,
         markerSize: allData.markerSize,
@@ -2586,29 +2584,24 @@ function identifyOutliers(dataset, formatSettings) {
     let outlierColor = formatSettings.SPCSettings.markerOptions.outlier.value.value;
     let outlierShow = Number(formatSettings.SPCSettings.markerOptions.showOutlier.value);
     for (let i = 0, len = dataset.n; i < len; i++) {
-        if (data[i].value > dataset.UCLValue) {
+        if (data[i].value > data[i].UCLValue) {
             data[i].color = outlierColor;
             data[i].markerSize = dataset.markerSize * outlierShow;
             data[i].outlier = 1;
         }
-        if (data[i].value < dataset.LCLValue) {
+        if (data[i].value < data[i].LCLValue) {
             data[i].color = outlierColor;
             data[i].markerSize = dataset.markerSize * outlierShow;
             data[i].outlier = -1;
         }
     }
+    console.log(data[dataset.n - 1].outlier);
     return {
         datapoints: data,
         n: dataset.n,
         numberOfTimePeriods: dataset.numberOfTimePeriods,
         direction: dataset.direction,
         target: dataset.target,
-        UCLValue: dataset.UCLValue,
-        LCLValue: dataset.LCLValue,
-        Upper_Zone_A: dataset.Upper_Zone_A,
-        Upper_Zone_B: dataset.Upper_Zone_B,
-        Lower_Zone_A: dataset.Lower_Zone_A,
-        Lower_Zone_B: dataset.Lower_Zone_B,
         strokeWidth: dataset.strokeWidth,
         strokeColor: dataset.strokeColor,
         markerSize: dataset.markerSize,
@@ -2679,10 +2672,10 @@ function logoSelector(data, option) {
     if (option == "target") {
         if (data.target > -Infinity) {
             if (data.direction < 0) {
-                if (data.target < data.LCLValue) {
+                if (data.target < data.datapoints[data.n - 1].LCLValue) {
                     return fail_above;
                 }
-                if (data.target >= data.UCLValue) {
+                if (data.target >= data.datapoints[data.n - 1].UCLValue) {
                     return pass_below;
                 }
                 else {
@@ -2690,10 +2683,10 @@ function logoSelector(data, option) {
                 }
             }
             if (data.direction > 0) {
-                if (data.target < data.LCLValue) {
+                if (data.target < data.datapoints[data.n - 1].LCLValue) {
                     return pass_above;
                 }
-                if (data.target >= data.UCLValue) {
+                if (data.target >= data.datapoints[data.n - 1].UCLValue) {
                     return fail_below;
                 }
                 else {
@@ -2701,10 +2694,10 @@ function logoSelector(data, option) {
                 }
             }
             if (data.direction == 0) {
-                if (data.target < data.LCLValue) {
+                if (data.target < data.datapoints[data.n - 1].LCLValue) {
                     return above;
                 }
-                if (data.target >= data.UCLValue) {
+                if (data.target >= data.datapoints[data.n - 1].UCLValue) {
                     return below;
                 }
                 else {
@@ -2751,12 +2744,6 @@ function getMean(dataset) {
         numberOfTimePeriods: dataset.numberOfTimePeriods,
         direction: dataset.direction,
         target: dataset.target,
-        UCLValue: dataset.UCLValue,
-        LCLValue: dataset.LCLValue,
-        Upper_Zone_A: dataset.Upper_Zone_A,
-        Upper_Zone_B: dataset.Upper_Zone_B,
-        Lower_Zone_A: dataset.Lower_Zone_A,
-        Lower_Zone_B: dataset.Lower_Zone_B,
         strokeWidth: dataset.strokeWidth,
         strokeColor: dataset.strokeColor,
         markerSize: dataset.markerSize,
@@ -2770,31 +2757,30 @@ function getMean(dataset) {
     };
 }
 function getControlLimits(dataset) {
-    let avgDiff = dataset.datapoints
-        .map((d) => Math.abs(d.difference))
-        .reduce((a, b) => a + b, 0) / (dataset.n - 1);
-    if (dataset.n == 1) {
-        avgDiff = null;
+    let data = dataset.datapoints;
+    let numberTimePeriods = dataset.numberOfTimePeriods;
+    for (let i = 0, len = numberTimePeriods + 1; i < len; i++) {
+        let subset = data.filter((d) => d.breakP == i);
+        let avgDiff = subset
+            .map((d) => Math.abs(d.difference))
+            .reduce((a, b) => a + b, 0) / (subset.length - 1);
+        if (subset.length == 1) {
+            avgDiff = null;
+        }
+        ;
+        subset.forEach((d) => d.UCLValue = d.mean + 2.66 * avgDiff);
+        subset.forEach((d) => d.LCLValue = d.mean - 2.66 * avgDiff);
+        subset.forEach((d) => d.Upper_Zone_A = d.mean + 2.66 * avgDiff * 2 / 3);
+        subset.forEach((d) => d.Lower_Zone_A = d.mean - 2.66 * avgDiff * 2 / 3);
+        subset.forEach((d) => d.Upper_Zone_B = d.mean + 2.66 * avgDiff * 1 / 3);
+        subset.forEach((d) => d.Lower_Zone_B = d.mean - 2.66 * avgDiff * 1 / 3);
     }
-    let temp_mean = dataset.datapoints.map((d) => d.mean).reduce((a, b) => Math.max(a, b), -Infinity);
-    let UCLValue = temp_mean + 2.66 * avgDiff;
-    let LCLValue = temp_mean - 2.66 * avgDiff;
-    let Upper_Zone_A = temp_mean + 2.66 * avgDiff * 2 / 3;
-    let Lower_Zone_A = temp_mean - 2.66 * avgDiff * 2 / 3;
-    let Upper_Zone_B = temp_mean + 2.66 * avgDiff * 1 / 3;
-    let Lower_Zone_B = temp_mean - 2.66 * avgDiff * 1 / 3;
     return {
-        datapoints: dataset.datapoints,
+        datapoints: data,
         n: dataset.n,
         numberOfTimePeriods: dataset.numberOfTimePeriods,
         direction: dataset.direction,
         target: dataset.target,
-        UCLValue: UCLValue,
-        LCLValue: LCLValue,
-        Upper_Zone_A: Upper_Zone_A,
-        Upper_Zone_B: Upper_Zone_B,
-        Lower_Zone_A: Lower_Zone_A,
-        Lower_Zone_B: Lower_Zone_B,
         strokeWidth: dataset.strokeWidth,
         strokeColor: dataset.strokeColor,
         markerSize: dataset.markerSize,
@@ -2814,7 +2800,7 @@ function getMarkerColors(dataset, formatSettings) {
         if (i > 3) { //two in three rules 
             let latest3 = data.slice(i - 3 + 1, i + 1);
             let twoInThreeCheck = latest3
-                .map((d) => twoInThreeRule(d.value, dataset.Upper_Zone_A, dataset.Lower_Zone_A, dataset.direction))
+                .map((d) => twoInThreeRule(d.value, d.Upper_Zone_A, d.Lower_Zone_A, dataset.direction))
                 .reduce((a, b) => a + b, 0);
             if (Math.abs(twoInThreeCheck) >= 2) {
                 latest3.forEach(d => d.color = up_color);
@@ -2872,12 +2858,6 @@ function getMarkerColors(dataset, formatSettings) {
         numberOfTimePeriods: dataset.numberOfTimePeriods,
         direction: dataset.direction,
         target: dataset.target,
-        UCLValue: dataset.UCLValue,
-        LCLValue: dataset.LCLValue,
-        Upper_Zone_A: dataset.Upper_Zone_A,
-        Upper_Zone_B: dataset.Upper_Zone_B,
-        Lower_Zone_A: dataset.Lower_Zone_A,
-        Lower_Zone_B: dataset.Lower_Zone_B,
         strokeWidth: dataset.strokeWidth,
         strokeColor: dataset.strokeColor,
         markerSize: dataset.markerSize,
@@ -2885,9 +2865,9 @@ function getMarkerColors(dataset, formatSettings) {
         measureFormat: dataset.measureFormat,
         decimalPlaces: dataset.decimalPlaces,
         outlier: dataset.outlier,
-        run: dataset.run,
-        shift: dataset.shift,
-        twoInThree: dataset.twoInThree
+        run: data[dataset.n - 1].run,
+        shift: data[dataset.n - 1].shift,
+        twoInThree: data[dataset.n - 1].twoInThree
     };
 }
 

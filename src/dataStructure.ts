@@ -11,6 +11,13 @@ export interface SPCChartDataPoint {
     difference: number;
     mean: number;
 
+    UCLValue: number;
+    LCLValue: number;
+    Upper_Zone_A: number;
+    Upper_Zone_B: number;
+    Lower_Zone_A: number;
+    Lower_Zone_B: number;
+
     color: string; //for the marker
     markerSize: number;
 
@@ -27,13 +34,6 @@ export interface SPCChartData {
     numberOfTimePeriods: number;
     direction: number;
     target: number;
-
-    UCLValue: number;
-    LCLValue: number;
-    Upper_Zone_A: number;
-    Upper_Zone_B: number;
-    Lower_Zone_A: number;
-    Lower_Zone_B: number;
 
     strokeWidth: number;
     strokeColor: string;
