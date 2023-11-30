@@ -5,7 +5,6 @@ export declare function identifyOutliers(dataset: SPCChartData, formatSettings: 
     n: number;
     direction: number;
     target: number;
-    meanValue: number;
     UCLValue: number;
     LCLValue: number;
     Upper_Zone_A: number;

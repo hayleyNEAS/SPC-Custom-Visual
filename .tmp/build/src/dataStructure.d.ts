@@ -2,7 +2,9 @@ export type PrimitiveValue = string | number | boolean | Date;
 export interface SPCChartDataPoint {
     value: PrimitiveValue;
     category: string;
+    breakP: number;
     difference: number;
+    mean: number;
     color: string;
     markerSize: number;
     outlier: number;
@@ -15,7 +17,6 @@ export interface SPCChartData {
     n: number;
     direction: number;
     target: number;
-    meanValue: number;
     UCLValue: number;
     LCLValue: number;
     Upper_Zone_A: number;
@@ -24,6 +25,7 @@ export interface SPCChartData {
     Lower_Zone_B: number;
     strokeWidth: number;
     strokeColor: string;
+    markerSize: number;
     measureName: string;
     measureFormat: string;
     decimalPlaces: number;

@@ -52,13 +52,18 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
             breakPoint_input = options.dataViews[0].categorical.values[i].values
         }
     }
+    
+    if(breakPoint_input.length == 0){
+        let n = value_input.length
+        breakPoint_input = new Array(n); for (let i=0; i<n; ++i) breakPoint_input[i] = 0; //if there are no break points provided then set the break point array to 0
+    }
 
     dates_input = dataViews[0].categorical.categories[0].values
 
     return [dates_input, value_input, target_input, breakPoint_input]
 }
 
-export function dataSet(dates:any, input: any): SPCChartDataPoint[] {
+export function dataSet(dates:any, input: any[], breakP: any[]): SPCChartDataPoint[] {
     let SPCChartDataPoints: SPCChartDataPoint[] = []
 
     for (let i = 0, len = input.length; i < len; i++) {
@@ -71,9 +76,13 @@ export function dataSet(dates:any, input: any): SPCChartDataPoint[] {
         SPCChartDataPoints.push({
             color: 'steelblue',
             markerSize: 0,
+
             value: input[i],
-            difference: diff,
             category: <string>dates[i],
+            breakP: <number>breakP[i],
+
+            difference: diff,
+            mean: input[0],
 
             outlier: 0,
             run: 0,
@@ -87,7 +96,7 @@ export function dataSet(dates:any, input: any): SPCChartDataPoint[] {
 
 export function fullData(options: VisualUpdateOptions, formatSettings: BarChartSettingsModel): SPCChartData {
     let [dates_input, value_input, target_input, breakPoint_input] = dataLoad(options)
-    let data = dataSet(dates_input, value_input)
+    let data = dataSet(dates_input, value_input, breakPoint_input)
     let [measureName, measureFormat, decimalPlaces] = PBIformatingKeeper(options)
     let target = getTarget(target_input, formatSettings)
 
@@ -98,7 +107,6 @@ export function fullData(options: VisualUpdateOptions, formatSettings: BarChartS
         direction: <number>formatSettings.SPCSettings.spcSetUp.direction.value.value,
         target,
 
-        meanValue: null,
         UCLValue: Infinity,
         LCLValue: -Infinity,
 
@@ -146,7 +154,6 @@ export function createDataset(options: VisualUpdateOptions, host: IVisualHost, f
         direction: allData.direction,
         target: allData.target,
 
-        meanValue: allData.meanValue,
         UCLValue: allData.UCLValue,
         LCLValue: allData.LCLValue,
 

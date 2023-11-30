@@ -6,7 +6,11 @@ export type PrimitiveValue = string | number | boolean | Date;
 export interface SPCChartDataPoint {
     value: PrimitiveValue;
     category: string;
+    breakP: number;
+
     difference: number;
+    mean: number;
+
     color: string; //for the marker
     markerSize: number;
 
@@ -23,7 +27,6 @@ export interface SPCChartData {
     direction: number;
     target: number;
 
-    meanValue: number;
     UCLValue: number;
     LCLValue: number;
     Upper_Zone_A: number;

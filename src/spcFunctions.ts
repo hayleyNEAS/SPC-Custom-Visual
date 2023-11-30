@@ -54,7 +54,6 @@ export function identifyOutliers(dataset: SPCChartData, formatSettings: BarChart
         direction: dataset.direction,
         target: dataset.target,
 
-        meanValue: dataset.meanValue,
         UCLValue: dataset.UCLValue,
         LCLValue: dataset.LCLValue,
 
@@ -179,9 +178,21 @@ export function directionColors(formatSettings: BarChartSettingsModel): [number,
 export function getMean(dataset: SPCChartData): SPCChartData {
     let data = dataset.datapoints
 
-    let meanValue = data
+    let numberTimePeriods = data
+        .map((d) => <number>d.breakP)
+        .reduce((a,b) => Math.max(a,b), 0 )
+    console.log(numberTimePeriods)
+
+    for (let i = 0, len = numberTimePeriods+1; i < len; i++) {
+        let subset = data.filter((d) => d.breakP == i)
+        let meanValue = subset
         .map((d) => <number>d.value)
-        .reduce((a, b) => a + b, 0) / dataset.n;
+        .reduce((a, b) => a + b, 0) / subset.length;
+        
+        console.log(i, subset.length, meanValue)
+        
+        subset.forEach((d) => d.mean = meanValue)
+    }
 
     return {
         datapoints: data,
@@ -190,7 +201,6 @@ export function getMean(dataset: SPCChartData): SPCChartData {
         direction: dataset.direction,
         target: dataset.target,
 
-        meanValue,
         UCLValue: dataset.UCLValue,
         LCLValue: dataset.LCLValue,
 
@@ -222,15 +232,16 @@ export function getControlLimits(dataset: SPCChartData): SPCChartData {
     if (dataset.n == 1) {
         avgDiff = null
     }
+    let temp_mean = dataset.datapoints.map((d) => d.mean).reduce((a,b) => Math.max(a,b), -Infinity)
 
-    let UCLValue = dataset.meanValue + 2.66 * avgDiff
-    let LCLValue = dataset.meanValue - 2.66 * avgDiff
+    let UCLValue = temp_mean + 2.66 * avgDiff
+    let LCLValue = temp_mean - 2.66 * avgDiff
 
-    let Upper_Zone_A = dataset.meanValue + 2.66 * avgDiff * 2 / 3
-    let Lower_Zone_A = dataset.meanValue - 2.66 * avgDiff * 2 / 3
+    let Upper_Zone_A = temp_mean + 2.66 * avgDiff * 2 / 3
+    let Lower_Zone_A = temp_mean - 2.66 * avgDiff * 2 / 3
 
-    let Upper_Zone_B = dataset.meanValue + 2.66 * avgDiff * 1 / 3
-    let Lower_Zone_B = dataset.meanValue - 2.66 * avgDiff * 1 / 3
+    let Upper_Zone_B = temp_mean + 2.66 * avgDiff * 1 / 3
+    let Lower_Zone_B = temp_mean - 2.66 * avgDiff * 1 / 3
 
     return {
         datapoints: dataset.datapoints,
@@ -239,7 +250,6 @@ export function getControlLimits(dataset: SPCChartData): SPCChartData {
         direction: dataset.direction,
         target: dataset.target,
 
-        meanValue: dataset.meanValue,
         UCLValue: UCLValue,
         LCLValue: LCLValue,
 
@@ -301,7 +311,7 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: BarChartS
             }
             //oneside of mean 
             let shift7 = latest7
-                .map((d) => Math.sign(<number>d.value - dataset.meanValue))
+                .map((d) => Math.sign(<number>d.value - d.mean))
                 .reduce((a, b) => a + b, 0)
             if (shift7 == p) {
                 latest7.forEach(d => d.color = up_color)
@@ -327,7 +337,6 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: BarChartS
         direction: dataset.direction,
         target: dataset.target,
 
-        meanValue: dataset.meanValue,
         UCLValue: dataset.UCLValue,
         LCLValue: dataset.LCLValue,
 

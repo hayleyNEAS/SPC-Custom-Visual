@@ -1552,7 +1552,7 @@ class SPCChart {
             .append('path')
             .classed('line', true);
         this.lineMean = this.svg
-            .append('line')
+            .append('path')
             .classed('line', true);
         this.lineUCL = this.svg
             .append('line')
@@ -1676,6 +1676,7 @@ class SPCChart {
         this.lineTarget
             .style("stroke-linecap", "round")
             .attr("class", "target")
+            .attr("stroke-width", 1.5)
             .attr("x1", widthChartStart)
             .attr("x2", widthChartEnd)
             .attr("y1", function (d) { return yScale(data.target); })
@@ -1739,30 +1740,30 @@ class SPCChart {
             .attr("y", 0)
             .attr("stroke", "#777777")
             .attr("opacity", 0); //invisable rectangles 
-        /*
-    this.lineData_Diff
-        .datum(this.dataPoints)
-        .style("stroke-linecap", "round")
-        .attr("fill", "none")
-        .attr("stroke", "purple")
-        .attr("stroke-width", 2)
-        .attr("stroke-linejoin", "round")
-        .attr("d", d3.line<SPCChartDataPoint>()
-            .x(function (d) { return xScale(d.category) })
-            .y(function (d) { return yScale(<number>d.difference) })
-        )*/
+        /*          this.lineData_Diff
+                    .datum(this.dataPoints)
+                    .style("stroke-linecap", "round")
+                    .attr("fill", "none")
+                    .attr("stroke", "purple")
+                    .attr("stroke-width", 2)
+                    .attr("stroke-linejoin", "round")
+                    .attr("d", d3.line<SPCChartDataPoint>()
+                        .x(function (d) { return xScale(d.category) })
+                        .y(function (d) { return yScale(<number>d.mean) })
+                    )  */
         //Create mean line
         if (this.formattingSettings.SPCSettings.lineOptions.showMean.value) {
             this.lineMean
-                .style("stroke-linecap", "round")
+                .datum(this.dataPoints)
                 .attr("class", "mean")
-                .attr("x1", widthChartStart)
-                .attr("x2", widthChartEnd)
-                .attr("y1", function (d) { return yScale(data.meanValue); })
-                .attr("y2", function (d) { return yScale(data.meanValue); })
                 .attr("fill", "none")
                 .attr("stroke", "black")
-                .attr("stroke-width", 1.5);
+                .attr("stroke-width", 1.5)
+                .attr("stroke-linejoin", "round")
+                .style("stroke-linecap", "round")
+                .attr("d", d3__WEBPACK_IMPORTED_MODULE_0__/* .line */ .jvg()
+                .x(function (d) { return xScale(d.category); })
+                .y(function (d) { return yScale(d.mean); }));
         }
         else {
             this.lineMean
@@ -1945,10 +1946,25 @@ class SPCChart {
                 color: data.strokeColor
             },
             {
-                displayName: "Upper Control Limit",
-                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(data.UCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
+                displayName: "Average",
+                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(d.mean, this.formattingSettings.enableYAxis.formatter.time.value),
                 color: "darkgrey"
-            }
+            },
+            {
+                displayName: "Upper Control Limit",
+                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(data.LCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
+                color: "darkgrey"
+            },
+            {
+                displayName: "Lower Control Limit",
+                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(data.LCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
+                color: "darkgrey"
+            },
+            {
+                displayName: "Target",
+                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(data.target, this.formattingSettings.enableYAxis.formatter.time.value),
+                color: "darkgrey"
+            },
         ];
     }
 }
@@ -2266,10 +2282,16 @@ function dataLoad(options) {
             breakPoint_input = options.dataViews[0].categorical.values[i].values;
         }
     }
+    if (breakPoint_input.length == 0) {
+        let n = value_input.length;
+        breakPoint_input = new Array(n);
+        for (let i = 0; i < n; ++i)
+            breakPoint_input[i] = 0; //if there are no break points provided then set the break point array to 0
+    }
     dates_input = dataViews[0].categorical.categories[0].values;
     return [dates_input, value_input, target_input, breakPoint_input];
 }
-function dataSet(dates, input) {
+function dataSet(dates, input, breakP) {
     let SPCChartDataPoints = [];
     for (let i = 0, len = input.length; i < len; i++) {
         let diff = 0;
@@ -2280,8 +2302,10 @@ function dataSet(dates, input) {
             color: 'steelblue',
             markerSize: 0,
             value: input[i],
-            difference: diff,
             category: dates[i],
+            breakP: breakP[i],
+            difference: diff,
+            mean: input[0],
             outlier: 0,
             run: 0,
             shift: 0,
@@ -2292,7 +2316,7 @@ function dataSet(dates, input) {
 }
 function fullData(options, formatSettings) {
     let [dates_input, value_input, target_input, breakPoint_input] = dataLoad(options);
-    let data = dataSet(dates_input, value_input);
+    let data = dataSet(dates_input, value_input, breakPoint_input);
     let [measureName, measureFormat, decimalPlaces] = (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .PBIformatingKeeper */ .WN)(options);
     let target = getTarget(target_input, formatSettings);
     return {
@@ -2300,7 +2324,6 @@ function fullData(options, formatSettings) {
         n: data.length,
         direction: formatSettings.SPCSettings.spcSetUp.direction.value.value,
         target,
-        meanValue: null,
         UCLValue: Infinity,
         LCLValue: -Infinity,
         Upper_Zone_A: Infinity,
@@ -2336,7 +2359,6 @@ function createDataset(options, host, formatSettings) {
         n: allData.n,
         direction: allData.direction,
         target: allData.target,
-        meanValue: allData.meanValue,
         UCLValue: allData.UCLValue,
         LCLValue: allData.LCLValue,
         Upper_Zone_A: allData.Upper_Zone_A,
@@ -2575,7 +2597,6 @@ function identifyOutliers(dataset, formatSettings) {
         n: dataset.n,
         direction: dataset.direction,
         target: dataset.target,
-        meanValue: dataset.meanValue,
         UCLValue: dataset.UCLValue,
         LCLValue: dataset.LCLValue,
         Upper_Zone_A: dataset.Upper_Zone_A,
@@ -2710,15 +2731,23 @@ function directionColors(formatSettings) {
 }
 function getMean(dataset) {
     let data = dataset.datapoints;
-    let meanValue = data
-        .map((d) => d.value)
-        .reduce((a, b) => a + b, 0) / dataset.n;
+    let numberTimePeriods = data
+        .map((d) => d.breakP)
+        .reduce((a, b) => Math.max(a, b), 0);
+    console.log(numberTimePeriods);
+    for (let i = 0, len = numberTimePeriods + 1; i < len; i++) {
+        let subset = data.filter((d) => d.breakP == i);
+        let meanValue = subset
+            .map((d) => d.value)
+            .reduce((a, b) => a + b, 0) / subset.length;
+        console.log(i, subset.length, meanValue);
+        subset.forEach((d) => d.mean = meanValue);
+    }
     return {
         datapoints: data,
         n: dataset.n,
         direction: dataset.direction,
         target: dataset.target,
-        meanValue,
         UCLValue: dataset.UCLValue,
         LCLValue: dataset.LCLValue,
         Upper_Zone_A: dataset.Upper_Zone_A,
@@ -2744,18 +2773,18 @@ function getControlLimits(dataset) {
     if (dataset.n == 1) {
         avgDiff = null;
     }
-    let UCLValue = dataset.meanValue + 2.66 * avgDiff;
-    let LCLValue = dataset.meanValue - 2.66 * avgDiff;
-    let Upper_Zone_A = dataset.meanValue + 2.66 * avgDiff * 2 / 3;
-    let Lower_Zone_A = dataset.meanValue - 2.66 * avgDiff * 2 / 3;
-    let Upper_Zone_B = dataset.meanValue + 2.66 * avgDiff * 1 / 3;
-    let Lower_Zone_B = dataset.meanValue - 2.66 * avgDiff * 1 / 3;
+    let temp_mean = dataset.datapoints.map((d) => d.mean).reduce((a, b) => Math.max(a, b), -Infinity);
+    let UCLValue = temp_mean + 2.66 * avgDiff;
+    let LCLValue = temp_mean - 2.66 * avgDiff;
+    let Upper_Zone_A = temp_mean + 2.66 * avgDiff * 2 / 3;
+    let Lower_Zone_A = temp_mean - 2.66 * avgDiff * 2 / 3;
+    let Upper_Zone_B = temp_mean + 2.66 * avgDiff * 1 / 3;
+    let Lower_Zone_B = temp_mean - 2.66 * avgDiff * 1 / 3;
     return {
         datapoints: dataset.datapoints,
         n: dataset.n,
         direction: dataset.direction,
         target: dataset.target,
-        meanValue: dataset.meanValue,
         UCLValue: UCLValue,
         LCLValue: LCLValue,
         Upper_Zone_A: Upper_Zone_A,
@@ -2813,7 +2842,7 @@ function getMarkerColors(dataset, formatSettings) {
             }
             //oneside of mean 
             let shift7 = latest7
-                .map((d) => Math.sign(d.value - dataset.meanValue))
+                .map((d) => Math.sign(d.value - d.mean))
                 .reduce((a, b) => a + b, 0);
             if (shift7 == p) {
                 latest7.forEach(d => d.color = up_color);
@@ -2838,7 +2867,6 @@ function getMarkerColors(dataset, formatSettings) {
         n: dataset.n,
         direction: dataset.direction,
         target: dataset.target,
-        meanValue: dataset.meanValue,
         UCLValue: dataset.UCLValue,
         LCLValue: dataset.LCLValue,
         Upper_Zone_A: dataset.Upper_Zone_A,

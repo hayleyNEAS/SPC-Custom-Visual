@@ -1,10 +1,5 @@
-import {
-    scaleBand, scaleLinear, scalePoint
-} from "d3-scale";
-
-import {
-    select as d3Select
-} from "d3-selection";
+import { scaleBand, scaleLinear, scalePoint } from "d3-scale";
+import { select as d3Select } from "d3-selection";
 
 import "./../style/visual.less";
 
@@ -29,7 +24,7 @@ import { BarChartSettingsModel } from "./barChartSettingsModel";
 import { getLocalizedString } from "./localisation/localisationHelper"
 
 //Importing functions from file
-import { SPCChartData, SPCChartDataPoint } from "./dataStructure"; 
+import { SPCChartData, SPCChartDataPoint } from "./dataStructure";
 import { parseDateLabel, parseinHMS, parseYLabels } from "./formattingFunctions"
 import { yAxisDomain, getFillColor, getYAxisTextFillColor } from "./chartFunctions"
 import { createDataset } from "./dataLoad"
@@ -108,39 +103,40 @@ export class SPCChart implements IVisual {
 
         this.lineData = this.svg
             .append('path')
-            .classed('line', true)
+            .classed('line', true);
 
         this.lineData_Diff = this.svg
             .append('path')
-            .classed('line', true)
+            .classed('line', true);
 
         this.lineMean = this.svg
-            .append('line')
-            .classed('line', true)
+            .append('path')
+            .classed('line', true);
+
 
         this.lineUCL = this.svg
             .append('line')
-            .classed('line', true)
+            .classed('line', true);
 
         this.lineLCL = this.svg
             .append('line')
-            .classed('line', true)
+            .classed('line', true);
 
         this.lineUpperZoneA = this.svg
             .append('line')
-            .classed('line', true)
+            .classed('line', true);
 
         this.lineUpperZoneB = this.svg
             .append('line')
-            .classed('line', true)
+            .classed('line', true);
 
         this.lineLowerZoneA = this.svg
             .append('line')
-            .classed('line', true)
+            .classed('line', true);
 
         this.lineLowerZoneB = this.svg
             .append('line')
-            .classed('line', true)
+            .classed('line', true);
 
         this.lineTarget = this.svg
             .append('line')
@@ -157,7 +153,7 @@ export class SPCChart implements IVisual {
             .selectAll();
 
         this.logo = this.svg
-            .append('image')
+            .append('image');
 
         this.logoTarget = this.svg
             .append('image');
@@ -179,8 +175,7 @@ export class SPCChart implements IVisual {
         //Set up the charting object 
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(BarChartSettingsModel, options.dataViews[0]);
 
-        let data = createDataset(options, this.host, this.formattingSettings); 
-
+        let data = createDataset(options, this.host, this.formattingSettings);
         this.dataPoints = data.datapoints;
 
         let width = options.viewport.width;
@@ -293,6 +288,7 @@ export class SPCChart implements IVisual {
         this.lineTarget
             .style("stroke-linecap", "round")
             .attr("class", "target")
+            .attr("stroke-width", 1.5)
             .attr("x1", widthChartStart)
             .attr("x2", widthChartEnd)
             .attr("y1", function (d) { return yScale(data.target); })
@@ -363,33 +359,35 @@ export class SPCChart implements IVisual {
             .attr("x", function (d) { return xScale(d.category) })
             .attr("y", 0)
             .attr("stroke", "#777777")
-            .attr("opacity", 0) //invisable rectangles 
+            .attr("opacity", 0); //invisable rectangles 
 
 
-        /*
-    this.lineData_Diff
-        .datum(this.dataPoints)
-        .style("stroke-linecap", "round")
-        .attr("fill", "none")
-        .attr("stroke", "purple")
-        .attr("stroke-width", 2)
-        .attr("stroke-linejoin", "round")
-        .attr("d", d3.line<SPCChartDataPoint>()
-            .x(function (d) { return xScale(d.category) })
-            .y(function (d) { return yScale(<number>d.difference) })
-        )*/
+
+        /*          this.lineData_Diff
+                    .datum(this.dataPoints)
+                    .style("stroke-linecap", "round")
+                    .attr("fill", "none")
+                    .attr("stroke", "purple")
+                    .attr("stroke-width", 2)
+                    .attr("stroke-linejoin", "round")
+                    .attr("d", d3.line<SPCChartDataPoint>()
+                        .x(function (d) { return xScale(d.category) })
+                        .y(function (d) { return yScale(<number>d.mean) })
+                    )  */
         //Create mean line
         if (this.formattingSettings.SPCSettings.lineOptions.showMean.value) {
             this.lineMean
-                .style("stroke-linecap", "round")
+                .datum(this.dataPoints)
                 .attr("class", "mean")
-                .attr("x1", widthChartStart)
-                .attr("x2", widthChartEnd)
-                .attr("y1", function (d) { return yScale(data.meanValue); })
-                .attr("y2", function (d) { return yScale(data.meanValue); })
                 .attr("fill", "none")
                 .attr("stroke", "black")
                 .attr("stroke-width", 1.5)
+                .attr("stroke-linejoin", "round")
+                .style("stroke-linecap", "round")
+                .attr("d", d3.line<SPCChartDataPoint>()
+                    .x(function (d) { return xScale(d.category) })
+                    .y(function (d) { return yScale(<number>d.mean) })
+                );
         } else {
             this.lineMean
                 .attr("stroke-width", 0)
@@ -594,10 +592,25 @@ export class SPCChart implements IVisual {
                 color: data.strokeColor
             },
             {
-                displayName: "Upper Control Limit",
-                value: parseYLabels(data.UCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
+                displayName: "Average",
+                value: parseYLabels(<number>d.mean, this.formattingSettings.enableYAxis.formatter.time.value),
                 color: "darkgrey"
-            }
+            },
+            {
+                displayName: "Upper Control Limit",
+                value: parseYLabels(data.LCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
+                color: "darkgrey"
+            },
+            {
+                displayName: "Lower Control Limit",
+                value: parseYLabels(data.LCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
+                color: "darkgrey"
+            },
+            {
+                displayName: "Target",
+                value: parseYLabels(data.target, this.formattingSettings.enableYAxis.formatter.time.value),
+                color: "darkgrey"
+            },
         ];
     }
 
