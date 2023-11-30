@@ -176,11 +176,13 @@ export function getMean(dataset: SPCChartData): SPCChartData {
 
     for (let i = 0, len = numberTimePeriods + 1; i < len; i++) {
         let subset = data.filter((d) => d.breakP == i)
+
         let meanValue = subset
             .map((d) => <number>d.value)
             .reduce((a, b) => a + b, 0) / subset.length;
 
         subset.forEach((d) => d.mean = meanValue)
+        console.log(i, meanValue)
     }
 
     return {

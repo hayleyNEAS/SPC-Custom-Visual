@@ -2737,6 +2737,7 @@ function getMean(dataset) {
             .map((d) => d.value)
             .reduce((a, b) => a + b, 0) / subset.length;
         subset.forEach((d) => d.mean = meanValue);
+        console.log(i, meanValue);
     }
     return {
         datapoints: data,
