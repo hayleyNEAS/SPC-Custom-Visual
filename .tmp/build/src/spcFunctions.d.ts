@@ -3,6 +3,7 @@ import { BarChartSettingsModel } from "./barChartSettingsModel";
 export declare function identifyOutliers(dataset: SPCChartData, formatSettings: BarChartSettingsModel): {
     datapoints: SPCChartDataPoint[];
     n: number;
+    numberOfTimePeriods: number;
     direction: number;
     target: number;
     UCLValue: number;

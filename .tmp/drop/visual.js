@@ -2319,9 +2319,13 @@ function fullData(options, formatSettings) {
     let data = dataSet(dates_input, value_input, breakPoint_input);
     let [measureName, measureFormat, decimalPlaces] = (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .PBIformatingKeeper */ .WN)(options);
     let target = getTarget(target_input, formatSettings);
+    let numberOfTimePeriods = data
+        .map((d) => d.breakP)
+        .reduce((a, b) => Math.max(a, b), 0);
     return {
         datapoints: data,
         n: data.length,
+        numberOfTimePeriods,
         direction: formatSettings.SPCSettings.spcSetUp.direction.value.value,
         target,
         UCLValue: Infinity,
@@ -2357,6 +2361,7 @@ function createDataset(options, host, formatSettings) {
     return {
         datapoints: allData.datapoints,
         n: allData.n,
+        numberOfTimePeriods: allData.numberOfTimePeriods,
         direction: allData.direction,
         target: allData.target,
         UCLValue: allData.UCLValue,
@@ -2595,6 +2600,7 @@ function identifyOutliers(dataset, formatSettings) {
     return {
         datapoints: data,
         n: dataset.n,
+        numberOfTimePeriods: dataset.numberOfTimePeriods,
         direction: dataset.direction,
         target: dataset.target,
         UCLValue: dataset.UCLValue,
@@ -2731,21 +2737,18 @@ function directionColors(formatSettings) {
 }
 function getMean(dataset) {
     let data = dataset.datapoints;
-    let numberTimePeriods = data
-        .map((d) => d.breakP)
-        .reduce((a, b) => Math.max(a, b), 0);
-    console.log(numberTimePeriods);
+    let numberTimePeriods = dataset.numberOfTimePeriods;
     for (let i = 0, len = numberTimePeriods + 1; i < len; i++) {
         let subset = data.filter((d) => d.breakP == i);
         let meanValue = subset
             .map((d) => d.value)
             .reduce((a, b) => a + b, 0) / subset.length;
-        console.log(i, subset.length, meanValue);
         subset.forEach((d) => d.mean = meanValue);
     }
     return {
         datapoints: data,
         n: dataset.n,
+        numberOfTimePeriods: dataset.numberOfTimePeriods,
         direction: dataset.direction,
         target: dataset.target,
         UCLValue: dataset.UCLValue,
@@ -2783,6 +2786,7 @@ function getControlLimits(dataset) {
     return {
         datapoints: dataset.datapoints,
         n: dataset.n,
+        numberOfTimePeriods: dataset.numberOfTimePeriods,
         direction: dataset.direction,
         target: dataset.target,
         UCLValue: UCLValue,
@@ -2865,6 +2869,7 @@ function getMarkerColors(dataset, formatSettings) {
     return {
         datapoints: data,
         n: dataset.n,
+        numberOfTimePeriods: dataset.numberOfTimePeriods,
         direction: dataset.direction,
         target: dataset.target,
         UCLValue: dataset.UCLValue,

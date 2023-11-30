@@ -24,6 +24,7 @@ export interface SPCChartData {
     datapoints: SPCChartDataPoint[];
 
     n: number;
+    numberOfTimePeriods: number;
     direction: number;
     target: number;
 

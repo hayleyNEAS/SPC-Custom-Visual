@@ -51,6 +51,7 @@ export function identifyOutliers(dataset: SPCChartData, formatSettings: BarChart
         datapoints: data,
 
         n: dataset.n,
+        numberOfTimePeriods: dataset.numberOfTimePeriods,
         direction: dataset.direction,
         target: dataset.target,
 
@@ -177,20 +178,14 @@ export function directionColors(formatSettings: BarChartSettingsModel): [number,
 
 export function getMean(dataset: SPCChartData): SPCChartData {
     let data = dataset.datapoints
-
-    let numberTimePeriods = data
-        .map((d) => <number>d.breakP)
-        .reduce((a,b) => Math.max(a,b), 0 )
-    console.log(numberTimePeriods)
+    let numberTimePeriods = dataset.numberOfTimePeriods
 
     for (let i = 0, len = numberTimePeriods+1; i < len; i++) {
         let subset = data.filter((d) => d.breakP == i)
         let meanValue = subset
         .map((d) => <number>d.value)
         .reduce((a, b) => a + b, 0) / subset.length;
-        
-        console.log(i, subset.length, meanValue)
-        
+                
         subset.forEach((d) => d.mean = meanValue)
     }
 
@@ -198,6 +193,7 @@ export function getMean(dataset: SPCChartData): SPCChartData {
         datapoints: data,
 
         n: dataset.n,
+        numberOfTimePeriods: dataset.numberOfTimePeriods,
         direction: dataset.direction,
         target: dataset.target,
 
@@ -247,6 +243,7 @@ export function getControlLimits(dataset: SPCChartData): SPCChartData {
         datapoints: dataset.datapoints,
 
         n: dataset.n,
+        numberOfTimePeriods: dataset.numberOfTimePeriods,
         direction: dataset.direction,
         target: dataset.target,
 
@@ -334,6 +331,7 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: BarChartS
         datapoints: data, //this is the pivitol step
 
         n: dataset.n,
+        numberOfTimePeriods: dataset.numberOfTimePeriods,
         direction: dataset.direction,
         target: dataset.target,
 

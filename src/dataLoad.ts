@@ -100,10 +100,16 @@ export function fullData(options: VisualUpdateOptions, formatSettings: BarChartS
     let [measureName, measureFormat, decimalPlaces] = PBIformatingKeeper(options)
     let target = getTarget(target_input, formatSettings)
 
+    
+    let numberOfTimePeriods = data
+        .map((d) => <number>d.breakP)
+        .reduce((a,b) => Math.max(a,b), 0 )
+
     return {
         datapoints: data,
 
         n: data.length,
+        numberOfTimePeriods,
         direction: <number>formatSettings.SPCSettings.spcSetUp.direction.value.value,
         target,
 
@@ -151,6 +157,7 @@ export function createDataset(options: VisualUpdateOptions, host: IVisualHost, f
         datapoints: allData.datapoints,
 
         n: allData.n,
+        numberOfTimePeriods: allData.numberOfTimePeriods,
         direction: allData.direction,
         target: allData.target,
 
