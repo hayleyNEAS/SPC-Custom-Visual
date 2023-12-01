@@ -284,6 +284,7 @@ export class SPCChart implements IVisual {
             ;
 
         //Create target line
+        if(this.formattingSettings.SPCSettings.lineOptions.showTarget.value){
         this.lineTarget
             .style("stroke-linecap", "round")
             .attr("class", "target")
@@ -293,8 +294,10 @@ export class SPCChart implements IVisual {
             .attr("y1", function (d) { return yScale(data.target); })
             .attr("y2", function (d) { return yScale(data.target); })
             .attr("fill", "none")
-            .attr("stroke", "red")
+            .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.targetColor.value.value)
             .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' && data.target == -Infinity ? 0 : 2)
+        }
+
 
         //Create data line
         this.lineData
@@ -379,7 +382,7 @@ export class SPCChart implements IVisual {
                 .datum(this.dataPoints)
                 .attr("class", "mean")
                 .attr("fill", "none")
-                .attr("stroke", "black")
+                .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.meanColor.value.value)
                 .attr("stroke-width", 1.5)
                 .attr("stroke-linejoin", "round")
                 .style("stroke-linecap", "round")
@@ -411,7 +414,7 @@ export class SPCChart implements IVisual {
                 .datum(this.dataPoints)
                 .attr("class", "ControlLimit")
                 .attr("fill", "none")
-                .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value)
+                .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.lowerCL.value.value)
                 .attr("stroke-width", 2)
                 .style("stroke-dasharray", ("5,5"))
                 .style("stroke-linecap", "round")
@@ -583,7 +586,7 @@ export class SPCChart implements IVisual {
 
     }
 
-
+//creates formatting pane
     public getFormattingModel(): powerbi.visuals.FormattingModel {
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
@@ -599,22 +602,22 @@ export class SPCChart implements IVisual {
             {
                 displayName: "Average",
                 value: parseYLabels(<number>d.mean, this.formattingSettings.enableYAxis.formatter.time.value),
-                color: "darkgrey"
+                color: this.formattingSettings.SPCSettings.lineOptions.meanColor.value.value
             },
             {
                 displayName: "Upper Control Limit",
                 value: parseYLabels(<number>d.LCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
-                color: "darkgrey"
+                color: this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value
             },
             {
                 displayName: "Lower Control Limit",
                 value: parseYLabels(<number>d.LCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
-                color: "darkgrey"
+                color: this.formattingSettings.SPCSettings.lineOptions.lowerCL.value.value
             },
             {
                 displayName: "Target",
                 value: parseYLabels(data.target, this.formattingSettings.enableYAxis.formatter.time.value),
-                color: "darkgrey"
+                color: this.formattingSettings.SPCSettings.lineOptions.targetColor.value.value
             },
         ];
     }

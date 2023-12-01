@@ -24,6 +24,9 @@ declare class LineOptions extends SimpleCard {
     lowerCL: formattingSettings.ColorPicker;
     showSubControl: formattingSettings.ToggleSwitch;
     showMean: formattingSettings.ToggleSwitch;
+    meanColor: formattingSettings.ColorPicker;
+    showTarget: formattingSettings.ToggleSwitch;
+    targetColor: formattingSettings.ColorPicker;
     name: string;
     displayName?: string;
     slices: Array<FormattingSettingsSlice>;

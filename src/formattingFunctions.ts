@@ -77,7 +77,7 @@ export function PBIformatingKeeper(options: VisualUpdateOptions):[string, string
     for (let i = 0, len = metadata.length; i < len; i++) {
         let meta = metadata[i]
         if (meta.isMeasure) {
-            measureName = meta.displayName
+            if(i == 0){measureName = meta.displayName}
             if (!meta.format) {
                 measureFormat = 's'
             } else if (meta.format.includes('%')) {

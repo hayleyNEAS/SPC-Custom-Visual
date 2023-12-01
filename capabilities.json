@@ -101,6 +101,29 @@
                         "bool": true
                     }
                 },
+                "meanColor": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "showTarget": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "targetColor": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
                 "showMarker": {
                     "type": {
                         "bool": true

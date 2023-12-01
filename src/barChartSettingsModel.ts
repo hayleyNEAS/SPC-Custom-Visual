@@ -83,10 +83,27 @@ class LineOptions extends SimpleCard{
         value: true
     });
     
+    meanColor = new formattingSettings.ColorPicker({
+        name: "meanColor",
+        displayName: undefined,
+        value: { value: "black" }
+    });
+    
+    showTarget = new formattingSettings.ToggleSwitch({
+        name: "showTarget",
+        displayName: "Show Target",
+        value: true
+    });
+    
+    targetColor = new formattingSettings.ColorPicker({
+        name: "targetColor",
+        displayName: undefined,
+        value: { value: "red" }
+    });
 
     name: string = "lineOptions";
     displayName?: string = "Line Options";
-    slices: Array<FormattingSettingsSlice> = [this.showControl, this.upperCL, this.lowerCL, this.showSubControl, this.showMean];
+    slices: Array<FormattingSettingsSlice> = [this.showControl, this.upperCL, this.lowerCL, this.showSubControl, this.showMean, this.meanColor, this.showTarget, this.targetColor];
 }
 
 
