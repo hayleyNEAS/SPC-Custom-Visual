@@ -47,8 +47,6 @@ export function identifyOutliers(dataset: SPCChartData, formatSettings: BarChart
 
     }
 
-    console.log(data[dataset.n - 1].outlier)
-
     return {
         datapoints: data,
 
@@ -182,7 +180,6 @@ export function getMean(dataset: SPCChartData): SPCChartData {
             .reduce((a, b) => a + b, 0) / subset.length;
 
         subset.forEach((d) => d.mean = meanValue)
-        console.log(i, meanValue)
     }
 
     return {

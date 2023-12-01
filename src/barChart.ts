@@ -284,18 +284,18 @@ export class SPCChart implements IVisual {
             ;
 
         //Create target line
-        if(this.formattingSettings.SPCSettings.lineOptions.showTarget.value){
-        this.lineTarget
-            .style("stroke-linecap", "round")
-            .attr("class", "target")
-            .attr("stroke-width", 1.5)
-            .attr("x1", widthChartStart)
-            .attr("x2", widthChartEnd)
-            .attr("y1", function (d) { return yScale(data.target); })
-            .attr("y2", function (d) { return yScale(data.target); })
-            .attr("fill", "none")
-            .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.targetColor.value.value)
-            .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' && data.target == -Infinity ? 0 : 2)
+        if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
+            this.lineTarget
+                .style("stroke-linecap", "round")
+                .attr("class", "target")
+                .attr("stroke-width", 1.5)
+                .attr("x1", widthChartStart)
+                .attr("x2", widthChartEnd)
+                .attr("y1", function (d) { return yScale(data.target); })
+                .attr("y2", function (d) { return yScale(data.target); })
+                .attr("fill", "none")
+                .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.targetColor.value.value)
+                .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' && data.target == -Infinity ? 0 : 2)
         }
 
 
@@ -520,7 +520,7 @@ export class SPCChart implements IVisual {
         }
 
         let logoTarget = logoSelector(data, "target")
-        if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
+        if (this.formattingSettings.SPCSettings.logoOptions.show.value && data.target) {
             this.logoTarget
                 .attr('href', logoTarget)
                 .attr('width', 50)
@@ -528,9 +528,9 @@ export class SPCChart implements IVisual {
                 .attr('x', logoX + 50)
                 .attr('y', 0)
         } else {
-            //this.logoTarget
-            //    .attr('width', 0)
-            //.attr('height', 0)
+            this.logoTarget
+                .attr('width', 0)
+                .attr('height', 0)
         }
 
         //ToolTips

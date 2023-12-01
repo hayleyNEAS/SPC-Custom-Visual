@@ -1673,7 +1673,7 @@ class SPCChart {
         xAxisObject.selectAll('.xAxis path, line')
             .attr('opacity', 0);
         //Create target line
-        if (this.formattingSettings.SPCSettings.lineOptions.showTarget.value) {
+        if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
             this.lineTarget
                 .style("stroke-linecap", "round")
                 .attr("class", "target")
@@ -1885,7 +1885,7 @@ class SPCChart {
                 .attr('height', 0);
         }
         let logoTarget = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_5__/* .logoSelector */ .Yo)(data, "target");
-        if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
+        if (this.formattingSettings.SPCSettings.logoOptions.show.value && data.target) {
             this.logoTarget
                 .attr('href', logoTarget)
                 .attr('width', 50)
@@ -1894,9 +1894,9 @@ class SPCChart {
                 .attr('y', 0);
         }
         else {
-            //this.logoTarget
-            //    .attr('width', 0)
-            //.attr('height', 0)
+            this.logoTarget
+                .attr('width', 0)
+                .attr('height', 0);
         }
         //ToolTips
         let thissvg = this.svg;
@@ -2615,7 +2615,6 @@ function identifyOutliers(dataset, formatSettings) {
             data[i].outlier = -1;
         }
     }
-    console.log(data[dataset.n - 1].outlier);
     return {
         datapoints: data,
         n: dataset.n,
@@ -2757,7 +2756,6 @@ function getMean(dataset) {
             .map((d) => d.value)
             .reduce((a, b) => a + b, 0) / subset.length;
         subset.forEach((d) => d.mean = meanValue);
-        console.log(i, meanValue);
     }
     return {
         datapoints: data,
