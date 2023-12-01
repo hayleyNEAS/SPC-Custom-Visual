@@ -291,8 +291,14 @@ export class SPCChart implements IVisual {
                 .attr("stroke-width", 1.5)
                 .attr("x1", widthChartStart)
                 .attr("x2", widthChartEnd)
-                .attr("y1", function (d) { return yScale(data.target); })
-                .attr("y2", function (d) { return yScale(data.target); })
+                .attr("y1", function (d) {
+                    let val = yScale(data.target)
+                     return isNaN(val) ? 0 : val;
+                })
+                .attr("y2", function (d) {
+                    let val = yScale(data.target)
+                    return isNaN(val) ? 0 : val;
+                })
                 .attr("fill", "none")
                 .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.targetColor.value.value)
                 .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' && data.target == -Infinity ? 0 : 2)
@@ -597,14 +603,9 @@ export class SPCChart implements IVisual {
                 header: d.category,
                 displayName: data.measureName,
                 value: parseYLabels(<number>d.value, this.formattingSettings.enableYAxis.formatter.time.value),
-                color: data.strokeColor
+                color: d.color
             },
-            {
-                displayName: "Average",
-                value: parseYLabels(<number>d.mean, this.formattingSettings.enableYAxis.formatter.time.value),
-                color: this.formattingSettings.SPCSettings.lineOptions.meanColor.value.value
-            },
-            {
+            {   
                 displayName: "Upper Control Limit",
                 value: parseYLabels(<number>d.LCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
                 color: this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value

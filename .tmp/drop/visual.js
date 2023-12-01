@@ -1680,8 +1680,14 @@ class SPCChart {
                 .attr("stroke-width", 1.5)
                 .attr("x1", widthChartStart)
                 .attr("x2", widthChartEnd)
-                .attr("y1", function (d) { return yScale(data.target); })
-                .attr("y2", function (d) { return yScale(data.target); })
+                .attr("y1", function (d) {
+                let val = yScale(data.target);
+                return isNaN(val) ? 0 : val;
+            })
+                .attr("y2", function (d) {
+                let val = yScale(data.target);
+                return isNaN(val) ? 0 : val;
+            })
                 .attr("fill", "none")
                 .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.targetColor.value.value)
                 .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' && data.target == -Infinity ? 0 : 2);
@@ -1946,12 +1952,7 @@ class SPCChart {
                 header: d.category,
                 displayName: data.measureName,
                 value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(d.value, this.formattingSettings.enableYAxis.formatter.time.value),
-                color: data.strokeColor
-            },
-            {
-                displayName: "Average",
-                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(d.mean, this.formattingSettings.enableYAxis.formatter.time.value),
-                color: this.formattingSettings.SPCSettings.lineOptions.meanColor.value.value
+                color: d.color
             },
             {
                 displayName: "Upper Control Limit",
