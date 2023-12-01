@@ -60,6 +60,10 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
 
     dates_input = dataViews[0].categorical.categories[0].values
 
+    //console.log(dates_input) 
+    //console.log(dates_input.map(d => new Date(Date.parse(d))))
+    //console.log(itemsArray.sort((a, b) => sortingArr.indexOf(a) - sortingArr.indexOf(b)))
+
     return [dates_input, value_input, target_input, breakPoint_input]
 }
 

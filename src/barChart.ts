@@ -25,7 +25,7 @@ import { getLocalizedString } from "./localisation/localisationHelper"
 
 //Importing functions from file
 import { SPCChartData, SPCChartDataPoint } from "./dataStructure";
-import { parseDateLabel, parseinHMS, parseYLabels } from "./formattingFunctions"
+import { parseDateLabel, parseinHMS, parseXLabels, parseYLabels } from "./formattingFunctions"
 import { yAxisDomain, getFillColor, getYAxisTextFillColor } from "./chartFunctions"
 import { createDataset } from "./dataLoad"
 import { logoSelector } from "./spcFunctions";
@@ -181,7 +181,7 @@ export class SPCChart implements IVisual {
         let height = options.viewport.height;
         let margins = SPCChart.Config.margins;
         let widthChartStart = 0;
-        let widthChartEnd = 0.99 * width;
+        let widthChartEnd = 0.98 * width; //0.98 so the final labels fit on the screen
 
 
         this.svg
@@ -192,6 +192,7 @@ export class SPCChart implements IVisual {
             height -= margins.bottom;
         }
 
+        let bandwidth = (widthChartEnd - widthChartStart) / (data.n - 1);
 
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
         //Set up the Y Axis
@@ -263,7 +264,9 @@ export class SPCChart implements IVisual {
             .domain(this.dataPoints.map(d => d.category))
             .range([widthChartStart, widthChartEnd])
             ;
+
         let xAxis = axisBottom(xScale)
+            //.ticks(10)
             .tickFormat(parseDateLabel)
             ;
 
@@ -283,6 +286,33 @@ export class SPCChart implements IVisual {
             .attr('opacity', 0)
             ;
 
+        //XAxis label reducer 
+        let maxW_xAxis = 0
+        let total_label_coverage = 0
+        this.xAxis
+            .selectAll("text")
+            .each(function (this: SVGGraphicsElement) {
+                total_label_coverage += this.getBBox().width
+                if (this.getBBox().width > maxW_xAxis) maxW_xAxis = this.getBBox().width;
+            });
+
+        let n_xTicks = Math.ceil(total_label_coverage*1.5 / (widthChartEnd - widthChartStart))
+
+        if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) {
+            this.xAxis
+                .selectAll(`.tick`)
+                .attr('display', 'none')
+
+            this.xAxis
+                .selectAll(`.tick:nth-child(${n_xTicks}n + ${Math.floor(n_xTicks/2)})`)
+                .attr('display', 'block')
+        }
+
+        /*         xAxis = xAxis
+                    .tickFormat((d, i) => {console.log("rest") 
+                    return parseXLabels(d, i, maxW_xAxis/bandwidth)})  */
+
+
         //Create target line
         if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
             this.lineTarget
@@ -293,7 +323,7 @@ export class SPCChart implements IVisual {
                 .attr("x2", widthChartEnd)
                 .attr("y1", function (d) {
                     let val = yScale(data.target)
-                     return isNaN(val) ? 0 : val;
+                    return isNaN(val) ? 0 : val;
                 })
                 .attr("y2", function (d) {
                     let val = yScale(data.target)
@@ -342,8 +372,6 @@ export class SPCChart implements IVisual {
             .attr("r", function (d) { return 3 })
             .attr("fill", function (d) { return data.strokeColor })
             .attr("opacity", 0);
-
-        let bandwidth = (widthChartEnd - widthChartStart) / (data.n - 1);
 
         this.dataMarkers
             .data(this.dataPoints)
@@ -592,7 +620,7 @@ export class SPCChart implements IVisual {
 
     }
 
-//creates formatting pane
+    //creates formatting pane
     public getFormattingModel(): powerbi.visuals.FormattingModel {
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
@@ -605,7 +633,7 @@ export class SPCChart implements IVisual {
                 value: parseYLabels(<number>d.value, this.formattingSettings.enableYAxis.formatter.time.value),
                 color: d.color
             },
-            {   
+            {
                 displayName: "Upper Control Limit",
                 value: parseYLabels(<number>d.LCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
                 color: this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value

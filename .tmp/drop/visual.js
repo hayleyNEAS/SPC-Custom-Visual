@@ -1606,13 +1606,14 @@ class SPCChart {
         let height = options.viewport.height;
         let margins = SPCChart.Config.margins;
         let widthChartStart = 0;
-        let widthChartEnd = 0.99 * width;
+        let widthChartEnd = 0.98 * width; //0.98 so the final labels fit on the screen
         this.svg
             .attr("width", width)
             .attr("height", height);
         if (this.formattingSettings.enableAxis.show.value) {
             height -= margins.bottom;
         }
+        let bandwidth = (widthChartEnd - widthChartStart) / (data.n - 1);
         const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
         //Set up the Y Axis
         let yScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_9__/* ["default"] */ .Z)()
@@ -1664,6 +1665,7 @@ class SPCChart {
             .domain(this.dataPoints.map(d => d.category))
             .range([widthChartStart, widthChartEnd]);
         let xAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_11__/* .axisBottom */ .LL)(xScale)
+            //.ticks(10)
             .tickFormat(_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseDateLabel */ .YV);
         let xAxisObject = this.xAxis
             .attr('transform', 'translate(0, ' + (height + 2) + ')')
@@ -1672,6 +1674,28 @@ class SPCChart {
             .attr("color", (0,_chartFunctions__WEBPACK_IMPORTED_MODULE_10__/* .getFillColor */ .W7)(colorObjects, 'enableAxis', 'fill', this.host.colorPalette, this.formattingSettings.enableAxis.formatter.fill.value.value));
         xAxisObject.selectAll('.xAxis path, line')
             .attr('opacity', 0);
+        //XAxis label reducer 
+        let maxW_xAxis = 0;
+        let total_label_coverage = 0;
+        this.xAxis
+            .selectAll("text")
+            .each(function () {
+            total_label_coverage += this.getBBox().width;
+            if (this.getBBox().width > maxW_xAxis)
+                maxW_xAxis = this.getBBox().width;
+        });
+        let n_xTicks = Math.ceil(total_label_coverage * 1.5 / (widthChartEnd - widthChartStart));
+        if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) {
+            this.xAxis
+                .selectAll(`.tick`)
+                .attr('display', 'none');
+            this.xAxis
+                .selectAll(`.tick:nth-child(${n_xTicks}n + ${Math.floor(n_xTicks / 2)})`)
+                .attr('display', 'block');
+        }
+        /*         xAxis = xAxis
+                    .tickFormat((d, i) => {console.log("rest")
+                    return parseXLabels(d, i, maxW_xAxis/bandwidth)})  */
         //Create target line
         if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
             this.lineTarget
@@ -1725,7 +1749,6 @@ class SPCChart {
             .attr("r", function (d) { return 3; })
             .attr("fill", function (d) { return data.strokeColor; })
             .attr("opacity", 0);
-        let bandwidth = (widthChartEnd - widthChartStart) / (data.n - 1);
         this.dataMarkers
             .data(this.dataPoints)
             .enter()
@@ -2312,6 +2335,9 @@ function dataLoad(options) {
             breakPoint_input[i] = 0; //if there are no break points provided then set the break point array to 0
     }
     dates_input = dataViews[0].categorical.categories[0].values;
+    //console.log(dates_input) 
+    //console.log(dates_input.map(d => new Date(Date.parse(d))))
+    //console.log(itemsArray.sort((a, b) => sortingArr.indexOf(a) - sortingArr.indexOf(b)))
     return [dates_input, value_input, target_input, breakPoint_input];
 }
 function dataSet(dates, input, breakP) {
@@ -2413,9 +2439,11 @@ function createDataset(options, host, formatSettings) {
 /* harmony export */   WN: () => (/* binding */ PBIformatingKeeper),
 /* harmony export */   YV: () => (/* binding */ parseDateLabel)
 /* harmony export */ });
+/* unused harmony export parseXLabels */
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8976);
 
 function parseDateLabel(label, index) {
+    console.log(label);
     let formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y');
     let parsed = formatter(label);
     if (parsed) {
@@ -2456,7 +2484,24 @@ function parseDateLabel(label, index) {
     if (parsed) {
         return label.slice(0, 3);
     }
-    return label;
+    formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('Qtr %q');
+    parsed = formatter(label);
+    if (parsed) {
+        return label;
+    }
+    try {
+        parsed = new Date(Date.parse(label));
+        return `${parsed.getDate().toString().padStart(2, "0")}/${(parsed.getMonth() + 1).toString().padStart(2, "0")}/${parsed.getFullYear()}`;
+    }
+    catch (e) {
+        console.log(e);
+        return label;
+    }
+}
+function parseXLabels(d, index, n) {
+    n = Math.ceil(n);
+    console.log(index, n);
+    return d;
 }
 function parseinHMS(d) {
     let sign = '';

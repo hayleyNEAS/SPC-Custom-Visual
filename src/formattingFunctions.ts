@@ -4,6 +4,7 @@ import * as d3 from "d3";
     
     
 export function parseDateLabel(label: string, index: number) {
+    console.log(label)
     let formatter = d3.timeParse('%Y');
     let parsed = formatter(label);
     if (parsed) {
@@ -41,7 +42,26 @@ export function parseDateLabel(label: string, index: number) {
         return label.slice(0, 3)
     }
 
-    return label
+    formatter = d3.timeParse('Qtr %q');
+    parsed = formatter(label);
+    if (parsed) {
+        return label
+    }
+
+    try{
+        parsed = new Date(Date.parse(label))
+        return `${parsed.getDate().toString().padStart(2, "0")}/${(parsed.getMonth()+1).toString().padStart(2, "0")}/${parsed.getFullYear()}`
+    } catch(e) {
+        console.log(e)
+        return label
+    }
+
+}
+
+export function parseXLabels(d: string, index: number, n: number){
+    n = Math.ceil(n)
+    console.log(index, n)
+    return d
 }
 
 export function parseinHMS(d: d3.NumberValue) {
