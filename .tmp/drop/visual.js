@@ -2685,29 +2685,33 @@ class SPCChart {
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
     getTooltipData(d, data) {
-        return [
-            {
-                header: d.category,
-                displayName: data.measureName,
-                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(d.value, this.formattingSettings.enableYAxis.formatter.time.value),
-                color: d.color
-            },
-            {
-                displayName: "Upper Control Limit",
-                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(d.LCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
-                color: this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value
-            },
-            {
-                displayName: "Lower Control Limit",
-                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(d.LCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
-                color: this.formattingSettings.SPCSettings.lineOptions.lowerCL.value.value
-            },
-            {
-                displayName: "Target",
-                value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(data.target, this.formattingSettings.enableYAxis.formatter.time.value),
-                color: this.formattingSettings.SPCSettings.lineOptions.targetColor.value.value
-            },
-        ];
+        let header = {
+            header: d.category,
+            displayName: data.measureName,
+            value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(d.value, this.formattingSettings.enableYAxis.formatter.time.value),
+            color: d.color
+        };
+        let UCL = {
+            displayName: "Upper Control Limit",
+            value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(d.UCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
+            color: this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value
+        };
+        let LCL = {
+            displayName: "Lower Control Limit",
+            value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(d.LCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
+            color: this.formattingSettings.SPCSettings.lineOptions.lowerCL.value.value
+        };
+        let target = {
+            displayName: "Target",
+            value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseYLabels */ .Qo)(data.target, this.formattingSettings.enableYAxis.formatter.time.value),
+            color: this.formattingSettings.SPCSettings.lineOptions.targetColor.value.value
+        };
+        if (data.target == -Infinity) {
+            return [header, UCL, LCL];
+        }
+        else {
+            return [header, UCL, LCL, target];
+        }
     }
 }
 
