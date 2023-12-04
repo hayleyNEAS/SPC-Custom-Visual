@@ -4,7 +4,6 @@ import * as d3 from "d3";
     
     
 export function parseDateLabel(label: string, index: number) {
-    console.log(label)
     let formatter = d3.timeParse('%Y');
     let parsed = formatter(label);
     if (parsed) {

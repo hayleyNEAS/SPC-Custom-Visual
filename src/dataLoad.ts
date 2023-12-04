@@ -58,11 +58,10 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
         breakPoint_input = new Array(n); for (let i=0; i<n; ++i) breakPoint_input[i] = 0; //if there are no break points provided then set the break point array to 0
     }
 
-    dates_input = dataViews[0].categorical.categories[0].values
-
-    //console.log(dates_input) 
-    //console.log(dates_input.map(d => new Date(Date.parse(d))))
-    //console.log(itemsArray.sort((a, b) => sortingArr.indexOf(a) - sortingArr.indexOf(b)))
+    dates_input = dataViews[0].categorical.categories[0].values.map(d => { 
+        let p = new Date(Date.parse(<string>d)) 
+        return p.toDateString()
+    } )
 
     return [dates_input, value_input, target_input, breakPoint_input]
 }

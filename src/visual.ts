@@ -308,10 +308,6 @@ export class SPCChart implements IVisual {
                 .attr('display', 'block')
         }
 
-        /*         xAxis = xAxis
-                    .tickFormat((d, i) => {console.log("rest") 
-                    return parseXLabels(d, i, maxW_xAxis/bandwidth)})  */
-
 
         //Create target line
         if (this.formattingSettings.SPCSettings.logoOptions.show.value) {

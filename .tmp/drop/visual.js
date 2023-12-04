@@ -1563,10 +1563,10 @@ function dataLoad(options) {
         for (let i = 0; i < n; ++i)
             breakPoint_input[i] = 0; //if there are no break points provided then set the break point array to 0
     }
-    dates_input = dataViews[0].categorical.categories[0].values;
-    //console.log(dates_input) 
-    //console.log(dates_input.map(d => new Date(Date.parse(d))))
-    //console.log(itemsArray.sort((a, b) => sortingArr.indexOf(a) - sortingArr.indexOf(b)))
+    dates_input = dataViews[0].categorical.categories[0].values.map(d => {
+        let p = new Date(Date.parse(d));
+        return p.toDateString();
+    });
     return [dates_input, value_input, target_input, breakPoint_input];
 }
 function dataSet(dates, input, breakP) {
@@ -1672,7 +1672,6 @@ function createDataset(options, host, formatSettings) {
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8976);
 
 function parseDateLabel(label, index) {
-    console.log(label);
     let formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y');
     let parsed = formatter(label);
     if (parsed) {
@@ -2185,7 +2184,7 @@ function getMarkerColors(dataset, formatSettings) {
 /* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(4261);
 /* harmony import */ var powerbi_visuals_utils_tooltiputils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(9472);
-/* harmony import */ var _visualSettingsModel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(856);
+/* harmony import */ var _visualSettingsModel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2856);
 /* harmony import */ var _formattingFunctions__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(9540);
 /* harmony import */ var _chartFunctions__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(877);
 /* harmony import */ var _dataLoad__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(9075);
@@ -2719,7 +2718,7 @@ class SPCChart {
 
 /***/ }),
 
-/***/ 856:
+/***/ 2856:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
