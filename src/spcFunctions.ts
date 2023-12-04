@@ -3,7 +3,7 @@ import * as d3 from "d3";
 
 
 import { SPCChartDataPoint, SPCChartData } from "./dataStructure"
-import { BarChartSettingsModel } from "./barChartSettingsModel";
+import { VisualSettingsModel } from "./visualSettingsModel";
 
 
 //Images
@@ -27,7 +27,7 @@ const none = require("./../assets/no_image.png")
 
 //Functions
 
-export function identifyOutliers(dataset: SPCChartData, formatSettings: BarChartSettingsModel) {
+export function identifyOutliers(dataset: SPCChartData, formatSettings: VisualSettingsModel) {
     let data = dataset.datapoints
     let outlierColor = formatSettings.SPCSettings.markerOptions.outlier.value.value
     let outlierShow = Number(formatSettings.SPCSettings.markerOptions.showOutlier.value)
@@ -151,7 +151,7 @@ export function logoSelector(data: SPCChartData, option): any {
 
 }
 
-export function directionColors(formatSettings: BarChartSettingsModel): [number, string, string] {
+export function directionColors(formatSettings: VisualSettingsModel): [number, string, string] {
     let direction = <number>formatSettings.SPCSettings.spcSetUp.direction.value.value
     let up_color = ""
     let down_color = ""
@@ -252,7 +252,7 @@ export function getControlLimits(dataset: SPCChartData): SPCChartData {
     }
 }
 
-export function getMarkerColors(dataset: SPCChartData, formatSettings: BarChartSettingsModel): SPCChartData {
+export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSettingsModel): SPCChartData {
     let data = dataset.datapoints
     let [direction, up_color, down_color] = directionColors(formatSettings)
 

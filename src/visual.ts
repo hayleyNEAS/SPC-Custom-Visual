@@ -20,7 +20,7 @@ import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructor
 import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
 import { createTooltipServiceWrapper, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
 
-import { BarChartSettingsModel } from "./barChartSettingsModel";
+import { VisualSettingsModel } from "./visualSettingsModel";
 import { getLocalizedString } from "./localisation/localisationHelper"
 
 //Importing functions from file
@@ -57,7 +57,7 @@ export class SPCChart implements IVisual {
     private tooltipMarkers: Selection<SVGElement>;
 
     private dataPoints: SPCChartDataPoint[];
-    private formattingSettings: BarChartSettingsModel;
+    private formattingSettings: VisualSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
 
     private tooltipServiceWrapper: ITooltipServiceWrapper;
@@ -172,7 +172,7 @@ export class SPCChart implements IVisual {
      */
     public update(options: VisualUpdateOptions) {
         //Set up the charting object 
-        this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(BarChartSettingsModel, options.dataViews[0]);
+        this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualSettingsModel, options.dataViews[0]);
 
         let data = createDataset(options, this.host, this.formattingSettings);
         this.dataPoints = data.datapoints;

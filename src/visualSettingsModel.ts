@@ -250,7 +250,7 @@ class EnableYAxisCardSettings extends CompCard {
 * BarChart settings model class
 *
 */
-export class BarChartSettingsModel extends FormattingSettingsModel {
+export class VisualSettingsModel extends FormattingSettingsModel {
 
     // Create formatting settings model formatting cards
     SPCSettings = new SPC();

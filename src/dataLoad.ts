@@ -5,12 +5,12 @@ import * as d3 from "d3";
 
 
 import { SPCChartData, SPCChartDataPoint } from "./dataStructure"
-import { BarChartSettingsModel } from "./barChartSettingsModel";
+import { VisualSettingsModel } from "./visualSettingsModel";
 import { PBIformatingKeeper } from "./formattingFunctions";
 import { getMean, getControlLimits, getMarkerColors, identifyOutliers } from "./spcFunctions";
 
 
-export function getTarget(target_input: any[], formatSettings: BarChartSettingsModel): number {
+export function getTarget(target_input: any[], formatSettings: VisualSettingsModel): number {
     let target = -Infinity
     if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
         target = 0
@@ -105,7 +105,7 @@ export function dataSet(dates:any, input: any[], breakP: any[]): SPCChartDataPoi
     return SPCChartDataPoints;
 }
 
-export function fullData(options: VisualUpdateOptions, formatSettings: BarChartSettingsModel): SPCChartData {
+export function fullData(options: VisualUpdateOptions, formatSettings: VisualSettingsModel): SPCChartData {
     let [dates_input, value_input, target_input, breakPoint_input] = dataLoad(options)
     let data = dataSet(dates_input, value_input, breakPoint_input)
     let [measureName, measureFormat, decimalPlaces] = PBIformatingKeeper(options)
@@ -139,7 +139,7 @@ export function fullData(options: VisualUpdateOptions, formatSettings: BarChartS
     };
 }
 
-export function createDataset(options: VisualUpdateOptions, host: IVisualHost, formatSettings: BarChartSettingsModel): SPCChartData {
+export function createDataset(options: VisualUpdateOptions, host: IVisualHost, formatSettings: VisualSettingsModel): SPCChartData {
     //MEASURES INPUT
     let allData = fullData(options, formatSettings)
     

@@ -1,12 +1,12 @@
-import { Visual } from "../../src/barChart";
+import { Visual } from "../../src/visual";
 import powerbiVisualsApi from "powerbi-visuals-api";
 import IVisualPlugin = powerbiVisualsApi.visuals.plugins.IVisualPlugin;
 import VisualConstructorOptions = powerbiVisualsApi.extensibility.visual.VisualConstructorOptions;
 import DialogConstructorOptions = powerbiVisualsApi.extensibility.visual.DialogConstructorOptions;
 var powerbiKey: any = "powerbi";
 var powerbi: any = window[powerbiKey];
-var SPCCharte052449909264a3487139638376f9e72: IVisualPlugin = {
-    name: 'SPCCharte052449909264a3487139638376f9e72',
+var SPCCharte052449909264a3487139638376f9e72_DEBUG: IVisualPlugin = {
+    name: 'SPCCharte052449909264a3487139638376f9e72_DEBUG',
     displayName: 'SPCChart',
     class: 'Visual',
     apiVersion: '5.3.0',
@@ -27,6 +27,6 @@ var SPCCharte052449909264a3487139638376f9e72: IVisualPlugin = {
 if (typeof powerbi !== "undefined") {
     powerbi.visuals = powerbi.visuals || {};
     powerbi.visuals.plugins = powerbi.visuals.plugins || {};
-    powerbi.visuals.plugins["SPCCharte052449909264a3487139638376f9e72"] = SPCCharte052449909264a3487139638376f9e72;
+    powerbi.visuals.plugins["SPCCharte052449909264a3487139638376f9e72_DEBUG"] = SPCCharte052449909264a3487139638376f9e72_DEBUG;
 }
-export default SPCCharte052449909264a3487139638376f9e72;
+export default SPCCharte052449909264a3487139638376f9e72_DEBUG;

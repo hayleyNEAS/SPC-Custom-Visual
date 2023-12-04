@@ -1,7 +1,4 @@
 import powerbi from "powerbi-visuals-api";
-import { dataViewWildcard } from "powerbi-visuals-utils-dataviewutils";
-import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
-import { SPCChartDataPoint } from "./barChart";
 
 
 import FormattingGroup = powerbi.visuals.FormattingGroup;
