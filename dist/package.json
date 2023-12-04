@@ -1,14 +1,14 @@
 {
-		"version": "1.0.0.2",
+		"version": "1.0.0.3",
 		"author": {"name":"Hayley Stagg","email":"hayley.stagg@neas.nhs.uk"},
 		"resources": [
 			{
 				"resourceId": "rId0",
 				"sourceType": 5,
-				"file": "resources/barCharte052449909264a3487139638376f9e72.pbiviz.json"
+				"file": "resources/SPCCharte052449909264a3487139638376f9e72.pbiviz.json"
 			}
 		],
-		"visual": {"name":"SPC_Chart","displayName":"SPCChart","guid":"barCharte052449909264a3487139638376f9e72","visualClassName":"Visual","version":"1.0.0.2","description":"SPC Visual","supportUrl":"https://github.com/hayleyNEAS/SPC-Custom-Visual","gitHubUrl":"https://github.com/hayleyNEAS/SPC-Custom-Visual"},
+		"visual": {"name":"SPC_Chart","displayName":"SPCChart","guid":"SPCCharte052449909264a3487139638376f9e72","visualClassName":"Visual","version":"1.0.0.3","description":"SPC Visual","supportUrl":"https://github.com/hayleyNEAS/SPC-Custom-Visual","gitHubUrl":"https://github.com/hayleyNEAS/SPC-Custom-Visual"},
 		"metadata": {
 			"pbivizjson": {
 				"resourceId": "rId0"
