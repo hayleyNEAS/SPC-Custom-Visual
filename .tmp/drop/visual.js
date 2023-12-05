@@ -1563,11 +1563,9 @@ function dataLoad(options) {
         for (let i = 0; i < n; ++i)
             breakPoint_input[i] = 0; //if there are no break points provided then set the break point array to 0
     }
-    dates_input = dataViews[0].categorical.categories[0].values.map(d => {
-        let p = new Date(Date.parse(d));
-        return p.toDateString();
-    });
-    return [dates_input, value_input, target_input, breakPoint_input];
+    dates_input = dataViews[0].categorical.categories[0].values;
+    let dates_input_parsed = dates_input.map(d => (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .parseDates */ .Y8)(d));
+    return [dates_input_parsed, value_input, target_input, breakPoint_input];
 }
 function dataSet(dates, input, breakP) {
     let SPCChartDataPoints = [];
@@ -1601,7 +1599,7 @@ function dataSet(dates, input, breakP) {
 function fullData(options, formatSettings) {
     let [dates_input, value_input, target_input, breakPoint_input] = dataLoad(options);
     let data = dataSet(dates_input, value_input, breakPoint_input);
-    let [measureName, measureFormat, decimalPlaces] = (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .PBIformatingKeeper */ .WN)(options);
+    let [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .PBIformatingKeeper */ .WN)(options);
     let target = getTarget(target_input, formatSettings);
     let numberOfTimePeriods = data
         .map((d) => d.breakP)
@@ -1618,6 +1616,7 @@ function fullData(options, formatSettings) {
         measureName,
         measureFormat,
         decimalPlaces,
+        levelOfDateHeirarchy,
         outlier: 0,
         run: 0,
         shift: 0,
@@ -1648,6 +1647,7 @@ function createDataset(options, host, formatSettings) {
         measureName: allData.measureName,
         measureFormat: allData.measureFormat,
         decimalPlaces: allData.decimalPlaces,
+        levelOfDateHeirarchy: allData.levelOfDateHeirarchy,
         outlier,
         run,
         shift,
@@ -1666,69 +1666,137 @@ function createDataset(options, host, formatSettings) {
 /* harmony export */   Fg: () => (/* binding */ parseinHMS),
 /* harmony export */   Qo: () => (/* binding */ parseYLabels),
 /* harmony export */   WN: () => (/* binding */ PBIformatingKeeper),
+/* harmony export */   Y8: () => (/* binding */ parseDates),
 /* harmony export */   YV: () => (/* binding */ parseDateLabel)
 /* harmony export */ });
 /* unused harmony export parseXLabels */
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8976);
 
-function parseDateLabel(label, index) {
+function parseDates(label) {
+    console.log(label);
     let formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y');
     let parsed = formatter(label);
-    if (parsed) {
-        return parsed.getFullYear().toString();
+    if (parsed && parsed.getFullYear() > 1900) {
+        return parsed.toDateString();
     }
+    /*     formatter = d3.timeParse('CY%Y');
+        parsed = formatter(label);
+        if (parsed && parsed.getFullYear() > 1900) {
+            return parsed.toDateString()
+        } */
     formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q');
     parsed = formatter(label);
     if (parsed) {
-        if (parsed.getMonth() == 0) {
-            return parsed.getFullYear().toString();
-        }
-        else {
-            return '';
-        }
+        return parsed.toDateString();
     }
     formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q %B');
     parsed = formatter(label);
     if (parsed) {
-        if (parsed.getMonth() == 0) {
-            return parsed.getFullYear().toString();
-        }
-        else {
-            return '';
-        }
+        return parsed.toDateString();
     }
     formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q %B %-d');
     parsed = formatter(label);
     if (parsed) {
-        if (parsed.getMonth() == 0 && parsed.getDate() == 1) {
-            return parsed.getFullYear().toString();
-        }
-        else {
-            return '';
-        }
+        return parsed.toDateString();
     }
     formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%B');
     parsed = formatter(label);
     if (parsed) {
-        return label.slice(0, 3);
+        return label;
     }
     formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('Qtr %q');
     parsed = formatter(label);
     if (parsed) {
         return label;
     }
+    formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%-d');
+    parsed = formatter(label);
+    if (parsed) {
+        return label;
+    }
     try {
         parsed = new Date(Date.parse(label));
-        return `${parsed.getDate().toString().padStart(2, "0")}/${(parsed.getMonth() + 1).toString().padStart(2, "0")}/${parsed.getFullYear()}`;
+        return parsed.toDateString();
     }
     catch (e) {
-        console.log(e);
+        console.error(e);
         return label;
     }
 }
+function getDayDiff(startDate, endDate) {
+    const msInDay = 24 * 60 * 60 * 1000;
+    return Math.round(Math.abs(Number(endDate) - Number(startDate)) / msInDay);
+}
+function parseDateLabel(label, levelOfDateHeirarchy, datelimits) {
+    let diff = getDayDiff(datelimits[0], datelimits[1]);
+    console.log(diff, levelOfDateHeirarchy);
+    let formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%a %b %d %Y');
+    let parsed = formatter(label);
+    if (parsed) {
+        if (diff >= 365 * 3) {
+            //if you have more than 3 years worth of data then just show the 1st jan
+            if ((parsed.getMonth() == 0 && parsed.getDate() == 1) || levelOfDateHeirarchy == "Year") {
+                return parsed.getFullYear().toString();
+            }
+            else {
+                return '';
+            }
+        }
+        else if (diff > 365) {
+            //else if you have less than that but more than 1 year then just so the first of the quarters
+            if ((parsed.getDate() == 1 && (parsed.getMonth() == 0 || parsed.getMonth() == 3 || parsed.getMonth() == 6 || parsed.getMonth() == 9)) || (levelOfDateHeirarchy == "Quarter")) {
+                return parsed.toLocaleDateString('default', { month: "short", year: "numeric" });
+            }
+            else {
+                return '';
+            }
+        }
+        else if (diff > 2 * 30) {
+            //else if you have less than that but more than 4 months then just so the first of the months
+            if (parsed.getDate() == 1 || (levelOfDateHeirarchy == "Month" || levelOfDateHeirarchy == "Quarter" || levelOfDateHeirarchy == "Year")) {
+                return parsed.toLocaleDateString('default', { month: "short", year: "numeric" });
+            }
+            else {
+                return '';
+            }
+        }
+        else if (diff > 30) {
+            //else if you have less than that but more than 1 month //DEFAULT has every other week start  changes to this at 7 weeks 
+            if ((parsed.getDay() == 0) || (levelOfDateHeirarchy == "Month" || levelOfDateHeirarchy == "Quarter" || levelOfDateHeirarchy == "Year")) {
+                return parsed.toLocaleDateString('default', { day: "2-digit", month: "short" });
+            }
+            else {
+                return '';
+            }
+        }
+        else {
+            //if only a short time period 
+            if (levelOfDateHeirarchy == "Year") {
+                return parsed.getFullYear().toString();
+            }
+            else if (levelOfDateHeirarchy == "Quarter") {
+                return parsed.toLocaleDateString('default', { month: "short", year: "numeric" });
+            }
+            else if (levelOfDateHeirarchy == "Month") {
+                return parsed.toLocaleDateString('default', { month: "short", year: "numeric" });
+            }
+            else if (levelOfDateHeirarchy == "Day") {
+                if (parsed.getDate() % 2 == 1) {
+                    return parsed.toLocaleDateString('default', { day: "2-digit", month: "short" });
+                }
+                else {
+                    return '';
+                }
+            }
+            else {
+                return parsed.toLocaleDateString('default', { day: "2-digit", month: "short" });
+            }
+        }
+    }
+    return label;
+}
 function parseXLabels(d, index, n) {
     n = Math.ceil(n);
-    console.log(index, n);
     return d;
 }
 function parseinHMS(d) {
@@ -1758,6 +1826,7 @@ function PBIformatingKeeper(options) {
     let measureFormat = '';
     let decimalPlaces = 0;
     let measureName = '';
+    let levelOfDateHeirarchy = '';
     for (let i = 0, len = metadata.length; i < len; i++) {
         let meta = metadata[i];
         if (meta.isMeasure) {
@@ -1778,8 +1847,11 @@ function PBIformatingKeeper(options) {
                 measureFormat = 's';
             }
         }
+        else {
+            levelOfDateHeirarchy = meta.displayName.split(' ').at(1);
+        }
     }
-    return [measureName, measureFormat, decimalPlaces];
+    return [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy];
 }
 
 
@@ -1901,6 +1973,7 @@ function identifyOutliers(dataset, formatSettings) {
         measureName: dataset.measureName,
         measureFormat: dataset.measureFormat,
         decimalPlaces: dataset.decimalPlaces,
+        levelOfDateHeirarchy: dataset.levelOfDateHeirarchy,
         outlier: dataset.outlier,
         run: dataset.run,
         shift: dataset.shift,
@@ -2043,6 +2116,7 @@ function getMean(dataset) {
         measureName: dataset.measureName,
         measureFormat: dataset.measureFormat,
         decimalPlaces: dataset.decimalPlaces,
+        levelOfDateHeirarchy: dataset.levelOfDateHeirarchy,
         outlier: dataset.outlier,
         run: dataset.run,
         shift: dataset.shift,
@@ -2080,6 +2154,7 @@ function getControlLimits(dataset) {
         measureName: dataset.measureName,
         measureFormat: dataset.measureFormat,
         decimalPlaces: dataset.decimalPlaces,
+        levelOfDateHeirarchy: dataset.levelOfDateHeirarchy,
         outlier: dataset.outlier,
         run: dataset.run,
         shift: dataset.shift,
@@ -2157,6 +2232,7 @@ function getMarkerColors(dataset, formatSettings) {
         measureName: dataset.measureName,
         measureFormat: dataset.measureFormat,
         decimalPlaces: dataset.decimalPlaces,
+        levelOfDateHeirarchy: dataset.levelOfDateHeirarchy,
         outlier: dataset.outlier,
         run: data[dataset.n - 1].run,
         shift: data[dataset.n - 1].shift,
@@ -2378,9 +2454,9 @@ class SPCChart {
         let xScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_12__/* .point */ .x)()
             .domain(this.dataPoints.map(d => d.category))
             .range([widthChartStart, widthChartEnd]);
+        let span = [1, -1].map(i => new Date(this.dataPoints.at(i).category));
         let xAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_11__/* .axisBottom */ .LL)(xScale)
-            //.ticks(10)
-            .tickFormat(_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseDateLabel */ .YV);
+            .tickFormat(d => (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseDateLabel */ .YV)(d, data.levelOfDateHeirarchy, span));
         let xAxisObject = this.xAxis
             .attr('transform', 'translate(0, ' + (height + 2) + ')')
             .call(xAxis)
@@ -2388,7 +2464,7 @@ class SPCChart {
             .attr("color", (0,_chartFunctions__WEBPACK_IMPORTED_MODULE_10__/* .getFillColor */ .W7)(colorObjects, 'enableAxis', 'fill', this.host.colorPalette, this.formattingSettings.enableAxis.formatter.fill.value.value));
         xAxisObject.selectAll('.xAxis path, line')
             .attr('opacity', 0);
-        //XAxis label reducer 
+        //XAxis label reducer  //TODO if overlap then select just year/6month/quarter/month start
         let maxW_xAxis = 0;
         let total_label_coverage = 0;
         this.xAxis
@@ -2398,7 +2474,7 @@ class SPCChart {
             if (this.getBBox().width > maxW_xAxis)
                 maxW_xAxis = this.getBBox().width;
         });
-        let n_xTicks = Math.ceil(total_label_coverage * 1.5 / (widthChartEnd - widthChartStart));
+        let n_xTicks = Math.ceil(total_label_coverage * 1.2 / (widthChartEnd - widthChartStart));
         if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) {
             this.xAxis
                 .selectAll(`.tick`)
@@ -2407,9 +2483,6 @@ class SPCChart {
                 .selectAll(`.tick:nth-child(${n_xTicks}n + ${Math.floor(n_xTicks / 2)})`)
                 .attr('display', 'block');
         }
-        /*         xAxis = xAxis
-                    .tickFormat((d, i) => {console.log("rest")
-                    return parseXLabels(d, i, maxW_xAxis/bandwidth)})  */
         //Create target line
         if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
             this.lineTarget

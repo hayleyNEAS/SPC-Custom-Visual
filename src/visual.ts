@@ -265,9 +265,9 @@ export class SPCChart implements IVisual {
             .range([widthChartStart, widthChartEnd])
             ;
 
+        let span = [1,-1].map(i => new Date(this.dataPoints.at(i).category) )
         let xAxis = axisBottom(xScale)
-            //.ticks(10)
-            .tickFormat(parseDateLabel)
+            .tickFormat(d => parseDateLabel(d, data.levelOfDateHeirarchy, span))
             ;
 
         let xAxisObject = this.xAxis
@@ -286,7 +286,7 @@ export class SPCChart implements IVisual {
             .attr('opacity', 0)
             ;
 
-        //XAxis label reducer 
+        //XAxis label reducer  //TODO if overlap then select just year/6month/quarter/month start
         let maxW_xAxis = 0
         let total_label_coverage = 0
         this.xAxis
@@ -296,7 +296,7 @@ export class SPCChart implements IVisual {
                 if (this.getBBox().width > maxW_xAxis) maxW_xAxis = this.getBBox().width;
             });
 
-        let n_xTicks = Math.ceil(total_label_coverage*1.5 / (widthChartEnd - widthChartStart))
+        let n_xTicks = Math.ceil(total_label_coverage*1.2 / (widthChartEnd - widthChartStart))
 
         if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) {
             this.xAxis
@@ -306,7 +306,7 @@ export class SPCChart implements IVisual {
             this.xAxis
                 .selectAll(`.tick:nth-child(${n_xTicks}n + ${Math.floor(n_xTicks/2)})`)
                 .attr('display', 'block')
-        }
+        } 
 
 
         //Create target line

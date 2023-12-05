@@ -62,6 +62,7 @@ export function identifyOutliers(dataset: SPCChartData, formatSettings: VisualSe
         measureName: dataset.measureName,
         measureFormat: dataset.measureFormat,
         decimalPlaces: dataset.decimalPlaces,
+        levelOfDateHeirarchy: dataset.levelOfDateHeirarchy,
 
         outlier: dataset.outlier,
         run: dataset.run,
@@ -197,6 +198,7 @@ export function getMean(dataset: SPCChartData): SPCChartData {
         measureName: dataset.measureName,
         measureFormat: dataset.measureFormat,
         decimalPlaces: dataset.decimalPlaces,
+        levelOfDateHeirarchy: dataset.levelOfDateHeirarchy,
 
         outlier: dataset.outlier,
         run: dataset.run,
@@ -244,6 +246,7 @@ export function getControlLimits(dataset: SPCChartData): SPCChartData {
         measureName: dataset.measureName,
         measureFormat: dataset.measureFormat,
         decimalPlaces: dataset.decimalPlaces,
+        levelOfDateHeirarchy: dataset.levelOfDateHeirarchy,
 
         outlier: dataset.outlier,
         run: dataset.run,
@@ -324,6 +327,7 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSet
         measureName: dataset.measureName,
         measureFormat: dataset.measureFormat,
         decimalPlaces: dataset.decimalPlaces,
+        levelOfDateHeirarchy: dataset.levelOfDateHeirarchy,
 
         outlier: dataset.outlier,
         run: data[dataset.n - 1].run,

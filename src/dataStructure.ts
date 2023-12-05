@@ -42,6 +42,7 @@ export interface SPCChartData {
     measureName: string;
     measureFormat: string;
     decimalPlaces: number;
+    levelOfDateHeirarchy: string,
 
     outlier: number;
     run: number;

@@ -6,7 +6,7 @@ import * as d3 from "d3";
 
 import { SPCChartData, SPCChartDataPoint } from "./dataStructure"
 import { VisualSettingsModel } from "./visualSettingsModel";
-import { PBIformatingKeeper } from "./formattingFunctions";
+import { PBIformatingKeeper, parseDates } from "./formattingFunctions";
 import { getMean, getControlLimits, getMarkerColors, identifyOutliers } from "./spcFunctions";
 
 
@@ -58,12 +58,10 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
         breakPoint_input = new Array(n); for (let i=0; i<n; ++i) breakPoint_input[i] = 0; //if there are no break points provided then set the break point array to 0
     }
 
-    dates_input = dataViews[0].categorical.categories[0].values.map(d => { 
-        let p = new Date(Date.parse(<string>d)) 
-        return p.toDateString()
-    } )
+    dates_input = dataViews[0].categorical.categories[0].values
+    let dates_input_parsed = dates_input.map(d => parseDates(d) )
 
-    return [dates_input, value_input, target_input, breakPoint_input]
+    return [dates_input_parsed, value_input, target_input, breakPoint_input]
 }
 
 export function dataSet(dates:any, input: any[], breakP: any[]): SPCChartDataPoint[] {
@@ -107,7 +105,7 @@ export function dataSet(dates:any, input: any[], breakP: any[]): SPCChartDataPoi
 export function fullData(options: VisualUpdateOptions, formatSettings: VisualSettingsModel): SPCChartData {
     let [dates_input, value_input, target_input, breakPoint_input] = dataLoad(options)
     let data = dataSet(dates_input, value_input, breakPoint_input)
-    let [measureName, measureFormat, decimalPlaces] = PBIformatingKeeper(options)
+    let [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = PBIformatingKeeper(options)
     let target = getTarget(target_input, formatSettings)
 
     
@@ -130,6 +128,7 @@ export function fullData(options: VisualUpdateOptions, formatSettings: VisualSet
         measureName, 
         measureFormat,
         decimalPlaces,
+        levelOfDateHeirarchy,
 
         outlier: 0,
         run: 0,
@@ -170,6 +169,7 @@ export function createDataset(options: VisualUpdateOptions, host: IVisualHost, f
         measureName: allData.measureName, 
         measureFormat: allData.measureFormat,
         decimalPlaces: allData.decimalPlaces,
+        levelOfDateHeirarchy: allData.levelOfDateHeirarchy,
 
         outlier,
         run,

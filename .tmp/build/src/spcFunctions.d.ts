@@ -12,6 +12,7 @@ export declare function identifyOutliers(dataset: SPCChartData, formatSettings: 
     measureName: string;
     measureFormat: string;
     decimalPlaces: number;
+    levelOfDateHeirarchy: string;
     outlier: number;
     run: number;
     shift: number;
