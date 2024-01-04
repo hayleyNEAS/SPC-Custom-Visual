@@ -55,6 +55,14 @@ declare class SPC extends CompCard {
     groups: (SPCSetUp | LogoOptions | LineOptions | MarkerOptions)[];
 }
 /**
+ * Data Formatting Card
+ */
+declare class dataManipulator extends SimpleCard {
+    fillMissing0: formattingSettings.ToggleSwitch;
+    name: string;
+    displayName: string;
+    slices: Array<FormattingSettingsSlice>;
+} /**
  * Enable x-Axis Formatting Card
  */
 declare class EnableAxisCardSettings extends CompCard {
@@ -95,8 +103,9 @@ declare class EnableYAxisCardSettings extends CompCard {
 */
 export declare class VisualSettingsModel extends FormattingSettingsModel {
     SPCSettings: SPC;
+    dataManip: dataManipulator;
     enableAxis: EnableAxisCardSettings;
     enableYAxis: EnableYAxisCardSettings;
-    cards: (SPC | EnableAxisCardSettings | EnableYAxisCardSettings)[];
+    cards: (SPC | dataManipulator | EnableAxisCardSettings | EnableYAxisCardSettings)[];
 }
 export {};

@@ -173,6 +173,23 @@ class SPC extends CompCard {
     groups = [this.spcSetUp, this.logoOptions, this.lineOptions, this.markerOptions]
 }
 /**
+ * Data Formatting Card
+ */
+
+class dataManipulator extends SimpleCard {
+
+    // Option to pad missing values with 0's
+    fillMissing0 = new formattingSettings.ToggleSwitch({
+        name: "fillMissing0",
+        displayName: "Pad missing values with 0s",
+        value: false
+    });
+
+    name: string = "dataManipulator";
+    displayName: string = "Data Manipulator";
+    slices: Array<FormattingSettingsSlice> = [this.fillMissing0];
+
+}/**
  * Enable x-Axis Formatting Card
  */
 class EnableAxisCardSettings extends CompCard {
@@ -254,10 +271,11 @@ export class VisualSettingsModel extends FormattingSettingsModel {
 
     // Create formatting settings model formatting cards
     SPCSettings = new SPC();
+    dataManip = new dataManipulator();
     enableAxis = new EnableAxisCardSettings();
     enableYAxis = new EnableYAxisCardSettings();
     //colorSelector = new ColorSelectorCardSettings();
-    cards = [this.SPCSettings, this.enableAxis, this.enableYAxis];
+    cards = [this.SPCSettings, this.dataManip, this.enableAxis, this.enableYAxis];
 
 
     /**

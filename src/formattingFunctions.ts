@@ -3,7 +3,6 @@ import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import * as d3 from "d3";
     
 export function parseDates(label: string) {
-    console.log(label)
     let formatter = d3.timeParse('%Y');
     let parsed = formatter(label);
     if (parsed && parsed.getFullYear() > 1900) {
@@ -87,7 +86,7 @@ export function getDayDiff(startDate: Date, endDate: Date): number {
     );
   }
 
-export function parseDateLabel(label: string, levelOfDateHeirarchy: string, datelimits: Date[]) {
+export function parseDateLabel(label: string, levelOfDateHeirarchy: string, datelimits: Date[]) { //TODO if data is sparce and no infered as 0 then diff need to be data.length
     let diff = getDayDiff(datelimits[0], datelimits[1])
 
     let formatter = d3.timeParse('%a %b %d %Y');

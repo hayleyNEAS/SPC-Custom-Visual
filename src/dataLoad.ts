@@ -6,9 +6,34 @@ import * as d3 from "d3";
 
 import { SPCChartData, SPCChartDataPoint } from "./dataStructure"
 import { VisualSettingsModel } from "./visualSettingsModel";
-import { PBIformatingKeeper, parseDates, getDayDiff } from "./formattingFunctions";
+import { PBIformatingKeeper, parseDates, getDayDiff, parseDateLabel } from "./formattingFunctions";
 import { getMean, getControlLimits, getMarkerColors, identifyOutliers } from "./spcFunctions";
 
+
+var getDatesArray = function(min, max, levelOfDateHeirarchy: string) {
+    var start = Date.parse(min)
+    var end  = Date.parse(max)
+    for(var allDays=[],dt=new Date(start); dt<=new Date(end); dt.setDate(dt.getDate()+1)){
+        allDays.push(new Date(dt));
+    }
+
+    let arr = []
+    for(let i = 0, len = allDays.length; i < len; i++){
+        let dt = allDays[i]
+        if (  levelOfDateHeirarchy == "Year" && dt.getMonth() == 0 && dt.getDate() == 1) {
+            arr.push(new Date(dt));
+        } else if (  levelOfDateHeirarchy == "Quarter" && dt.getDate() == 1 && (dt.getMonth() == 0 || dt.getMonth() == 3 || dt.getMonth() == 6 || dt.getMonth(9))) {
+            arr.push(new Date(dt));
+        }  else if (  levelOfDateHeirarchy == "Month" && dt.getDate() == 1 ) {
+            arr.push(new Date(dt));
+        }   else if (  levelOfDateHeirarchy == "Day"  ) {
+            arr.push(new Date(dt));
+        } 
+        
+    }
+
+    return arr.map(d => parseDates(d) )
+};
 
 export function getTarget(target_input: any[], formatSettings: VisualSettingsModel): number {
     let target = -Infinity
@@ -114,14 +139,10 @@ export function fullData(options: VisualUpdateOptions, formatSettings: VisualSet
         .map((d) => <number>d.breakP)
         .reduce((a,b) => Math.max(a,b), 0 )
 
-     console.log(levelOfDateHeirarchy.split(":")[0])
-    if(levelOfDateHeirarchy.split(":")[0]){
-        let timestep:number[] = []
-        for (let i = 1, len = data.length; i < len; i++) {
-            timestep.push(getDayDiff(new Date(Date.parse(dates_input[i])), new Date(Date.parse(dates_input[i-1]))))
-        }
-        console.log(levelOfDateHeirarchy, timestep.reduce((a,b) => Math.max(a,b), -1))
-    } 
+    console.log(levelOfDateHeirarchy.split(":")[0])
+    
+    let allDates = getDatesArray(dates_input.at(0), dates_input.at(-1), levelOfDateHeirarchy)
+    console.log(allDates)
 
     return {
         datapoints: data,

@@ -197,6 +197,15 @@
 
             }
         },
+        "dataManip": {
+            "properties": {
+                "fillMissing0": {
+                    "type": {
+                        "bool": true
+                    }
+                }
+            }
+        },
         "enableXAxis": {
             "properties": {
                 "show": {

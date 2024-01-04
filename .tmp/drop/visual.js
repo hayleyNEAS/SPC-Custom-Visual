@@ -1518,6 +1518,30 @@ function getYAxisTextFillColor(options, colorPalette, defaultColor) {
 /* harmony import */ var _spcFunctions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7301);
 
 
+var getDatesArray = function (min, max, levelOfDateHeirarchy) {
+    var start = Date.parse(min);
+    var end = Date.parse(max);
+    for (var allDays = [], dt = new Date(start); dt <= new Date(end); dt.setDate(dt.getDate() + 1)) {
+        allDays.push(new Date(dt));
+    }
+    let arr = [];
+    for (let i = 0, len = allDays.length; i < len; i++) {
+        let dt = allDays[i];
+        if (levelOfDateHeirarchy == "Year" && dt.getMonth() == 0 && dt.getDate() == 1) {
+            arr.push(new Date(dt));
+        }
+        else if (levelOfDateHeirarchy == "Quarter" && dt.getDate() == 1 && (dt.getMonth() == 0 || dt.getMonth() == 3 || dt.getMonth() == 6 || dt.getMonth(9))) {
+            arr.push(new Date(dt));
+        }
+        else if (levelOfDateHeirarchy == "Month" && dt.getDate() == 1) {
+            arr.push(new Date(dt));
+        }
+        else if (levelOfDateHeirarchy == "Day") {
+            arr.push(new Date(dt));
+        }
+    }
+    return arr.map(d => (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .parseDates */ .Y8)(d));
+};
 function getTarget(target_input, formatSettings) {
     let target = -Infinity;
     if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
@@ -1608,13 +1632,8 @@ function fullData(options, formatSettings) {
         .map((d) => d.breakP)
         .reduce((a, b) => Math.max(a, b), 0);
     console.log(levelOfDateHeirarchy.split(":")[0]);
-    if (levelOfDateHeirarchy.split(":")[0]) {
-        let timestep = [];
-        for (let i = 1, len = data.length; i < len; i++) {
-            timestep.push((0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .getDayDiff */ .Nj)(new Date(Date.parse(dates_input[i])), new Date(Date.parse(dates_input[i - 1]))));
-        }
-        console.log(levelOfDateHeirarchy, timestep.reduce((a, b) => Math.max(a, b), -1));
-    }
+    let allDates = getDatesArray(dates_input.at(0), dates_input.at(-1), levelOfDateHeirarchy);
+    console.log(allDates);
     return {
         datapoints: data,
         n: data.length,
@@ -1675,17 +1694,15 @@ function createDataset(options, host, formatSettings) {
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Fg: () => (/* binding */ parseinHMS),
-/* harmony export */   Nj: () => (/* binding */ getDayDiff),
 /* harmony export */   Qo: () => (/* binding */ parseYLabels),
 /* harmony export */   WN: () => (/* binding */ PBIformatingKeeper),
 /* harmony export */   Y8: () => (/* binding */ parseDates),
 /* harmony export */   YV: () => (/* binding */ parseDateLabel)
 /* harmony export */ });
-/* unused harmony export parseXLabels */
+/* unused harmony exports getDayDiff, parseXLabels */
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8976);
 
 function parseDates(label) {
-    console.log(label);
     let formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y');
     let parsed = formatter(label);
     if (parsed && parsed.getFullYear() > 1900) {
@@ -2974,6 +2991,19 @@ class SPC extends CompCard {
     groups = [this.spcSetUp, this.logoOptions, this.lineOptions, this.markerOptions];
 }
 /**
+ * Data Formatting Card
+ */
+class dataManipulator extends SimpleCard {
+    // Option to pad missing values with 0's
+    fillMissing0 = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
+        name: "fillMissing0",
+        displayName: "Pad missing values with 0s",
+        value: false
+    });
+    name = "dataManipulator";
+    displayName = "Data Manipulator";
+    slices = [this.fillMissing0];
+} /**
  * Enable x-Axis Formatting Card
  */
 class EnableAxisCardSettings extends CompCard {
@@ -3041,10 +3071,11 @@ class EnableYAxisCardSettings extends CompCard {
 class VisualSettingsModel extends FormattingSettingsModel {
     // Create formatting settings model formatting cards
     SPCSettings = new SPC();
+    dataManip = new dataManipulator();
     enableAxis = new EnableAxisCardSettings();
     enableYAxis = new EnableYAxisCardSettings();
     //colorSelector = new ColorSelectorCardSettings();
-    cards = [this.SPCSettings, this.enableAxis, this.enableYAxis];
+    cards = [this.SPCSettings, this.dataManip, this.enableAxis, this.enableYAxis];
 }
 
 
