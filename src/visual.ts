@@ -29,6 +29,7 @@ import { parseDateLabel, parseinHMS, parseXLabels, parseYLabels } from "./format
 import { yAxisDomain, getFillColor, getYAxisTextFillColor } from "./chartFunctions"
 import { createDataset } from "./dataLoad"
 import { logoSelector } from "./spcFunctions";
+import { getTooltipData } from "./tooltipFunctions"
 
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
 
@@ -80,6 +81,11 @@ export class SPCChart implements IVisual {
             left: 30,
         },
     };
+
+    //Creates formatting pane
+    public getFormattingModel(): powerbi.visuals.FormattingModel {
+        return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
+    }
 
     //This initialises the chart - only ran once
     //Basically a load of empty objects waiting to be filled
@@ -155,6 +161,7 @@ export class SPCChart implements IVisual {
 
         this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, options.element);
     }
+
 
     //This updates the chart - ran each time anything changes in the visual (ie filters, mouse moves, drilling up/down)
     public update(options: VisualUpdateOptions) {
@@ -253,7 +260,7 @@ export class SPCChart implements IVisual {
             .range([widthChartStart, widthChartEnd])
             ;
 
-        let span = [1,-1].map(i => new Date(this.dataPoints.at(i).category) )
+        let span = [1, -1].map(i => new Date(this.dataPoints.at(i).category))
         let xAxis = axisBottom(xScale)
             .tickFormat(d => parseDateLabel(d, data.levelOfDateHeirarchy, span))
             ;
@@ -284,7 +291,7 @@ export class SPCChart implements IVisual {
                 if (this.getBBox().width > maxW_xAxis) maxW_xAxis = this.getBBox().width;
             });
 
-        let n_xTicks = Math.ceil(total_label_coverage*1.2 / (widthChartEnd - widthChartStart))
+        let n_xTicks = Math.ceil(total_label_coverage * 1.2 / (widthChartEnd - widthChartStart))
 
         if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) {
             this.xAxis
@@ -292,9 +299,9 @@ export class SPCChart implements IVisual {
                 .attr('display', 'none')
 
             this.xAxis
-                .selectAll(`.tick:nth-child(${n_xTicks}n + ${Math.floor(n_xTicks/2)})`)
+                .selectAll(`.tick:nth-child(${n_xTicks}n + ${Math.floor(n_xTicks / 2)})`)
                 .attr('display', 'block')
-        } 
+        }
 
 
         //Create target line
@@ -501,7 +508,7 @@ export class SPCChart implements IVisual {
             this.lineLowerZoneB
                 .attr("stroke-width", 0)
         }
-        
+
         // Move logo 
         let logoX = widthChartStart
         if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == -1) {
@@ -585,19 +592,15 @@ export class SPCChart implements IVisual {
 
         this.tooltipServiceWrapper
             .addTooltip(this.svg.selectAll('rect.markers'),
-                (d: SPCChartDataPoint) => this.getTooltipData(d, data),
+                d => getTooltipData(d, data, this.formattingSettings),
                 (d: SPCChartDataPoint) => null,
                 true
             );
 
     }
 
-    //creates formatting pane
-    public getFormattingModel(): powerbi.visuals.FormattingModel {
-        return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
-    }
 
-    private getTooltipData(d: SPCChartDataPoint, data: SPCChartData): VisualTooltipDataItem[] {
+    /* private getTooltipData(d: SPCChartDataPoint, data: SPCChartData): VisualTooltipDataItem[] {
         let header = {
             header: d.category,
             displayName: data.measureName,
@@ -629,7 +632,7 @@ export class SPCChart implements IVisual {
             return [header, UCL, LCL, target];
         }
         
-    }
+    } */
 
 }
 

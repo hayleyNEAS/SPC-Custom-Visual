@@ -38,9 +38,8 @@ export declare class SPCChart implements IVisual {
             left: number;
         };
     };
+    getFormattingModel(): powerbi.visuals.FormattingModel;
     constructor(options: VisualConstructorOptions);
     update(options: VisualUpdateOptions): void;
-    getFormattingModel(): powerbi.visuals.FormattingModel;
-    private getTooltipData;
 }
 export { SPCChart as Visual };
