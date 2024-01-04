@@ -2859,7 +2859,7 @@ class LogoOptions extends SimpleCard {
     show = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
         name: "show",
         displayName: undefined,
-        value: false
+        value: true
     });
     topLevelSlice = this.show;
     location = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ItemDropdown */ .zt({
@@ -2981,7 +2981,7 @@ class EnableAxisCardSettings extends CompCard {
     show = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
         name: "show",
         displayName: undefined,
-        value: false
+        value: true
     });
     topLevelSlice = this.show;
     formatter = new XAxisFormatter();
@@ -3025,7 +3025,7 @@ class EnableYAxisCardSettings extends CompCard {
     show = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .ToggleSwitch */ .Zh({
         name: "show",
         displayName: undefined,
-        value: false,
+        value: true,
         //topLevelToggle: true
     });
     topLevelSlice = this.show;

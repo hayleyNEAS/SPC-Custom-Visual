@@ -35,7 +35,7 @@ class LogoOptions extends SimpleCard {
     show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayName: undefined,
-        value: false
+        value: true
     });
     topLevelSlice = this.show;
 
@@ -180,7 +180,7 @@ class EnableAxisCardSettings extends CompCard {
     show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayName: undefined,
-        value: false
+        value: true
     });
     topLevelSlice = this.show;
     formatter = new XAxisFormatter()
@@ -234,7 +234,7 @@ class EnableYAxisCardSettings extends CompCard {
     show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayName: undefined,
-        value: false,
+        value: true,
         //topLevelToggle: true
     });
     topLevelSlice = this.show;
