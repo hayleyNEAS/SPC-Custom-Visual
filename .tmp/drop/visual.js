@@ -1480,21 +1480,23 @@ function yAxisDomain(data) {
     let yScale_increase_window = yScale_maxData * 1.1 - yScale_maxData;
     return [yScale_minData - yScale_increase_window, yScale_maxData + yScale_increase_window];
 }
-function getFillColor(objects, objectString, propString, colorPalette, defaultColor) {
+function getFillColor(options, objectString, propString, colorPalette, defaultColor) {
     if (colorPalette.isHighContrast) {
         return colorPalette.foreground.value;
     }
-    return (0,_objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_0__/* .getValue */ .N)(objects, objectString, propString, {
+    const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
+    return (0,_objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_0__/* .getValue */ .N)(colorObjects, objectString, propString, {
         solid: {
             color: defaultColor,
         }
     }).solid.color;
 }
-function getYAxisTextFillColor(objects, colorPalette, defaultColor) {
+function getYAxisTextFillColor(options, colorPalette, defaultColor) {
     if (colorPalette.isHighContrast) {
         return colorPalette.foreground.value;
     }
-    return (0,_objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_0__/* .getValue */ .N)(objects, "enableYAxis", "fill", {
+    const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
+    return (0,_objectEnumerationUtility__WEBPACK_IMPORTED_MODULE_0__/* .getValue */ .N)(colorObjects, "enableYAxis", "fill", {
         solid: {
             color: defaultColor,
         }
@@ -2314,14 +2316,20 @@ function getMarkerColors(dataset, formatSettings) {
 
 
 class SPCChart {
-    svg;
+    //Physical objects in the chart 
+    //The Chart
+    svg; //Chart
+    host; //Interactability 
+    tooltipServiceWrapper; //ToolTips
+    locale; //Locale of user
+    //The logos
     logo;
     logoTarget;
-    host;
+    //The Axis
     xAxis;
     yAxis;
+    //The Lines
     lineData;
-    lineData_Diff;
     lineMean;
     lineUCL;
     lineLCL;
@@ -2330,13 +2338,14 @@ class SPCChart {
     lineLowerZoneA;
     lineLowerZoneB;
     lineTarget;
+    //The Markers
     dataMarkers;
     tooltipMarkers;
+    //The Data
     dataPoints;
     formattingSettings;
     formattingSettingsService;
-    tooltipServiceWrapper;
-    locale;
+    //Configuration parameters
     static Config = {
         xScalePadding: 0.1,
         solidOpacity: 1,
@@ -2348,14 +2357,8 @@ class SPCChart {
             left: 30,
         },
     };
-    /**
-     * Creates instance of SPCChart. This method is only called once.
-     *
-     * @constructor
-     * @param {VisualConstructorOptions} options - Contains references to the element that will
-     *                                             contain the visual and a reference to the host
-     *                                             which contains services.
-     */
+    //This initialises the chart - only ran once
+    //Basically a load of empty objects waiting to be filled
     constructor(options) {
         this.host = options.host;
         const localizationManager = this.host.createLocalizationManager();
@@ -2371,9 +2374,6 @@ class SPCChart {
             .append('g')
             .classed('yAxis', true);
         this.lineData = this.svg
-            .append('path')
-            .classed('line', true);
-        this.lineData_Diff = this.svg
             .append('path')
             .classed('line', true);
         this.lineMean = this.svg
@@ -2414,32 +2414,28 @@ class SPCChart {
             .append('image');
         this.tooltipServiceWrapper = (0,powerbi_visuals_utils_tooltiputils__WEBPACK_IMPORTED_MODULE_8__/* .createTooltipServiceWrapper */ .p)(this.host.tooltipService, options.element);
     }
-    /**
-     * Updates the state of the visual. Every sequential databinding and resize will call update.
-     *
-     * @function
-     * @param {VisualUpdateOptions} options - Contains references to the size of the container
-     *                                        and the dataView which contains all the data
-     *                                        the visual had queried.
-     */
+    //This updates the chart - ran each time anything changes in the visual (ie filters, mouse moves, drilling up/down)
     update(options) {
         //Set up the charting object 
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(_visualSettingsModel__WEBPACK_IMPORTED_MODULE_2__/* .VisualSettingsModel */ .i, options.dataViews[0]);
         let data = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_4__/* .createDataset */ .Ty)(options, this.host, this.formattingSettings);
         this.dataPoints = data.datapoints;
+        //Define the chart size
         let width = options.viewport.width;
         let height = options.viewport.height;
         let margins = SPCChart.Config.margins;
+        //DEfine the usable chart size
         let widthChartStart = 0;
         let widthChartEnd = 0.98 * width; //0.98 so the final labels fit on the screen
+        let bandwidth = (widthChartEnd - widthChartStart) / (data.n - 1); //each datapoint akes up one "bandwidth" of the chart area
+        //Give the chart image a width and a height based on the size of the image in the report
         this.svg
             .attr("width", width)
             .attr("height", height);
+        //Option to show/hide the x axis 
         if (this.formattingSettings.enableAxis.show.value) {
             height -= margins.bottom;
         }
-        let bandwidth = (widthChartEnd - widthChartStart) / (data.n - 1);
-        const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
         //Set up the Y Axis
         let yScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_9__/* ["default"] */ .Z)()
             .domain((0,_chartFunctions__WEBPACK_IMPORTED_MODULE_10__/* .yAxisDomain */ .lG)(data))
@@ -2461,7 +2457,7 @@ class SPCChart {
         let yAxisObject = this.yAxis
             .call(yAxis)
             .transition().duration(500)
-            .attr("color", (0,_chartFunctions__WEBPACK_IMPORTED_MODULE_10__/* .getYAxisTextFillColor */ .F0)(colorObjects, this.host.colorPalette, this.formattingSettings.enableYAxis.formatter.fill.value.value));
+            .attr("color", (0,_chartFunctions__WEBPACK_IMPORTED_MODULE_10__/* .getYAxisTextFillColor */ .F0)(options, this.host.colorPalette, this.formattingSettings.enableYAxis.formatter.fill.value.value));
         yAxisObject.selectAll('.yAxis line')
             .attr('stroke', this.formattingSettings.enableYAxis.formatter.fill.value.value)
             .attr('opacity', 0.2);
@@ -2496,10 +2492,10 @@ class SPCChart {
             .attr('transform', 'translate(0, ' + (height + 2) + ')')
             .call(xAxis)
             .transition().duration(500)
-            .attr("color", (0,_chartFunctions__WEBPACK_IMPORTED_MODULE_10__/* .getFillColor */ .W7)(colorObjects, 'enableAxis', 'fill', this.host.colorPalette, this.formattingSettings.enableAxis.formatter.fill.value.value));
+            .attr("color", (0,_chartFunctions__WEBPACK_IMPORTED_MODULE_10__/* .getFillColor */ .W7)(options, 'enableAxis', 'fill', this.host.colorPalette, this.formattingSettings.enableAxis.formatter.fill.value.value));
         xAxisObject.selectAll('.xAxis path, line')
             .attr('opacity', 0);
-        //XAxis label reducer  //TODO if overlap then select just year/6month/quarter/month start
+        //XAxis label reducer  
         let maxW_xAxis = 0;
         let total_label_coverage = 0;
         this.xAxis
@@ -2593,17 +2589,6 @@ class SPCChart {
             .attr("y", 0)
             .attr("stroke", "#777777")
             .attr("opacity", 0); //invisable rectangles 
-        /*   this.lineData_Diff
-            .datum(this.dataPoints)
-            .style("stroke-linecap", "round")
-            .attr("fill", "none")
-            .attr("stroke", "purple")
-            .attr("stroke-width", 2)
-            .attr("stroke-linejoin", "round")
-            .attr("d", d3.line<SPCChartDataPoint>()
-                .x(function (d) { return xScale(d.category) })
-                .y(function (d) { return yScale(<number>d.UCLValue) })
-            )   */
         //Create mean line
         if (this.formattingSettings.SPCSettings.lineOptions.showMean.value) {
             this.lineMean

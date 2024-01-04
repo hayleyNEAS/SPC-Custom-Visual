@@ -33,17 +33,23 @@ import { logoSelector } from "./spcFunctions";
 type Selection<T1, T2 = T1> = d3.Selection<any, T1, any, T2>;
 
 export class SPCChart implements IVisual {
-    private svg: Selection<any>;
+    //Physical objects in the chart 
+    //The Chart
+    private svg: Selection<any>;                            //Chart
+    private host: IVisualHost;                              //Interactability 
+    private tooltipServiceWrapper: ITooltipServiceWrapper;  //ToolTips
+    private locale: string;                                 //Locale of user
 
+    //The logos
     private logo: Selection<any>;
     private logoTarget: Selection<any>;
 
-    private host: IVisualHost;
+    //The Axis
     private xAxis: Selection<SVGElement>;
     private yAxis: Selection<SVGElement>;
 
+    //The Lines
     private lineData: Selection<SVGElement>;
-    private lineData_Diff: Selection<SVGElement>;
     private lineMean: Selection<SVGElement>;
     private lineUCL: Selection<SVGElement>;
     private lineLCL: Selection<SVGElement>;
@@ -53,16 +59,16 @@ export class SPCChart implements IVisual {
     private lineLowerZoneB: Selection<SVGElement>;
     private lineTarget: Selection<SVGElement>;
 
+    //The Markers
     private dataMarkers: Selection<SVGElement>;
     private tooltipMarkers: Selection<SVGElement>;
 
+    //The Data
     private dataPoints: SPCChartDataPoint[];
     private formattingSettings: VisualSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
 
-    private tooltipServiceWrapper: ITooltipServiceWrapper;
-    private locale: string;
-
+    //Configuration parameters
     static Config = {
         xScalePadding: 0.1,
         solidOpacity: 1,
@@ -75,14 +81,8 @@ export class SPCChart implements IVisual {
         },
     };
 
-    /**
-     * Creates instance of SPCChart. This method is only called once.
-     *
-     * @constructor
-     * @param {VisualConstructorOptions} options - Contains references to the element that will
-     *                                             contain the visual and a reference to the host
-     *                                             which contains services.
-     */
+    //This initialises the chart - only ran once
+    //Basically a load of empty objects waiting to be filled
     constructor(options: VisualConstructorOptions) {
         this.host = options.host;
         const localizationManager = this.host.createLocalizationManager();
@@ -102,10 +102,6 @@ export class SPCChart implements IVisual {
             .classed('yAxis', true);
 
         this.lineData = this.svg
-            .append('path')
-            .classed('line', true);
-
-        this.lineData_Diff = this.svg
             .append('path')
             .classed('line', true);
 
@@ -160,16 +156,7 @@ export class SPCChart implements IVisual {
         this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, options.element);
     }
 
-
-
-    /**
-     * Updates the state of the visual. Every sequential databinding and resize will call update.
-     *
-     * @function
-     * @param {VisualUpdateOptions} options - Contains references to the size of the container
-     *                                        and the dataView which contains all the data
-     *                                        the visual had queried.
-     */
+    //This updates the chart - ran each time anything changes in the visual (ie filters, mouse moves, drilling up/down)
     public update(options: VisualUpdateOptions) {
         //Set up the charting object 
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualSettingsModel, options.dataViews[0]);
@@ -177,24 +164,26 @@ export class SPCChart implements IVisual {
         let data = createDataset(options, this.host, this.formattingSettings);
         this.dataPoints = data.datapoints;
 
+        //Define the chart size
         let width = options.viewport.width;
         let height = options.viewport.height;
         let margins = SPCChart.Config.margins;
+
+        //DEfine the usable chart size
         let widthChartStart = 0;
         let widthChartEnd = 0.98 * width; //0.98 so the final labels fit on the screen
+        let bandwidth = (widthChartEnd - widthChartStart) / (data.n - 1); //each datapoint akes up one "bandwidth" of the chart area
 
-
+        //Give the chart image a width and a height based on the size of the image in the report
         this.svg
             .attr("width", width)
             .attr("height", height);
 
+        //Option to show/hide the x axis 
         if (this.formattingSettings.enableAxis.show.value) {
             height -= margins.bottom;
         }
 
-        let bandwidth = (widthChartEnd - widthChartStart) / (data.n - 1);
-
-        const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
         //Set up the Y Axis
         let yScale = scaleLinear()
             .domain(yAxisDomain(data))
@@ -220,7 +209,7 @@ export class SPCChart implements IVisual {
             .call(yAxis)
             .transition().duration(500)
             .attr("color", getYAxisTextFillColor(
-                colorObjects,
+                options,
                 this.host.colorPalette,
                 this.formattingSettings.enableYAxis.formatter.fill.value.value
             ))
@@ -255,7 +244,6 @@ export class SPCChart implements IVisual {
             .attr('transform', 'translate(' + (yShift) + ',0)')
 
         //Set up the X Axis
-
         this.xAxis
             .style("font-size", 11)
             ;
@@ -275,7 +263,7 @@ export class SPCChart implements IVisual {
             .call(xAxis)
             .transition().duration(500)
             .attr("color", getFillColor(
-                colorObjects,
+                options,
                 'enableAxis',
                 'fill',
                 this.host.colorPalette,
@@ -286,7 +274,7 @@ export class SPCChart implements IVisual {
             .attr('opacity', 0)
             ;
 
-        //XAxis label reducer  //TODO if overlap then select just year/6month/quarter/month start
+        //XAxis label reducer  
         let maxW_xAxis = 0
         let total_label_coverage = 0
         this.xAxis
@@ -393,19 +381,6 @@ export class SPCChart implements IVisual {
             .attr("stroke", "#777777")
             .attr("opacity", 0); //invisable rectangles 
 
-
-
-        /*   this.lineData_Diff
-            .datum(this.dataPoints)
-            .style("stroke-linecap", "round")
-            .attr("fill", "none")
-            .attr("stroke", "purple")
-            .attr("stroke-width", 2)
-            .attr("stroke-linejoin", "round")
-            .attr("d", d3.line<SPCChartDataPoint>()
-                .x(function (d) { return xScale(d.category) })
-                .y(function (d) { return yScale(<number>d.UCLValue) })
-            )   */
         //Create mean line
         if (this.formattingSettings.SPCSettings.lineOptions.showMean.value) {
             this.lineMean
@@ -526,6 +501,7 @@ export class SPCChart implements IVisual {
             this.lineLowerZoneB
                 .attr("stroke-width", 0)
         }
+        
         // Move logo 
         let logoX = widthChartStart
         if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == -1) {

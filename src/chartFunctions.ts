@@ -36,7 +36,7 @@ export function yAxisDomain(data: SPCChartData){
 }
 
 export function getFillColor(
-    objects: DataViewObjects,
+    options: VisualUpdateOptions,
     objectString: string,
     propString: string,
     colorPalette: ISandboxExtendedColorPalette,
@@ -46,8 +46,9 @@ export function getFillColor(
         return colorPalette.foreground.value;
     }
 
+    const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
     return getValue<Fill>(
-        objects,
+        colorObjects,
         objectString,
         propString,
         {
@@ -59,16 +60,16 @@ export function getFillColor(
 }
 
 export function getYAxisTextFillColor(
-    objects: DataViewObjects,
+    options: VisualUpdateOptions,
     colorPalette: ISandboxExtendedColorPalette,
     defaultColor: string
 ): string {
     if (colorPalette.isHighContrast) {
         return colorPalette.foreground.value;
     }
-
+    const colorObjects = options.dataViews[0] ? options.dataViews[0].metadata.objects : null;
     return getValue<Fill>(
-        objects,
+        colorObjects,
         "enableYAxis",
         "fill",
         {
