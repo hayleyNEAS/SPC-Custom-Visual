@@ -1565,6 +1565,7 @@ function dataLoad(options) {
     }
     dates_input = dataViews[0].categorical.categories[0].values;
     let dates_input_parsed = dates_input.map(d => (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .parseDates */ .Y8)(d));
+    console.log(dates_input_parsed);
     return [dates_input_parsed, value_input, target_input, breakPoint_input];
 }
 function dataSet(dates, input, breakP) {
@@ -1604,6 +1605,14 @@ function fullData(options, formatSettings) {
     let numberOfTimePeriods = data
         .map((d) => d.breakP)
         .reduce((a, b) => Math.max(a, b), 0);
+    console.log(levelOfDateHeirarchy.split(":")[0]);
+    if (levelOfDateHeirarchy.split(":")[0]) {
+        let timestep = [];
+        for (let i = 1, len = data.length; i < len; i++) {
+            timestep.push((0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .getDayDiff */ .Nj)(new Date(Date.parse(dates_input[i])), new Date(Date.parse(dates_input[i - 1]))));
+        }
+        console.log(levelOfDateHeirarchy, timestep.reduce((a, b) => Math.max(a, b), -1));
+    }
     return {
         datapoints: data,
         n: data.length,
@@ -1664,6 +1673,7 @@ function createDataset(options, host, formatSettings) {
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Fg: () => (/* binding */ parseinHMS),
+/* harmony export */   Nj: () => (/* binding */ getDayDiff),
 /* harmony export */   Qo: () => (/* binding */ parseYLabels),
 /* harmony export */   WN: () => (/* binding */ PBIformatingKeeper),
 /* harmony export */   Y8: () => (/* binding */ parseDates),
@@ -1694,7 +1704,22 @@ function parseDates(label) {
     if (parsed) {
         return parsed.toDateString();
     }
+    formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q %d/%m/%Y');
+    parsed = formatter(label);
+    if (parsed) {
+        return parsed.toDateString();
+    }
     formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q %B %-d');
+    parsed = formatter(label);
+    if (parsed) {
+        return parsed.toDateString();
+    }
+    formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q %d/%m/%Y');
+    parsed = formatter(label);
+    if (parsed) {
+        return parsed.toDateString();
+    }
+    formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q %d/%m/%Y %d/%m/%Y %d/%m/%Y');
     parsed = formatter(label);
     if (parsed) {
         return parsed.toDateString();
@@ -1729,7 +1754,6 @@ function getDayDiff(startDate, endDate) {
 }
 function parseDateLabel(label, levelOfDateHeirarchy, datelimits) {
     let diff = getDayDiff(datelimits[0], datelimits[1]);
-    console.log(diff, levelOfDateHeirarchy);
     let formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%a %b %d %Y');
     let parsed = formatter(label);
     if (parsed) {
@@ -1849,10 +1873,21 @@ function PBIformatingKeeper(options) {
         }
         else {
             levelOfDateHeirarchy = meta.displayName.split(' ').at(1);
+            if (levelOfDateHeirarchy) {
+                levelOfDateHeirarchy = levelOfDateHeirarchy;
+            }
+            else if ("expr" in meta && "arg" in meta.expr) {
+                let { hierarchy } = meta.expr.arg;
+                let level = meta.expr.level;
+                if (hierarchy) {
+                    levelOfDateHeirarchy = "infered:" + level;
+                }
+            }
         }
     }
     return [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy];
 }
+//Issues caused by using own heirarchy rather than PBI defined ones 
 
 
 /***/ }),
@@ -2813,7 +2848,7 @@ class SPCSetUp extends SimpleCard {
     target = new powerbi_visuals_utils_formattingmodel__WEBPACK_IMPORTED_MODULE_0__/* .TextInput */ .oi({
         name: "target",
         displayName: "Target (if not supplied)",
-        value: "7",
+        value: "",
         placeholder: "Value"
     });
     name = "SPCSetUp";

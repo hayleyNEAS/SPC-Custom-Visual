@@ -22,7 +22,7 @@ class SPCSetUp extends SimpleCard {
     target = new formattingSettings.TextInput({
         name: "target",
         displayName: "Target (if not supplied)",
-        value: "7",
+        value: "",
         placeholder: "Value" 
 
     })

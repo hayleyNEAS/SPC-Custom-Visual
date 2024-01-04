@@ -6,7 +6,7 @@ import * as d3 from "d3";
 
 import { SPCChartData, SPCChartDataPoint } from "./dataStructure"
 import { VisualSettingsModel } from "./visualSettingsModel";
-import { PBIformatingKeeper, parseDates } from "./formattingFunctions";
+import { PBIformatingKeeper, parseDates, getDayDiff } from "./formattingFunctions";
 import { getMean, getControlLimits, getMarkerColors, identifyOutliers } from "./spcFunctions";
 
 
@@ -60,6 +60,7 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
 
     dates_input = dataViews[0].categorical.categories[0].values
     let dates_input_parsed = dates_input.map(d => parseDates(d) )
+    console.log(dates_input_parsed)
 
     return [dates_input_parsed, value_input, target_input, breakPoint_input]
 }
@@ -112,6 +113,15 @@ export function fullData(options: VisualUpdateOptions, formatSettings: VisualSet
     let numberOfTimePeriods = data
         .map((d) => <number>d.breakP)
         .reduce((a,b) => Math.max(a,b), 0 )
+
+     console.log(levelOfDateHeirarchy.split(":")[0])
+    if(levelOfDateHeirarchy.split(":")[0]){
+        let timestep:number[] = []
+        for (let i = 1, len = data.length; i < len; i++) {
+            timestep.push(getDayDiff(new Date(Date.parse(dates_input[i])), new Date(Date.parse(dates_input[i-1]))))
+        }
+        console.log(levelOfDateHeirarchy, timestep.reduce((a,b) => Math.max(a,b), -1))
+    } 
 
     return {
         datapoints: data,

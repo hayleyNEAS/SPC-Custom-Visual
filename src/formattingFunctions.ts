@@ -28,12 +28,30 @@ export function parseDates(label: string) {
             return parsed.toDateString()
     }
 
+    formatter = d3.timeParse('%Y Qtr %q %d/%m/%Y');
+    parsed = formatter(label);
+    if (parsed) {
+            return parsed.toDateString()
+    }
+
     formatter = d3.timeParse('%Y Qtr %q %B %-d');
     parsed = formatter(label);
     if (parsed) {
         return parsed.toDateString()
     }
 
+    formatter = d3.timeParse('%Y Qtr %q %d/%m/%Y');
+    parsed = formatter(label);
+    if (parsed) {
+            return parsed.toDateString()
+    }
+
+    formatter = d3.timeParse('%Y Qtr %q %d/%m/%Y %d/%m/%Y %d/%m/%Y');
+    parsed = formatter(label);
+    if (parsed) {
+            return parsed.toDateString()
+    }
+    
     formatter = d3.timeParse('%B');
     parsed = formatter(label);
     if (parsed) {
@@ -61,7 +79,7 @@ export function parseDates(label: string) {
     }
 
 }    
-function getDayDiff(startDate: Date, endDate: Date): number {
+export function getDayDiff(startDate: Date, endDate: Date): number {
     const msInDay = 24 * 60 * 60 * 1000;
   
     return Math.round(
@@ -71,7 +89,6 @@ function getDayDiff(startDate: Date, endDate: Date): number {
 
 export function parseDateLabel(label: string, levelOfDateHeirarchy: string, datelimits: Date[]) {
     let diff = getDayDiff(datelimits[0], datelimits[1])
-    console.log(diff, levelOfDateHeirarchy)
 
     let formatter = d3.timeParse('%a %b %d %Y');
     let parsed = formatter(label);
@@ -151,7 +168,7 @@ export function parseYLabels(d: d3.NumberValue, hms:boolean){
     }
 }
 
-export function PBIformatingKeeper(options: VisualUpdateOptions):[string, string, number, string]{
+export function PBIformatingKeeper(options: VisualUpdateOptions): [string, string, number, string] {
     let metadata = options.dataViews[0].metadata.columns
     let measureFormat = ''
     let decimalPlaces = 0
@@ -161,7 +178,7 @@ export function PBIformatingKeeper(options: VisualUpdateOptions):[string, string
     for (let i = 0, len = metadata.length; i < len; i++) {
         let meta = metadata[i]
         if (meta.isMeasure) {
-            if(i == 0){measureName = meta.displayName}
+            if (i == 0) { measureName = meta.displayName }
             if (!meta.format) {
                 measureFormat = 's';
             } else if (meta.format.includes('%')) {
@@ -174,8 +191,18 @@ export function PBIformatingKeeper(options: VisualUpdateOptions):[string, string
             }
         } else {
             levelOfDateHeirarchy = meta.displayName.split(' ').at(1);
-
+            if (levelOfDateHeirarchy) {
+                levelOfDateHeirarchy = levelOfDateHeirarchy
+            } else if ("expr" in meta && "arg" in meta.expr) {
+                let { hierarchy } = (meta.expr as any).arg
+                let level = (meta.expr as any).level
+                if (hierarchy) {
+                    levelOfDateHeirarchy = "infered:" + level
+                }
+            }
         }
     }
     return [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy]
 }
+
+//Issues caused by using own heirarchy rather than PBI defined ones 
