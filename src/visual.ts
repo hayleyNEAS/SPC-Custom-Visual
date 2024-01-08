@@ -171,12 +171,14 @@ export class SPCChart implements IVisual {
         let data = createDataset(options, this.host, this.formattingSettings);
         this.dataPoints = data.datapoints;
 
+        console.log(data.n)
+
         //Define the chart size
         let width = options.viewport.width;
         let height = options.viewport.height;
         let margins = SPCChart.Config.margins;
 
-        //DEfine the usable chart size
+        //Define the usable chart size
         let widthChartStart = 0;
         let widthChartEnd = 0.98 * width; //0.98 so the final labels fit on the screen
         let bandwidth = (widthChartEnd - widthChartStart) / (data.n - 1); //each datapoint akes up one "bandwidth" of the chart area
@@ -293,7 +295,7 @@ export class SPCChart implements IVisual {
 
         let n_xTicks = Math.ceil(total_label_coverage * 1.2 / (widthChartEnd - widthChartStart))
 
-        if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) {
+        if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) { //BUG if chart reduces to one data point chart doesnt refresh 
             this.xAxis
                 .selectAll(`.tick`)
                 .attr('display', 'none')

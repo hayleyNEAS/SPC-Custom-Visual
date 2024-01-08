@@ -85,7 +85,7 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
 
     dates_input = dataViews[0].categorical.categories[0].values
     let dates_input_parsed = dates_input.map(d => parseDates(d) )
-    console.log(dates_input_parsed)
+    //console.log(dates_input_parsed)
 
     return [dates_input_parsed, value_input, target_input, breakPoint_input]
 }
@@ -139,10 +139,10 @@ export function fullData(options: VisualUpdateOptions, formatSettings: VisualSet
         .map((d) => <number>d.breakP)
         .reduce((a,b) => Math.max(a,b), 0 )
 
-    console.log(levelOfDateHeirarchy.split(":")[0])
+    //console.log(levelOfDateHeirarchy.split(":")[0])
     
     let allDates = getDatesArray(dates_input.at(0), dates_input.at(-1), levelOfDateHeirarchy)
-    console.log(allDates)
+    //console.log(allDates)
 
     return {
         datapoints: data,

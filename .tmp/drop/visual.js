@@ -1591,7 +1591,7 @@ function dataLoad(options) {
     }
     dates_input = dataViews[0].categorical.categories[0].values;
     let dates_input_parsed = dates_input.map(d => (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .parseDates */ .Y8)(d));
-    console.log(dates_input_parsed);
+    //console.log(dates_input_parsed)
     return [dates_input_parsed, value_input, target_input, breakPoint_input];
 }
 function dataSet(dates, input, breakP) {
@@ -1631,9 +1631,9 @@ function fullData(options, formatSettings) {
     let numberOfTimePeriods = data
         .map((d) => d.breakP)
         .reduce((a, b) => Math.max(a, b), 0);
-    console.log(levelOfDateHeirarchy.split(":")[0]);
+    //console.log(levelOfDateHeirarchy.split(":")[0])
     let allDates = getDatesArray(dates_input.at(0), dates_input.at(-1), levelOfDateHeirarchy);
-    console.log(allDates);
+    //console.log(allDates)
     return {
         datapoints: data,
         n: data.length,
@@ -2297,7 +2297,7 @@ function getMarkerColors(dataset, formatSettings) {
 
 /***/ }),
 
-/***/ 316:
+/***/ 6316:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -2361,7 +2361,7 @@ function getTooltipData(d, data, formating) {
 /* harmony import */ var _chartFunctions__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(877);
 /* harmony import */ var _dataLoad__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(9075);
 /* harmony import */ var _spcFunctions__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(7301);
-/* harmony import */ var _tooltipFunctions__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(316);
+/* harmony import */ var _tooltipFunctions__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(6316);
 
 
 
@@ -2485,11 +2485,12 @@ class SPCChart {
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(_visualSettingsModel__WEBPACK_IMPORTED_MODULE_2__/* .VisualSettingsModel */ .i, options.dataViews[0]);
         let data = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_4__/* .createDataset */ .Ty)(options, this.host, this.formattingSettings);
         this.dataPoints = data.datapoints;
+        console.log(data.n);
         //Define the chart size
         let width = options.viewport.width;
         let height = options.viewport.height;
         let margins = SPCChart.Config.margins;
-        //DEfine the usable chart size
+        //Define the usable chart size
         let widthChartStart = 0;
         let widthChartEnd = 0.98 * width; //0.98 so the final labels fit on the screen
         let bandwidth = (widthChartEnd - widthChartStart) / (data.n - 1); //each datapoint akes up one "bandwidth" of the chart area
@@ -2571,7 +2572,7 @@ class SPCChart {
                 maxW_xAxis = this.getBBox().width;
         });
         let n_xTicks = Math.ceil(total_label_coverage * 1.2 / (widthChartEnd - widthChartStart));
-        if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) {
+        if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) { //BUG if chart reduces to one data point chart doesnt refresh 
             this.xAxis
                 .selectAll(`.tick`)
                 .attr('display', 'none');
