@@ -174,12 +174,15 @@ export function getMean(dataset: SPCChartData): SPCChartData {
     let numberTimePeriods = dataset.numberOfTimePeriods
 
     for (let i = 0, len = numberTimePeriods + 1; i < len; i++) {
-        let subset = data.filter((d) => d.breakP == i)
+        let subset = data.filter((d) => d.breakP == i);
+        let subset_forMean = subset.filter(d => d.value !== null);
 
-        let meanValue = subset
-            .map((d) => <number>d.value)
-            .reduce((a, b) => a + b, 0) / subset.length;
-
+        let meanValue = null
+        if (subset_forMean.length > 0) {
+            meanValue = subset_forMean
+                .map((d) => <number>d.value)
+                .reduce((a, b) => a + b, 0) / subset_forMean.length;
+        }
         subset.forEach((d) => d.mean = meanValue)
     }
 
@@ -213,23 +216,27 @@ export function getControlLimits(dataset: SPCChartData): SPCChartData {
 
     for (let i = 0, len = numberTimePeriods + 1; i < len; i++) {
         let subset = data.filter((d) => d.breakP == i);
-        let avgDiff = subset
-            .map((d) => <number>Math.abs(d.difference))
-            .reduce((a, b) => a + b, 0) / (subset.length - 1);
+        let subset_forAvg = subset.filter(d => d.value !== null);
 
-        if (subset.length == 1) {
+        let avgDiff = subset_forAvg
+            .map((d) => <number>Math.abs(d.difference))
+            .reduce((a, b) => a + b, 0) / (subset_forAvg.length - 1);
+
+        if (subset_forAvg.length <= 1) {
             avgDiff = null
         };
 
-        subset.forEach((d) => d.UCLValue = d.mean + 2.66 * avgDiff);
-        subset.forEach((d) => d.LCLValue = d.mean - 2.66 * avgDiff);
+        subset.forEach((d) => d.UCLValue = avgDiff !== null ? d.mean + 2.66 * avgDiff : null);
+        subset.forEach((d) => d.LCLValue = avgDiff !== null ? d.mean - 2.66 * avgDiff : null);
 
-        subset.forEach((d) => d.Upper_Zone_A = d.mean + 2.66 * avgDiff * 2 / 3);
-        subset.forEach((d) => d.Lower_Zone_A = d.mean - 2.66 * avgDiff * 2 / 3);
+        subset.forEach((d) => d.Upper_Zone_A = avgDiff !== null ? d.mean + 2.66 * avgDiff * 2 / 3 : null);
+        subset.forEach((d) => d.Lower_Zone_A = avgDiff !== null ? d.mean - 2.66 * avgDiff * 2 / 3 : null);
 
-        subset.forEach((d) => d.Upper_Zone_B = d.mean + 2.66 * avgDiff * 1 / 3);
-        subset.forEach((d) => d.Lower_Zone_B = d.mean - 2.66 * avgDiff * 1 / 3);
+        subset.forEach((d) => d.Upper_Zone_B = avgDiff !== null ? d.mean + 2.66 * avgDiff * 1 / 3 : null);
+        subset.forEach((d) => d.Lower_Zone_B = avgDiff !== null ? d.mean - 2.66 * avgDiff * 1 / 3 : null);
+
     }
+
 
     return {
         datapoints: data,

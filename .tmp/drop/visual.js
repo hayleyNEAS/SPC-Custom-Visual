@@ -1591,7 +1591,6 @@ function dataLoad(options) {
     }
     dates_input = dataViews[0].categorical.categories[0].values;
     let dates_input_parsed = dates_input.map(d => (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .parseDates */ .Y8)(d));
-    console.log(dates_input_parsed);
     return [dates_input_parsed, value_input, target_input, breakPoint_input];
 }
 function dataSet(dates, input, breakPoints, levelOfDateHeirarchy, formatSettings) {
@@ -1611,9 +1610,12 @@ function dataSet(dates, input, breakPoints, levelOfDateHeirarchy, formatSettings
             breakP = breakPoints[i];
             category = dates[i];
         }
-        let difference = 0;
+        let difference = null;
+        let previous_not_null_values = SPCChartDataPoints.filter(d => d.value !== null);
         if (i > 0) {
-            difference = value - SPCChartDataPoints.at(-1).value;
+            if (value !== null && previous_not_null_values.length > 0) {
+                difference = value - previous_not_null_values.at(-1).value;
+            }
         }
         SPCChartDataPoints.push({
             color: 'steelblue',
@@ -1645,7 +1647,7 @@ function fullData(options, formatSettings) {
     let numberOfTimePeriods = data
         .map((d) => d.breakP)
         .reduce((a, b) => Math.max(a, b), 0);
-    console.log(levelOfDateHeirarchy.split(":")[0]);
+    //console.log(levelOfDateHeirarchy.split(":")[0])
     return {
         datapoints: data,
         n: data.length,
@@ -2165,9 +2167,13 @@ function getMean(dataset) {
     let numberTimePeriods = dataset.numberOfTimePeriods;
     for (let i = 0, len = numberTimePeriods + 1; i < len; i++) {
         let subset = data.filter((d) => d.breakP == i);
-        let meanValue = subset
-            .map((d) => d.value)
-            .reduce((a, b) => a + b, 0) / subset.length;
+        let subset_forMean = subset.filter(d => d.value !== null);
+        let meanValue = null;
+        if (subset_forMean.length > 0) {
+            meanValue = subset_forMean
+                .map((d) => d.value)
+                .reduce((a, b) => a + b, 0) / subset_forMean.length;
+        }
         subset.forEach((d) => d.mean = meanValue);
     }
     return {
@@ -2194,19 +2200,20 @@ function getControlLimits(dataset) {
     let numberTimePeriods = dataset.numberOfTimePeriods;
     for (let i = 0, len = numberTimePeriods + 1; i < len; i++) {
         let subset = data.filter((d) => d.breakP == i);
-        let avgDiff = subset
+        let subset_forAvg = subset.filter(d => d.value !== null);
+        let avgDiff = subset_forAvg
             .map((d) => Math.abs(d.difference))
-            .reduce((a, b) => a + b, 0) / (subset.length - 1);
-        if (subset.length == 1) {
+            .reduce((a, b) => a + b, 0) / (subset_forAvg.length - 1);
+        if (subset_forAvg.length <= 1) {
             avgDiff = null;
         }
         ;
-        subset.forEach((d) => d.UCLValue = d.mean + 2.66 * avgDiff);
-        subset.forEach((d) => d.LCLValue = d.mean - 2.66 * avgDiff);
-        subset.forEach((d) => d.Upper_Zone_A = d.mean + 2.66 * avgDiff * 2 / 3);
-        subset.forEach((d) => d.Lower_Zone_A = d.mean - 2.66 * avgDiff * 2 / 3);
-        subset.forEach((d) => d.Upper_Zone_B = d.mean + 2.66 * avgDiff * 1 / 3);
-        subset.forEach((d) => d.Lower_Zone_B = d.mean - 2.66 * avgDiff * 1 / 3);
+        subset.forEach((d) => d.UCLValue = avgDiff !== null ? d.mean + 2.66 * avgDiff : null);
+        subset.forEach((d) => d.LCLValue = avgDiff !== null ? d.mean - 2.66 * avgDiff : null);
+        subset.forEach((d) => d.Upper_Zone_A = avgDiff !== null ? d.mean + 2.66 * avgDiff * 2 / 3 : null);
+        subset.forEach((d) => d.Lower_Zone_A = avgDiff !== null ? d.mean - 2.66 * avgDiff * 2 / 3 : null);
+        subset.forEach((d) => d.Upper_Zone_B = avgDiff !== null ? d.mean + 2.66 * avgDiff * 1 / 3 : null);
+        subset.forEach((d) => d.Lower_Zone_B = avgDiff !== null ? d.mean - 2.66 * avgDiff * 1 / 3 : null);
     }
     return {
         datapoints: data,
@@ -2497,7 +2504,6 @@ class SPCChart {
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(_visualSettingsModel__WEBPACK_IMPORTED_MODULE_2__/* .VisualSettingsModel */ .i, options.dataViews[0]);
         let data = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_4__/* .createDataset */ .Ty)(options, this.host, this.formattingSettings);
         this.dataPoints = data.datapoints;
-        console.log(data.n);
         //Define the chart size
         let width = options.viewport.width;
         let height = options.viewport.height;

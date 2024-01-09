@@ -85,7 +85,6 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
 
     dates_input = dataViews[0].categorical.categories[0].values
     let dates_input_parsed = dates_input.map(d => parseDates(d) )
-    console.log(dates_input_parsed)
 
     return [dates_input_parsed, value_input, target_input, breakPoint_input]
 }
@@ -111,9 +110,12 @@ export function dataSet(dates:any, input: any[], breakPoints: any[], levelOfDate
             category = dates[i]
         }
 
-        let difference = 0
+        let difference = null
+        let previous_not_null_values = SPCChartDataPoints.filter(d => d.value !== null)
         if (i > 0) {
-            difference = <number>value - <number>SPCChartDataPoints.at(-1).value
+            if( value !== null && previous_not_null_values.length > 0){
+            difference = <number>value - <number>previous_not_null_values.at(-1).value
+            }
         }
 
         SPCChartDataPoints.push({
@@ -154,7 +156,7 @@ export function fullData(options: VisualUpdateOptions, formatSettings: VisualSet
         .map((d) => <number>d.breakP)
         .reduce((a,b) => Math.max(a,b), 0 )
 
-    console.log(levelOfDateHeirarchy.split(":")[0])
+    //console.log(levelOfDateHeirarchy.split(":")[0])
     
 
     return {
