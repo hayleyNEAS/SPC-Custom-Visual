@@ -103,7 +103,7 @@ declare class EnableYAxisCardSettings extends CompCard {
 */
 export declare class VisualSettingsModel extends FormattingSettingsModel {
     SPCSettings: SPC;
-    dataManip: dataManipulator;
+    dataManipulator: dataManipulator;
     enableAxis: EnableAxisCardSettings;
     enableYAxis: EnableYAxisCardSettings;
     cards: (SPC | dataManipulator | EnableAxisCardSettings | EnableYAxisCardSettings)[];

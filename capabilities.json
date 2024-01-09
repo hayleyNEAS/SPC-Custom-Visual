@@ -197,7 +197,7 @@
 
             }
         },
-        "dataManip": {
+        "dataManipulator": {
             "properties": {
                 "fillMissing0": {
                     "type": {

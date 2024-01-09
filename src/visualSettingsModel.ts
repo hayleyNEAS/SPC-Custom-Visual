@@ -271,11 +271,11 @@ export class VisualSettingsModel extends FormattingSettingsModel {
 
     // Create formatting settings model formatting cards
     SPCSettings = new SPC();
-    dataManip = new dataManipulator();
+    dataManipulator = new dataManipulator();
     enableAxis = new EnableAxisCardSettings();
     enableYAxis = new EnableYAxisCardSettings();
     //colorSelector = new ColorSelectorCardSettings();
-    cards = [this.SPCSettings, this.dataManip, this.enableAxis, this.enableYAxis];
+    cards = [this.SPCSettings, this.dataManipulator, this.enableAxis, this.enableYAxis];
 
 
     /**

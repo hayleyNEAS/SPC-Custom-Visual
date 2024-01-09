@@ -85,30 +85,46 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
 
     dates_input = dataViews[0].categorical.categories[0].values
     let dates_input_parsed = dates_input.map(d => parseDates(d) )
-    //console.log(dates_input_parsed)
+    console.log(dates_input_parsed)
 
     return [dates_input_parsed, value_input, target_input, breakPoint_input]
 }
 
-export function dataSet(dates:any, input: any[], breakP: any[]): SPCChartDataPoint[] {
+export function dataSet(dates:any, input: any[], breakPoints: any[], levelOfDateHeirarchy: string, formatSettings:VisualSettingsModel): SPCChartDataPoint[] {
     let SPCChartDataPoints: SPCChartDataPoint[] = []
 
-    for (let i = 0, len = input.length; i < len; i++) {
 
-        let diff = 0
+    let allDates = getDatesArray(dates.at(0), dates.at(-1), levelOfDateHeirarchy)
+
+    for (let i = 0, len = formatSettings.dataManipulator.fillMissing0.value? allDates.length : dates.length; i < len; i++){
+        let value:number;
+        let breakP:number;
+        let category:string;
+
+        if(formatSettings.dataManipulator.fillMissing0.value){
+            value = input[dates.indexOf(allDates[i])] ? input[dates.indexOf(allDates[i])] : 0;
+            breakP = <number>breakPoints[dates.indexOf(allDates[i])] ? <number>breakPoints[dates.indexOf(allDates[i])] : 0;
+            category= <string>allDates[i];
+        } else {
+            value = input[i]
+            breakP = breakPoints[i]
+            category = dates[i]
+        }
+
+        let difference = 0
         if (i > 0) {
-            diff = <number>input[i] - <number>input[i - 1]
+            difference = <number>value - <number>SPCChartDataPoints.at(-1).value
         }
 
         SPCChartDataPoints.push({
             color: 'steelblue',
             markerSize: 0,
 
-            value: input[i],
-            category: <string>dates[i],
-            breakP: <number>breakP[i],
+            value,
+            category,
+            breakP,
 
-            difference: diff,
+            difference,
             mean: input[0],
             UCLValue: Infinity,
             LCLValue: -Infinity,
@@ -124,14 +140,13 @@ export function dataSet(dates:any, input: any[], breakP: any[]): SPCChartDataPoi
             twoInThree: 0
         });
     }
-
     return SPCChartDataPoints;
 }
 
 export function fullData(options: VisualUpdateOptions, formatSettings: VisualSettingsModel): SPCChartData {
     let [dates_input, value_input, target_input, breakPoint_input] = dataLoad(options)
-    let data = dataSet(dates_input, value_input, breakPoint_input)
     let [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = PBIformatingKeeper(options)
+    let data = dataSet(dates_input, value_input, breakPoint_input, levelOfDateHeirarchy, formatSettings)
     let target = getTarget(target_input, formatSettings)
 
     
@@ -139,10 +154,8 @@ export function fullData(options: VisualUpdateOptions, formatSettings: VisualSet
         .map((d) => <number>d.breakP)
         .reduce((a,b) => Math.max(a,b), 0 )
 
-    //console.log(levelOfDateHeirarchy.split(":")[0])
+    console.log(levelOfDateHeirarchy.split(":")[0])
     
-    let allDates = getDatesArray(dates_input.at(0), dates_input.at(-1), levelOfDateHeirarchy)
-    //console.log(allDates)
 
     return {
         datapoints: data,

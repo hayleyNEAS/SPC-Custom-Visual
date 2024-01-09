@@ -1591,23 +1591,37 @@ function dataLoad(options) {
     }
     dates_input = dataViews[0].categorical.categories[0].values;
     let dates_input_parsed = dates_input.map(d => (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .parseDates */ .Y8)(d));
-    //console.log(dates_input_parsed)
+    console.log(dates_input_parsed);
     return [dates_input_parsed, value_input, target_input, breakPoint_input];
 }
-function dataSet(dates, input, breakP) {
+function dataSet(dates, input, breakPoints, levelOfDateHeirarchy, formatSettings) {
     let SPCChartDataPoints = [];
-    for (let i = 0, len = input.length; i < len; i++) {
-        let diff = 0;
+    let allDates = getDatesArray(dates.at(0), dates.at(-1), levelOfDateHeirarchy);
+    for (let i = 0, len = formatSettings.dataManipulator.fillMissing0.value ? allDates.length : dates.length; i < len; i++) {
+        let value;
+        let breakP;
+        let category;
+        if (formatSettings.dataManipulator.fillMissing0.value) {
+            value = input[dates.indexOf(allDates[i])] ? input[dates.indexOf(allDates[i])] : 0;
+            breakP = breakPoints[dates.indexOf(allDates[i])] ? breakPoints[dates.indexOf(allDates[i])] : 0;
+            category = allDates[i];
+        }
+        else {
+            value = input[i];
+            breakP = breakPoints[i];
+            category = dates[i];
+        }
+        let difference = 0;
         if (i > 0) {
-            diff = input[i] - input[i - 1];
+            difference = value - SPCChartDataPoints.at(-1).value;
         }
         SPCChartDataPoints.push({
             color: 'steelblue',
             markerSize: 0,
-            value: input[i],
-            category: dates[i],
-            breakP: breakP[i],
-            difference: diff,
+            value,
+            category,
+            breakP,
+            difference,
             mean: input[0],
             UCLValue: Infinity,
             LCLValue: -Infinity,
@@ -1625,15 +1639,13 @@ function dataSet(dates, input, breakP) {
 }
 function fullData(options, formatSettings) {
     let [dates_input, value_input, target_input, breakPoint_input] = dataLoad(options);
-    let data = dataSet(dates_input, value_input, breakPoint_input);
     let [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .PBIformatingKeeper */ .WN)(options);
+    let data = dataSet(dates_input, value_input, breakPoint_input, levelOfDateHeirarchy, formatSettings);
     let target = getTarget(target_input, formatSettings);
     let numberOfTimePeriods = data
         .map((d) => d.breakP)
         .reduce((a, b) => Math.max(a, b), 0);
-    //console.log(levelOfDateHeirarchy.split(":")[0])
-    let allDates = getDatesArray(dates_input.at(0), dates_input.at(-1), levelOfDateHeirarchy);
-    //console.log(allDates)
+    console.log(levelOfDateHeirarchy.split(":")[0]);
     return {
         datapoints: data,
         n: data.length,
@@ -2572,6 +2584,7 @@ class SPCChart {
                 maxW_xAxis = this.getBBox().width;
         });
         let n_xTicks = Math.ceil(total_label_coverage * 1.2 / (widthChartEnd - widthChartStart));
+        //console.log('reducer', total_label_coverage, widthChartEnd, widthChartStart, (total_label_coverage / (widthChartEnd - widthChartStart) > 1))
         if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) { //BUG if chart reduces to one data point chart doesnt refresh 
             this.xAxis
                 .selectAll(`.tick`)
@@ -3072,11 +3085,11 @@ class EnableYAxisCardSettings extends CompCard {
 class VisualSettingsModel extends FormattingSettingsModel {
     // Create formatting settings model formatting cards
     SPCSettings = new SPC();
-    dataManip = new dataManipulator();
+    dataManipulator = new dataManipulator();
     enableAxis = new EnableAxisCardSettings();
     enableYAxis = new EnableYAxisCardSettings();
     //colorSelector = new ColorSelectorCardSettings();
-    cards = [this.SPCSettings, this.dataManip, this.enableAxis, this.enableYAxis];
+    cards = [this.SPCSettings, this.dataManipulator, this.enableAxis, this.enableYAxis];
 }
 
 
