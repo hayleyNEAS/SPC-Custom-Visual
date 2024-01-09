@@ -328,10 +328,9 @@ export class SPCChart implements IVisual {
                 .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' && data.target == -Infinity ? 0 : 2)
         }
 
-
         //Create data line
         this.lineData
-            .datum(this.dataPoints)
+            .datum(this.dataPoints.filter(d => d.value !== null))
             .style("stroke-linecap", "round")
             .attr("fill", "none")
             .attr("stroke", function (d) { return data.strokeColor })
@@ -346,7 +345,7 @@ export class SPCChart implements IVisual {
 
         if (this.formattingSettings.SPCSettings.markerOptions.showMarker.value) {
             this.dataMarkers
-                .data(this.dataPoints)
+                .data(this.dataPoints.filter(d => d.value !== null))
                 .enter()
                 .append("circle")
                 .attr("class", "markers")
@@ -357,7 +356,7 @@ export class SPCChart implements IVisual {
         }
 
         this.tooltipMarkers
-            .data(this.dataPoints)
+            .data(this.dataPoints.filter(d => d.value !== null))
             .enter()
             .append("circle")
             .attr("class", "markers tooltip")
@@ -368,7 +367,7 @@ export class SPCChart implements IVisual {
             .attr("opacity", 0);
 
         this.dataMarkers
-            .data(this.dataPoints)
+            .data(this.dataPoints.filter(d => d.value !== null))
             .enter()
             .append("rect")
             .attr("class", "markers")
@@ -380,7 +379,7 @@ export class SPCChart implements IVisual {
             .attr("opacity", 0); //invisable rectangles 
 
         this.tooltipMarkers
-            .data(this.dataPoints)
+            .data(this.dataPoints.filter(d => d.value !== null))
             .enter()
             .append("rect")
             .attr("class", "markers tooltip")

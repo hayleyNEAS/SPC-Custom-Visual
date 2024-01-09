@@ -2615,7 +2615,7 @@ class SPCChart {
         }
         //Create data line
         this.lineData
-            .datum(this.dataPoints)
+            .datum(this.dataPoints.filter(d => d.value !== null))
             .style("stroke-linecap", "round")
             .attr("fill", "none")
             .attr("stroke", function (d) { return data.strokeColor; })
@@ -2627,7 +2627,7 @@ class SPCChart {
         this.svg.selectAll('.markers').remove();
         if (this.formattingSettings.SPCSettings.markerOptions.showMarker.value) {
             this.dataMarkers
-                .data(this.dataPoints)
+                .data(this.dataPoints.filter(d => d.value !== null))
                 .enter()
                 .append("circle")
                 .attr("class", "markers")
@@ -2637,7 +2637,7 @@ class SPCChart {
                 .attr("fill", function (d) { return d.color; });
         }
         this.tooltipMarkers
-            .data(this.dataPoints)
+            .data(this.dataPoints.filter(d => d.value !== null))
             .enter()
             .append("circle")
             .attr("class", "markers tooltip")
@@ -2647,7 +2647,7 @@ class SPCChart {
             .attr("fill", function (d) { return data.strokeColor; })
             .attr("opacity", 0);
         this.dataMarkers
-            .data(this.dataPoints)
+            .data(this.dataPoints.filter(d => d.value !== null))
             .enter()
             .append("rect")
             .attr("class", "markers")
@@ -2658,7 +2658,7 @@ class SPCChart {
             .attr("fill", function (d) { return d.color; })
             .attr("opacity", 0); //invisable rectangles 
         this.tooltipMarkers
-            .data(this.dataPoints)
+            .data(this.dataPoints.filter(d => d.value !== null))
             .enter()
             .append("rect")
             .attr("class", "markers tooltip")
