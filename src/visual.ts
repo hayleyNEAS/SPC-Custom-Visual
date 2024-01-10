@@ -170,6 +170,7 @@ export class SPCChart implements IVisual {
 
         let data = createDataset(options, this.host, this.formattingSettings);
         this.dataPoints = data.datapoints;
+        console.log(this.dataPoints)
 
         //Define the chart size
         let width = options.viewport.width;
@@ -361,8 +362,8 @@ export class SPCChart implements IVisual {
             .attr("class", "markers tooltip")
             .attr("cx", function (d) { return xScale(d.category) })
             .attr("cy", function (d) { return yScale(<number>d.value) })
-            .attr("r", function (d) { return 3 })
-            .attr("fill", function (d) { return data.strokeColor })
+            .attr("r", function (d) { return data.markerSize })
+            .attr("fill", function (d) { return d.color })
             .attr("opacity", 0);
 
         this.dataMarkers
@@ -375,7 +376,7 @@ export class SPCChart implements IVisual {
             .attr("x", function (d) { return xScale(d.category) - bandwidth / 2 })
             .attr("y", 0)
             .attr("fill", function (d) { return d.color })
-            .attr("opacity", 0.5); //invisable rectangles 
+            .attr("opacity", 0); //invisable rectangles 
 
         this.tooltipMarkers
             .data(this.dataPoints.filter(d => d.value !== null))

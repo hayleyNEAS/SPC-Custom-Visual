@@ -1469,14 +1469,15 @@ function yAxisDomain(data) {
     let UCLData = data.datapoints.map(d => d.UCLValue);
     let LCLData = data.datapoints.map(d => d.LCLValue);
     let maxData = yData.reduce((a, b) => Math.max(a, b), -Infinity);
-    let maxUCL = UCLData.reduce((a, b) => Math.max(a, b), -Infinity);
+    let maxUCL = data.n > 1 ? UCLData.reduce((a, b) => Math.max(a, b), -Infinity) : -Infinity;
     let yScale_maxData = Math.max(maxData, maxUCL, data.target);
     let minData = yData.reduce((a, b) => Math.min(a, b), Infinity);
-    let minLCL = LCLData.reduce((a, b) => Math.min(a, b), Infinity);
-    let yScale_minData = Math.min(minData, minLCL); //If a target is removed it get assigned the value -inf, so initially we calcualte the min of a data without it 
+    let minLCL = data.n > 1 ? LCLData.reduce((a, b) => Math.min(a, b), Infinity) : Infinity;
+    let yScale_minData = Math.min(minData, minLCL); //If a target is removed it get assigned the value -inf, so initially we calculate the min of a data without it 
     if (data.target > -Infinity) {
         yScale_minData = Math.min(minData, minLCL, data.target);
     }
+    console.log(minData, minLCL, data.target, yScale_minData);
     let yScale_increase_window = yScale_maxData * 1.1 - yScale_maxData;
     return [yScale_minData - yScale_increase_window, yScale_maxData + yScale_increase_window];
 }
@@ -2313,7 +2314,6 @@ function getMarkerColors(dataset, formatSettings) {
         }
     }
     if (dataset.n == 1) {
-        console.log('single point', dataset.strokeColor);
         data.forEach(d => d.markerSize = dataset.markerSize);
         data.forEach(d => d.color = dataset.strokeColor);
     }
@@ -2528,6 +2528,7 @@ class SPCChart {
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(_visualSettingsModel__WEBPACK_IMPORTED_MODULE_2__/* .VisualSettingsModel */ .i, options.dataViews[0]);
         let data = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_4__/* .createDataset */ .Ty)(options, this.host, this.formattingSettings);
         this.dataPoints = data.datapoints;
+        console.log(this.dataPoints);
         //Define the chart size
         let width = options.viewport.width;
         let height = options.viewport.height;
@@ -2674,8 +2675,8 @@ class SPCChart {
             .attr("class", "markers tooltip")
             .attr("cx", function (d) { return xScale(d.category); })
             .attr("cy", function (d) { return yScale(d.value); })
-            .attr("r", function (d) { return 3; })
-            .attr("fill", function (d) { return data.strokeColor; })
+            .attr("r", function (d) { return data.markerSize; })
+            .attr("fill", function (d) { return d.color; })
             .attr("opacity", 0);
         this.dataMarkers
             .data(this.dataPoints.filter(d => d.value !== null))
@@ -2687,7 +2688,7 @@ class SPCChart {
             .attr("x", function (d) { return xScale(d.category) - bandwidth / 2; })
             .attr("y", 0)
             .attr("fill", function (d) { return d.color; })
-            .attr("opacity", 0.5); //invisable rectangles 
+            .attr("opacity", 0); //invisable rectangles 
         this.tooltipMarkers
             .data(this.dataPoints.filter(d => d.value !== null))
             .enter()

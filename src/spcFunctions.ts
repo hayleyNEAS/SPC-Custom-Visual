@@ -320,7 +320,6 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSet
     }
 
     if (dataset.n == 1) { 
-        console.log('single point', dataset.strokeColor)
         data.forEach(d => d.markerSize = dataset.markerSize)
         data.forEach(d => d.color = dataset.strokeColor) 
     }

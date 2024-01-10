@@ -16,18 +16,17 @@ export function yAxisDomain(data: SPCChartData){
     let LCLData = data.datapoints.map(d => <number>d.LCLValue)
 
     let maxData = yData.reduce((a,b) => Math.max(a,b), -Infinity)
-    let maxUCL = UCLData.reduce((a,b) => Math.max(a,b), -Infinity)
+    let maxUCL = data.n > 1 ? UCLData.reduce((a,b) => Math.max(a,b), -Infinity) : -Infinity
     let yScale_maxData = Math.max(maxData, maxUCL, data.target)
 
-    
     let minData = yData.reduce((a,b) => Math.min(a,b), Infinity)
-    let minLCL = LCLData.reduce((a,b) => Math.min(a,b), Infinity)
+    let minLCL = data.n > 1 ? LCLData.reduce((a,b) => Math.min(a,b), Infinity) : Infinity
 
-    let yScale_minData = Math.min(minData, minLCL) //If a target is removed it get assigned the value -inf, so initially we calcualte the min of a data without it 
+    let yScale_minData = Math.min(minData, minLCL) //If a target is removed it get assigned the value -inf, so initially we calculate the min of a data without it 
     if(data.target > -Infinity){
         yScale_minData = Math.min(minData, minLCL, data.target)
     }
-
+    console.log(minData, minLCL, data.target, yScale_minData)
 
     let yScale_increase_window = yScale_maxData*1.1 - yScale_maxData
     return [yScale_minData - yScale_increase_window, yScale_maxData + yScale_increase_window]
