@@ -1892,12 +1892,15 @@ function parseinHMS(d) {
     return sign + String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
 }
 function parseYLabels(d, hms) {
-    if (hms) {
-        return parseinHMS(d);
+    if (d !== null) {
+        if (hms) {
+            return parseinHMS(d);
+        }
+        else {
+            return d.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
     }
-    else {
-        return d.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
+    return "Undefined";
 }
 function PBIformatingKeeper(options) {
     let metadata = options.dataViews[0].metadata.columns;

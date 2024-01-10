@@ -180,12 +180,15 @@ export function parseinHMS(d: d3.NumberValue) {
     return sign + String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0')
 }
 
-export function parseYLabels(d: d3.NumberValue, hms:boolean){
-    if(hms){
-        return parseinHMS(d)
-    } else {
-        return d.toLocaleString(undefined, {minimumFractionDigits : 2, maximumFractionDigits : 2})
-    }
+export function parseYLabels(d: d3.NumberValue, hms: boolean) {
+    if (d !== null) {
+        if (hms) {
+            return parseinHMS(d)
+        } else {
+            return d.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        }
+
+    } return "Undefined"
 }
 
 export function PBIformatingKeeper(options: VisualUpdateOptions): [string, string, number, string] {
