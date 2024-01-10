@@ -45,6 +45,12 @@ export function parseDates(label: string) {
             return parsed.toDateString()
     }
 
+    formatter = d3.timeParse('%Y Qtr %q %d/%m/%Y %d/%m/%Y');
+    parsed = formatter(label);
+    if (parsed) {
+            return parsed.toDateString()
+    }
+
     formatter = d3.timeParse('%Y Qtr %q %d/%m/%Y %d/%m/%Y %d/%m/%Y');
     parsed = formatter(label);
     if (parsed) {
@@ -84,15 +90,30 @@ export function getDayDiff(startDate: Date, endDate: Date): number {
     return Math.round(
       Math.abs(Number(endDate) - Number(startDate)) / msInDay
     );
-  }
+}
+
+function firstXDayOfMonth(day: number, date: Date): number {
+    //day = 1 for monday, 0 for sunday
+    let dayOfWeek = date.getDay()
+    
+    if(dayOfWeek == day && date.getDate() == 1){
+        return 1
+    } if(dayOfWeek == day && date.getDate() <=7){
+        return 1
+    } else {
+        return 0
+    }
+}
 
 export function parseDateLabel(label: string, levelOfDateHeirarchy: string, datelimits: Date[]) { //TODO if data is sparce and no infered as 0 then diff need to be data.length
     let diff = getDayDiff(datelimits[0], datelimits[1])
+
 
     let formatter = d3.timeParse('%a %b %d %Y');
     let parsed = formatter(label);
     if (parsed) {
          if (diff >= 365 * 3) { 
+            console.log('date diff' , diff, firstXDayOfMonth(1, parsed))
             //if you have more than 3 years worth of data then just show the 1st jan
             if ( (parsed.getMonth() == 0 && parsed.getDate() == 1 ) || levelOfDateHeirarchy == "Year") {
                 return parsed.getFullYear().toString()

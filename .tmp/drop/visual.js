@@ -1752,6 +1752,11 @@ function parseDates(label) {
     if (parsed) {
         return parsed.toDateString();
     }
+    formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q %d/%m/%Y %d/%m/%Y');
+    parsed = formatter(label);
+    if (parsed) {
+        return parsed.toDateString();
+    }
     formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%Y Qtr %q %d/%m/%Y %d/%m/%Y %d/%m/%Y');
     parsed = formatter(label);
     if (parsed) {
@@ -1785,12 +1790,27 @@ function getDayDiff(startDate, endDate) {
     const msInDay = 24 * 60 * 60 * 1000;
     return Math.round(Math.abs(Number(endDate) - Number(startDate)) / msInDay);
 }
+function firstXDayOfMonth(day, date) {
+    //day = 1 for monday, 0 for sunday
+    let dayOfWeek = date.getDay();
+    console.log(dayOfWeek);
+    if (dayOfWeek == day && date.getDate() == 1) {
+        return 1;
+    }
+    if (dayOfWeek == day && date.getDate() <= 7) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
 function parseDateLabel(label, levelOfDateHeirarchy, datelimits) {
     let diff = getDayDiff(datelimits[0], datelimits[1]);
     let formatter = d3__WEBPACK_IMPORTED_MODULE_0__/* .timeParse */ .Z1g('%a %b %d %Y');
     let parsed = formatter(label);
     if (parsed) {
         if (diff >= 365 * 3) {
+            console.log('date diff', diff, firstXDayOfMonth(1, parsed));
             //if you have more than 3 years worth of data then just show the 1st jan
             if ((parsed.getMonth() == 0 && parsed.getDate() == 1) || levelOfDateHeirarchy == "Year") {
                 return parsed.getFullYear().toString();
@@ -2590,7 +2610,7 @@ class SPCChart {
                 maxW_xAxis = this.getBBox().width;
         });
         let n_xTicks = Math.ceil(total_label_coverage * 1.2 / (widthChartEnd - widthChartStart));
-        //console.log('reducer', total_label_coverage, widthChartEnd, widthChartStart, (total_label_coverage / (widthChartEnd - widthChartStart) > 1))
+        console.log('reducer', total_label_coverage, widthChartEnd, widthChartStart, (total_label_coverage / (widthChartEnd - widthChartStart) > 1));
         if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) { //BUG if chart reduces to one data point chart doesnt refresh 
             this.xAxis
                 .selectAll(`.tick`)

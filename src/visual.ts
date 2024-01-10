@@ -293,7 +293,7 @@ export class SPCChart implements IVisual {
 
         let n_xTicks = Math.ceil(total_label_coverage * 1.2 / (widthChartEnd - widthChartStart))
         
-        //console.log('reducer', total_label_coverage, widthChartEnd, widthChartStart, (total_label_coverage / (widthChartEnd - widthChartStart) > 1))
+        console.log('reducer', total_label_coverage, widthChartEnd, widthChartStart, (total_label_coverage / (widthChartEnd - widthChartStart) > 1))
         if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) { //BUG if chart reduces to one data point chart doesnt refresh 
             this.xAxis
                 .selectAll(`.tick`)
