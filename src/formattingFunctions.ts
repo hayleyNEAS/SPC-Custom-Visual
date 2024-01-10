@@ -113,7 +113,7 @@ export function parseDateLabel(label: string, levelOfDateHeirarchy: string, date
     let parsed = formatter(label);
     if (parsed) {
          if (diff >= 365 * 3) { 
-            console.log('date diff' , diff, firstXDayOfMonth(1, parsed))
+            //console.log('date diff' , diff, firstXDayOfMonth(1, parsed))
             //if you have more than 3 years worth of data then just show the 1st jan
             if ( (parsed.getMonth() == 0 && parsed.getDate() == 1 ) || levelOfDateHeirarchy == "Year") {
                 return parsed.getFullYear().toString()

@@ -179,7 +179,6 @@ export class SPCChart implements IVisual {
         //Define the usable chart size
         let widthChartStart = 0;
         let widthChartEnd = 0.98 * width; //0.98 so the final labels fit on the screen
-        let bandwidth = (widthChartEnd - widthChartStart) / (data.n - 1); //each datapoint akes up one "bandwidth" of the chart area
 
         //Give the chart image a width and a height based on the size of the image in the report
         this.svg
@@ -243,14 +242,15 @@ export class SPCChart implements IVisual {
             yShift = maxW + 10; //longest "word" plus 10 pixels
         }
 
-        widthChartStart = yShift + (width - widthChartEnd)
-
         this.yAxis
             .style('font-family', 'inherit')
             .style('font-size', 11) //TODO make this a drop down
             .attr('transform', 'translate(' + (yShift) + ',0)')
 
         //Set up the X Axis
+        widthChartStart = yShift + (width - widthChartEnd)
+        let bandwidth = data.n == 1 ? (widthChartEnd - widthChartStart) : (widthChartEnd - widthChartStart) / (data.n - 1); //each datapoint takes up one "bandwidth" of the chart area
+
         this.xAxis
             .style("font-size", 11)
             ;
@@ -260,7 +260,7 @@ export class SPCChart implements IVisual {
             .range([widthChartStart, widthChartEnd])
             ;
 
-        let span = [1, -1].map(i => new Date(this.dataPoints.at(i).category))
+        let span = [0, -1].map(i => new Date(this.dataPoints.at(i).category))
         let xAxis = axisBottom(xScale)
             .tickFormat(d => parseDateLabel(d, data.levelOfDateHeirarchy, span))
             ;
@@ -293,17 +293,18 @@ export class SPCChart implements IVisual {
 
         let n_xTicks = Math.ceil(total_label_coverage * 1.2 / (widthChartEnd - widthChartStart))
         
-        console.log('reducer', total_label_coverage, widthChartEnd, widthChartStart, (total_label_coverage / (widthChartEnd - widthChartStart) > 1))
-        if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) { //BUG if chart reduces to one data point chart doesnt refresh 
-            this.xAxis
-                .selectAll(`.tick`)
-                .attr('display', 'none')
+         if (data.n > 1) {
+            if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) { //BUG if chart reduces to one data point chart doesnt refresh 
+                this.xAxis
+                    .selectAll(`.tick`)
+                    .attr('display', 'none')
 
-            this.xAxis
-                .selectAll(`.tick:nth-child(${n_xTicks}n + ${Math.floor(n_xTicks / 2)})`)
-                .attr('display', 'block')
-        }
+                this.xAxis
+                    .selectAll(`.tick:nth-child(${n_xTicks}n + ${Math.floor(n_xTicks / 2)})`)
+                    .attr('display', 'block')
+            }
 
+        } 
 
         //Create target line
         if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
@@ -374,7 +375,7 @@ export class SPCChart implements IVisual {
             .attr("x", function (d) { return xScale(d.category) - bandwidth / 2 })
             .attr("y", 0)
             .attr("fill", function (d) { return d.color })
-            .attr("opacity", 0); //invisable rectangles 
+            .attr("opacity", 0.5); //invisable rectangles 
 
         this.tooltipMarkers
             .data(this.dataPoints.filter(d => d.value !== null))

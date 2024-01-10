@@ -1591,6 +1591,7 @@ function dataLoad(options) {
     }
     dates_input = dataViews[0].categorical.categories[0].values;
     let dates_input_parsed = dates_input.map(d => (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .parseDates */ .Y8)(d));
+    console.log(dates_input_parsed.length, 'parsed dates');
     return [dates_input_parsed, value_input, target_input, breakPoint_input];
 }
 function dataSet(dates, input, breakPoints, levelOfDateHeirarchy, formatSettings) {
@@ -1793,7 +1794,6 @@ function getDayDiff(startDate, endDate) {
 function firstXDayOfMonth(day, date) {
     //day = 1 for monday, 0 for sunday
     let dayOfWeek = date.getDay();
-    console.log(dayOfWeek);
     if (dayOfWeek == day && date.getDate() == 1) {
         return 1;
     }
@@ -1810,7 +1810,7 @@ function parseDateLabel(label, levelOfDateHeirarchy, datelimits) {
     let parsed = formatter(label);
     if (parsed) {
         if (diff >= 365 * 3) {
-            console.log('date diff', diff, firstXDayOfMonth(1, parsed));
+            //console.log('date diff' , diff, firstXDayOfMonth(1, parsed))
             //if you have more than 3 years worth of data then just show the 1st jan
             if ((parsed.getMonth() == 0 && parsed.getDate() == 1) || levelOfDateHeirarchy == "Year") {
                 return parsed.getFullYear().toString();
@@ -2037,16 +2037,18 @@ function identifyOutliers(dataset, formatSettings) {
     let data = dataset.datapoints;
     let outlierColor = formatSettings.SPCSettings.markerOptions.outlier.value.value;
     let outlierShow = Number(formatSettings.SPCSettings.markerOptions.showOutlier.value);
-    for (let i = 0, len = dataset.n; i < len; i++) {
-        if (data[i].value > data[i].UCLValue) {
-            data[i].color = outlierColor;
-            data[i].markerSize = dataset.markerSize * outlierShow;
-            data[i].outlier = 1;
-        }
-        if (data[i].value < data[i].LCLValue) {
-            data[i].color = outlierColor;
-            data[i].markerSize = dataset.markerSize * outlierShow;
-            data[i].outlier = -1;
+    if (dataset.n > 1) {
+        for (let i = 0, len = dataset.n; i < len; i++) {
+            if (data[i].value > data[i].UCLValue) {
+                data[i].color = outlierColor;
+                data[i].markerSize = dataset.markerSize * outlierShow;
+                data[i].outlier = 1;
+            }
+            if (data[i].value < data[i].LCLValue) {
+                data[i].color = outlierColor;
+                data[i].markerSize = dataset.markerSize * outlierShow;
+                data[i].outlier = -1;
+            }
         }
     }
     return {
@@ -2311,7 +2313,9 @@ function getMarkerColors(dataset, formatSettings) {
         }
     }
     if (dataset.n == 1) {
-        dataset.datapoints.forEach(d => d.markerSize = dataset.markerSize);
+        console.log('single point', dataset.strokeColor);
+        data.forEach(d => d.markerSize = dataset.markerSize);
+        data.forEach(d => d.color = dataset.strokeColor);
     }
     return {
         datapoints: data,
@@ -2531,7 +2535,6 @@ class SPCChart {
         //Define the usable chart size
         let widthChartStart = 0;
         let widthChartEnd = 0.98 * width; //0.98 so the final labels fit on the screen
-        let bandwidth = (widthChartEnd - widthChartStart) / (data.n - 1); //each datapoint akes up one "bandwidth" of the chart area
         //Give the chart image a width and a height based on the size of the image in the report
         this.svg
             .attr("width", width)
@@ -2578,18 +2581,19 @@ class SPCChart {
         if (this.formattingSettings.enableYAxis.show.value || this.formattingSettings.enableYAxis.formatter.time.value) {
             yShift = maxW + 10; //longest "word" plus 10 pixels
         }
-        widthChartStart = yShift + (width - widthChartEnd);
         this.yAxis
             .style('font-family', 'inherit')
             .style('font-size', 11) //TODO make this a drop down
             .attr('transform', 'translate(' + (yShift) + ',0)');
         //Set up the X Axis
+        widthChartStart = yShift + (width - widthChartEnd);
+        let bandwidth = data.n == 1 ? (widthChartEnd - widthChartStart) : (widthChartEnd - widthChartStart) / (data.n - 1); //each datapoint takes up one "bandwidth" of the chart area
         this.xAxis
             .style("font-size", 11);
         let xScale = (0,d3_scale__WEBPACK_IMPORTED_MODULE_13__/* .point */ .x)()
             .domain(this.dataPoints.map(d => d.category))
             .range([widthChartStart, widthChartEnd]);
-        let span = [1, -1].map(i => new Date(this.dataPoints.at(i).category));
+        let span = [0, -1].map(i => new Date(this.dataPoints.at(i).category));
         let xAxis = (0,d3_axis__WEBPACK_IMPORTED_MODULE_12__/* .axisBottom */ .LL)(xScale)
             .tickFormat(d => (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_3__/* .parseDateLabel */ .YV)(d, data.levelOfDateHeirarchy, span));
         let xAxisObject = this.xAxis
@@ -2610,14 +2614,15 @@ class SPCChart {
                 maxW_xAxis = this.getBBox().width;
         });
         let n_xTicks = Math.ceil(total_label_coverage * 1.2 / (widthChartEnd - widthChartStart));
-        console.log('reducer', total_label_coverage, widthChartEnd, widthChartStart, (total_label_coverage / (widthChartEnd - widthChartStart) > 1));
-        if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) { //BUG if chart reduces to one data point chart doesnt refresh 
-            this.xAxis
-                .selectAll(`.tick`)
-                .attr('display', 'none');
-            this.xAxis
-                .selectAll(`.tick:nth-child(${n_xTicks}n + ${Math.floor(n_xTicks / 2)})`)
-                .attr('display', 'block');
+        if (data.n > 1) {
+            if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) { //BUG if chart reduces to one data point chart doesnt refresh 
+                this.xAxis
+                    .selectAll(`.tick`)
+                    .attr('display', 'none');
+                this.xAxis
+                    .selectAll(`.tick:nth-child(${n_xTicks}n + ${Math.floor(n_xTicks / 2)})`)
+                    .attr('display', 'block');
+            }
         }
         //Create target line
         if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
@@ -2682,7 +2687,7 @@ class SPCChart {
             .attr("x", function (d) { return xScale(d.category) - bandwidth / 2; })
             .attr("y", 0)
             .attr("fill", function (d) { return d.color; })
-            .attr("opacity", 0); //invisable rectangles 
+            .attr("opacity", 0.5); //invisable rectangles 
         this.tooltipMarkers
             .data(this.dataPoints.filter(d => d.value !== null))
             .enter()

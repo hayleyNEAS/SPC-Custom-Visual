@@ -32,17 +32,19 @@ export function identifyOutliers(dataset: SPCChartData, formatSettings: VisualSe
     let outlierColor = formatSettings.SPCSettings.markerOptions.outlier.value.value
     let outlierShow = Number(formatSettings.SPCSettings.markerOptions.showOutlier.value)
 
+    if (dataset.n > 1) {
+        for (let i = 0, len = dataset.n; i < len; i++) {
+            if (<number>data[i].value > data[i].UCLValue) {
+                data[i].color = outlierColor
+                data[i].markerSize = dataset.markerSize * outlierShow
+                data[i].outlier = 1
+            }
+            if (<number>data[i].value < data[i].LCLValue) {
+                data[i].color = outlierColor
+                data[i].markerSize = dataset.markerSize * outlierShow
+                data[i].outlier = -1
+            }
 
-    for (let i = 0, len = dataset.n; i < len; i++) {
-        if (<number>data[i].value > data[i].UCLValue) {
-            data[i].color = outlierColor
-            data[i].markerSize = dataset.markerSize * outlierShow
-            data[i].outlier = 1
-        }
-        if (<number>data[i].value < data[i].LCLValue) {
-            data[i].color = outlierColor
-            data[i].markerSize = dataset.markerSize * outlierShow
-            data[i].outlier = -1
         }
 
     }
@@ -317,8 +319,12 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSet
         }
     }
 
-    if (dataset.n == 1) { dataset.datapoints.forEach(d => d.markerSize = dataset.markerSize) }
-
+    if (dataset.n == 1) { 
+        console.log('single point', dataset.strokeColor)
+        data.forEach(d => d.markerSize = dataset.markerSize)
+        data.forEach(d => d.color = dataset.strokeColor) 
+    }
+    
     return {
         datapoints: data, //this is the pivitol step
 

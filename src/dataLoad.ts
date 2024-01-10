@@ -85,7 +85,7 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
 
     dates_input = dataViews[0].categorical.categories[0].values
     let dates_input_parsed = dates_input.map(d => parseDates(d) )
-
+    console.log(dates_input_parsed.length, 'parsed dates')
     return [dates_input_parsed, value_input, target_input, breakPoint_input]
 }
 
@@ -198,7 +198,6 @@ export function createDataset(options: VisualUpdateOptions, host: IVisualHost, f
     let run = allData.datapoints[allData.n - 1].run
     let shift = allData.datapoints[allData.n - 1].shift
     let twoInThree = allData.datapoints[allData.n - 1].twoInThree
-
 
     return {
         datapoints: allData.datapoints,
