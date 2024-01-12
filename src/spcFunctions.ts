@@ -74,6 +74,10 @@ export function identifyOutliers(dataset: SPCChartData, formatSettings: VisualSe
 }
 
 export function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
+    /**
+     * Two in three rule activation.
+     * +
+     * **/
     if (Direction = 1) {
         if (value > Upper_Zone_A) {
             return 1
@@ -319,11 +323,11 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSet
         }
     }
 
-    if (dataset.n == 1) { 
+    if (dataset.n == 1) {
         data.forEach(d => d.markerSize = dataset.markerSize)
-        data.forEach(d => d.color = dataset.strokeColor) 
+        data.forEach(d => d.color = dataset.strokeColor)
     }
-    
+
     return {
         datapoints: data, //this is the pivitol step
 

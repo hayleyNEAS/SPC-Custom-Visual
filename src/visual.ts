@@ -25,7 +25,7 @@ import { getLocalizedString } from "./localisation/localisationHelper"
 
 //Importing functions from file
 import { SPCChartData, SPCChartDataPoint } from "./dataStructure";
-import { parseDateLabel, parseinHMS, parseXLabels, parseYLabels } from "./formattingFunctions"
+import { parseDateLabel, parseinHMS } from "./formattingFunctions"
 import { yAxisDomain, getFillColor, getYAxisTextFillColor } from "./chartFunctions"
 import { createDataset } from "./dataLoad"
 import { logoSelector } from "./spcFunctions";
@@ -601,40 +601,6 @@ export class SPCChart implements IVisual {
 
     }
 
-
-    /* private getTooltipData(d: SPCChartDataPoint, data: SPCChartData): VisualTooltipDataItem[] {
-        let header = {
-            header: d.category,
-            displayName: data.measureName,
-            value: parseYLabels(<number>d.value, this.formattingSettings.enableYAxis.formatter.time.value),
-            color: d.color
-        };
-
-        let UCL =         {
-            displayName: "Upper Control Limit",
-            value: parseYLabels(<number>d.UCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
-            color: this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value
-        };
-
-        let LCL = {
-            displayName: "Lower Control Limit",
-            value: parseYLabels(<number>d.LCLValue, this.formattingSettings.enableYAxis.formatter.time.value),
-            color: this.formattingSettings.SPCSettings.lineOptions.lowerCL.value.value
-        };
-
-        let target = {
-            displayName: "Target",
-            value: parseYLabels(data.target, this.formattingSettings.enableYAxis.formatter.time.value),
-            color: this.formattingSettings.SPCSettings.lineOptions.targetColor.value.value
-        };
-
-        if(data.target == -Infinity){
-            return [header, UCL, LCL];
-        } else {
-            return [header, UCL, LCL, target];
-        }
-        
-    } */
 
 }
 

@@ -2075,6 +2075,10 @@ function identifyOutliers(dataset, formatSettings) {
     };
 }
 function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
+    /**
+     * Two in three rule activation.
+     * +
+     * **/
     if (Direction = 1) {
         if (value > Upper_Zone_A) {
             return 1;
