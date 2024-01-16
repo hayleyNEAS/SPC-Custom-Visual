@@ -26,7 +26,7 @@ export function yAxisDomain(data: SPCChartData){
     if(data.target > -Infinity){
         yScale_minData = Math.min(minData, minLCL, data.target)
     }
-    console.log(minData, minLCL, data.target, yScale_minData)
+    
 
     let yScale_increase_window = yScale_maxData*1.1 - yScale_maxData
     return [yScale_minData - yScale_increase_window, yScale_maxData + yScale_increase_window]

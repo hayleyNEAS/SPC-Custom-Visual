@@ -170,7 +170,7 @@ export class SPCChart implements IVisual {
 
         let data = createDataset(options, this.host, this.formattingSettings);
         this.dataPoints = data.datapoints;
-        console.log(this.dataPoints)
+        console.log(data)
 
         //Define the chart size
         let width = options.viewport.width;

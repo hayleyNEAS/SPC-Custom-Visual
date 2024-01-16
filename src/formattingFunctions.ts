@@ -1,7 +1,7 @@
 
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import * as d3 from "d3";
-    
+
 export function parseDates(label: string) {
     let formatter = d3.timeParse('%Y');
     let parsed = formatter(label);
@@ -9,28 +9,28 @@ export function parseDates(label: string) {
         return parsed.toDateString()
     }
 
-/*     formatter = d3.timeParse('CY%Y');
-    parsed = formatter(label);
-    if (parsed && parsed.getFullYear() > 1900) {
-        return parsed.toDateString()
-    } */
+    /*     formatter = d3.timeParse('CY%Y');
+        parsed = formatter(label);
+        if (parsed && parsed.getFullYear() > 1900) {
+            return parsed.toDateString()
+        } */
 
     formatter = d3.timeParse('%Y Qtr %q');
     parsed = formatter(label);
     if (parsed) {
-            return parsed.toDateString()
+        return parsed.toDateString()
     }
 
     formatter = d3.timeParse('%Y Qtr %q %B');
     parsed = formatter(label);
     if (parsed) {
-            return parsed.toDateString()
+        return parsed.toDateString()
     }
 
     formatter = d3.timeParse('%Y Qtr %q %d/%m/%Y');
     parsed = formatter(label);
     if (parsed) {
-            return parsed.toDateString()
+        return parsed.toDateString()
     }
 
     formatter = d3.timeParse('%Y Qtr %q %B %-d');
@@ -42,21 +42,21 @@ export function parseDates(label: string) {
     formatter = d3.timeParse('%Y Qtr %q %d/%m/%Y');
     parsed = formatter(label);
     if (parsed) {
-            return parsed.toDateString()
+        return parsed.toDateString()
     }
 
     formatter = d3.timeParse('%Y Qtr %q %d/%m/%Y %d/%m/%Y');
     parsed = formatter(label);
     if (parsed) {
-            return parsed.toDateString()
+        return parsed.toDateString()
     }
 
     formatter = d3.timeParse('%Y Qtr %q %d/%m/%Y %d/%m/%Y %d/%m/%Y');
     parsed = formatter(label);
     if (parsed) {
-            return parsed.toDateString()
+        return parsed.toDateString()
     }
-    
+
     formatter = d3.timeParse('%B');
     parsed = formatter(label);
     if (parsed) {
@@ -75,30 +75,30 @@ export function parseDates(label: string) {
         return label
     }
 
-    try{
+    try {
         parsed = new Date(Date.parse(label))
         return parsed.toDateString()
-    } catch(e) {
+    } catch (e) {
         console.error(e)
         return label
     }
 
-}    
+}
 export function getDayDiff(startDate: Date, endDate: Date): number {
     const msInDay = 24 * 60 * 60 * 1000;
-  
+
     return Math.round(
-      Math.abs(Number(endDate) - Number(startDate)) / msInDay
+        Math.abs(Number(endDate) - Number(startDate)) / msInDay
     );
 }
 
 function firstXDayOfMonth(day: number, date: Date): number {
     //day = 1 for monday, 0 for sunday
     let dayOfWeek = date.getDay()
-    
-    if(dayOfWeek == day && date.getDate() == 1){
+
+    if (dayOfWeek == day && date.getDate() == 1) {
         return 1
-    } if(dayOfWeek == day && date.getDate() <=7){
+    } if (dayOfWeek == day && date.getDate() <= 7) {
         return 1
     } else {
         return 0
@@ -112,45 +112,45 @@ export function parseDateLabel(label: string, levelOfDateHeirarchy: string, date
     let formatter = d3.timeParse('%a %b %d %Y');
     let parsed = formatter(label);
     if (parsed) {
-         if (diff >= 365 * 3) { 
+        if (diff >= 365 * 3) {
             //console.log('date diff' , diff, firstXDayOfMonth(1, parsed))
             //if you have more than 3 years worth of data then just show the 1st jan
-            if ( (parsed.getMonth() == 0 && parsed.getDate() == 1 ) || levelOfDateHeirarchy == "Year") {
+            if ((parsed.getMonth() == 0 && parsed.getDate() == 1) || levelOfDateHeirarchy == "Year") {
                 return parsed.getFullYear().toString()
             } else { return '' }
 
-        } else if (diff > 365) { 
+        } else if (diff > 365) {
             //else if you have less than that but more than 1 year then just so the first of the quarters
-            if ((parsed.getDate() == 1 && (parsed.getMonth() == 0 || parsed.getMonth() == 3 || parsed.getMonth() == 6 || parsed.getMonth() == 9 )) || (levelOfDateHeirarchy == "Quarter")) {
-                return parsed.toLocaleDateString('default', {month: "short", year: "numeric"}) 
+            if ((parsed.getDate() == 1 && (parsed.getMonth() == 0 || parsed.getMonth() == 3 || parsed.getMonth() == 6 || parsed.getMonth() == 9)) || (levelOfDateHeirarchy == "Quarter")) {
+                return parsed.toLocaleDateString('default', { month: "short", year: "numeric" })
             } else { return '' }
 
-        } else if (diff > 2 * 30) { 
+        } else if (diff > 2 * 30) {
             //else if you have less than that but more than 4 months then just so the first of the months
             if (parsed.getDate() == 1 || (levelOfDateHeirarchy == "Month" || levelOfDateHeirarchy == "Quarter" || levelOfDateHeirarchy == "Year")) {
-                return parsed.toLocaleDateString('default', {month: "short", year: "numeric"}) 
+                return parsed.toLocaleDateString('default', { month: "short", year: "numeric" })
             } else { return '' }
 
-        } else if (diff >  30) { 
+        } else if (diff > 30) {
             //else if you have less than that but more than 1 month //DEFAULT has every other week start  changes to this at 7 weeks 
             if ((parsed.getDay() == 0) || (levelOfDateHeirarchy == "Month" || levelOfDateHeirarchy == "Quarter" || levelOfDateHeirarchy == "Year")) {
-                return parsed.toLocaleDateString('default', {day: "2-digit", month: "short"}) 
+                return parsed.toLocaleDateString('default', { day: "2-digit", month: "short" })
             } else { return '' }
 
-        } else { 
+        } else {
             //if only a short time period 
-            if(levelOfDateHeirarchy == "Year") {
+            if (levelOfDateHeirarchy == "Year") {
                 return parsed.getFullYear().toString()
-            } else if(levelOfDateHeirarchy == "Quarter") {
-                return parsed.toLocaleDateString('default', {month: "short", year: "numeric"}) 
-            } else if(levelOfDateHeirarchy == "Month") {
-                return parsed.toLocaleDateString('default', {month: "short", year: "numeric"}) 
-            } else if(levelOfDateHeirarchy == "Day") {
-                if(parsed.getDate() % 2 == 1){
-                    return parsed.toLocaleDateString('default', {day: "2-digit", month: "short"}) 
+            } else if (levelOfDateHeirarchy == "Quarter") {
+                return parsed.toLocaleDateString('default', { month: "short", year: "numeric" })
+            } else if (levelOfDateHeirarchy == "Month") {
+                return parsed.toLocaleDateString('default', { month: "short", year: "numeric" })
+            } else if (levelOfDateHeirarchy == "Day") {
+                if (parsed.getDate() % 2 == 1) {
+                    return parsed.toLocaleDateString('default', { day: "2-digit", month: "short" })
                 } else { return '' }
             } else {
-                return parsed.toLocaleDateString('default', {day: "2-digit", month: "short"})
+                return parsed.toLocaleDateString('default', { day: "2-digit", month: "short" })
             }
         }
     }
@@ -159,18 +159,18 @@ export function parseDateLabel(label: string, levelOfDateHeirarchy: string, date
 
 }
 
-export function parseXLabels(d: string, index: number, n: number){
+export function parseXLabels(d: string, index: number, n: number) {
     n = Math.ceil(n)
     return d
 }
 
 export function parseinHMS(d: d3.NumberValue) {
     let sign = ''
-    if (<number>d < 0) { 
+    if (<number>d < 0) {
         sign = '-'
     }
-    
-    d = Math.round(Math.abs(<number>d) )
+
+    d = Math.round(Math.abs(<number>d))
     let minutes = Math.floor(<number>d / 60);
     let hours = Math.floor(minutes / 60);
     if (hours > 0) {
@@ -202,16 +202,19 @@ export function PBIformatingKeeper(options: VisualUpdateOptions): [string, strin
         let meta = metadata[i]
         if (meta.isMeasure) {
             if (i == 0) { measureName = meta.displayName }
-            if (!meta.format) {
-                measureFormat = 's';
-            } else if (meta.format.includes('%')) {
-                measureFormat = '%'
-            } else if (meta.format.includes('.')) {
-                decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1).length;
-                measureFormat = 's';
-            } else {
-                measureFormat = 's';
+            else if (i == 1) {
+                if (!meta.format) {
+                    measureFormat = 's';
+                } else if (meta.format.includes('%')) {
+                    measureFormat = '%'
+                } else if (meta.format.includes('.')) {
+                    decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1).length;
+                    measureFormat = 's';
+                } else {
+                    measureFormat = 's';
+                }
             }
+
         } else {
             levelOfDateHeirarchy = meta.displayName.split(' ').at(1);
             if (levelOfDateHeirarchy) {
