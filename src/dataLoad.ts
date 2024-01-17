@@ -85,7 +85,6 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
 
     dates_input = dataViews[0].categorical.categories[0].values
     let dates_input_parsed = dates_input.map(d => parseDates(d) )
-    console.log(dates_input_parsed.length, 'parsed dates')
     return [dates_input_parsed, value_input, target_input, breakPoint_input]
 }
 
@@ -150,7 +149,7 @@ export function fullData(options: VisualUpdateOptions, formatSettings: VisualSet
     let [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = PBIformatingKeeper(options)
     let data = dataSet(dates_input, value_input, breakPoint_input, levelOfDateHeirarchy, formatSettings)
     let target = getTarget(target_input, formatSettings)
-
+    console.log(data.map(d => d.breakP))
     
     let numberOfTimePeriods = data
         .map((d) => <number>d.breakP)

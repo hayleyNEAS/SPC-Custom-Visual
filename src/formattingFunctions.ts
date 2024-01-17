@@ -113,7 +113,6 @@ export function parseDateLabel(label: string, levelOfDateHeirarchy: string, date
     let parsed = formatter(label);
     if (parsed) {
         if (diff >= 365 * 3) {
-            //console.log('date diff' , diff, firstXDayOfMonth(1, parsed))
             //if you have more than 3 years worth of data then just show the 1st jan
             if ((parsed.getMonth() == 0 && parsed.getDate() == 1) || levelOfDateHeirarchy == "Year") {
                 return parsed.getFullYear().toString()
@@ -197,12 +196,12 @@ export function PBIformatingKeeper(options: VisualUpdateOptions): [string, strin
     let decimalPlaces = 0
     let measureName = ''
     let levelOfDateHeirarchy = ''
-
     for (let i = 0, len = metadata.length; i < len; i++) {
         let meta = metadata[i]
-        if (meta.isMeasure) {
-            if (i == 0) { measureName = meta.displayName }
-            else if (i == 1) {
+        let role  = meta.roles
+        if (meta.isMeasure && Object.keys(role)[0] == 'measure') {
+            measureName = measureName == '' ? meta.displayName : measureName
+            if (measureName == meta.displayName) {
                 if (!meta.format) {
                     measureFormat = 's';
                 } else if (meta.format.includes('%')) {

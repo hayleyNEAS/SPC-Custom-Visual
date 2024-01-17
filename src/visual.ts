@@ -170,7 +170,7 @@ export class SPCChart implements IVisual {
 
         let data = createDataset(options, this.host, this.formattingSettings);
         this.dataPoints = data.datapoints;
-        console.log(data)
+        console.log(this.dataPoints.filter(d => d.value !== null))
 
         //Define the chart size
         let width = options.viewport.width;
@@ -393,7 +393,7 @@ export class SPCChart implements IVisual {
         //Create mean line
         if (this.formattingSettings.SPCSettings.lineOptions.showMean.value) {
             this.lineMean
-                .datum(this.dataPoints)
+                .datum(this.dataPoints.filter(d => d.value !== null))
                 .attr("class", "mean")
                 .attr("fill", "none")
                 .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.meanColor.value.value)
@@ -412,7 +412,7 @@ export class SPCChart implements IVisual {
         //Create limit lines   
         if (this.formattingSettings.SPCSettings.lineOptions.showControl.value) {
             this.lineUCL
-                .datum(this.dataPoints)
+                .datum(this.dataPoints.filter(d => d.value !== null))
                 .attr("class", "ControlLimit")
                 .attr("fill", "none")
                 .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value)
@@ -425,7 +425,7 @@ export class SPCChart implements IVisual {
                 );
 
             this.lineLCL
-                .datum(this.dataPoints)
+                .datum(this.dataPoints.filter(d => d.value !== null))
                 .attr("class", "ControlLimit")
                 .attr("fill", "none")
                 .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.lowerCL.value.value)
@@ -447,7 +447,7 @@ export class SPCChart implements IVisual {
         //Create Zone lines 
         if (this.formattingSettings.SPCSettings.lineOptions.showSubControl.value) {
             this.lineUpperZoneA
-                .datum(this.dataPoints)
+                .datum(this.dataPoints.filter(d => d.value !== null))
                 .style("stroke-dasharray", ("5,5"))
                 .style("stroke-linecap", "round")
                 .attr("class", "subControl")
@@ -460,7 +460,7 @@ export class SPCChart implements IVisual {
                 );
 
             this.lineUpperZoneB
-                .datum(this.dataPoints)
+                .datum(this.dataPoints.filter(d => d.value !== null))
                 .style("stroke-dasharray", ("5,5"))
                 .style("stroke-linecap", "round")
                 .attr("class", "subControl")
@@ -473,7 +473,7 @@ export class SPCChart implements IVisual {
                 );
 
             this.lineLowerZoneA
-                .datum(this.dataPoints)
+                .datum(this.dataPoints.filter(d => d.value !== null))
                 .style("stroke-dasharray", ("5,5"))
                 .style("stroke-linecap", "round")
                 .attr("class", "subControl")
@@ -486,7 +486,7 @@ export class SPCChart implements IVisual {
                 );
 
             this.lineLowerZoneB
-                .datum(this.dataPoints)
+                .datum(this.dataPoints.filter(d => d.value !== null))
                 .style("stroke-dasharray", ("5,5"))
                 .style("stroke-linecap", "round")
                 .attr("class", "subControl")
@@ -551,7 +551,7 @@ export class SPCChart implements IVisual {
         //ToolTips
         let thissvg = this.svg;
         let tt = this.tooltipMarkers;
-        let dm = this.dataPoints;
+        let dm = this.dataPoints.filter(d => d.value !== null);
 
         this.svg
             .on('mouseover', function () {
