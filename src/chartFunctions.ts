@@ -11,9 +11,10 @@ import {SPCChartDataPoint, SPCChartData, PrimitiveValue} from "./dataStructure"
 
 
 export function yAxisDomain(data: SPCChartData){
-    let yData = data.datapoints.map(d => <number>d.value)
-    let UCLData = data.datapoints.map(d => <number>d.UCLValue)
-    let LCLData = data.datapoints.map(d => <number>d.LCLValue)
+    let dataPoints = data.datapoints.filter(d => d.value !== null)
+    let yData = dataPoints.map(d => <number>d.value)
+    let UCLData = dataPoints.map(d => <number>d.UCLValue)
+    let LCLData = dataPoints.map(d => <number>d.LCLValue)
 
     let maxData = yData.reduce((a,b) => Math.max(a,b), -Infinity)
     let maxUCL = data.n > 1 ? UCLData.reduce((a,b) => Math.max(a,b), -Infinity) : -Infinity
@@ -29,6 +30,7 @@ export function yAxisDomain(data: SPCChartData){
     
 
     let yScale_increase_window = yScale_maxData*1.1 - yScale_maxData
+    console.log(yData, minData, minLCL)
     return [yScale_minData - yScale_increase_window, yScale_maxData + yScale_increase_window]
 
 }
