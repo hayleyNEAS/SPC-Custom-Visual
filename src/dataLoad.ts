@@ -149,14 +149,10 @@ export function fullData(options: VisualUpdateOptions, formatSettings: VisualSet
     let [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = PBIformatingKeeper(options)
     let data = dataSet(dates_input, value_input, breakPoint_input, levelOfDateHeirarchy, formatSettings)
     let target = getTarget(target_input, formatSettings)
-    console.log(data.map(d => d.breakP))
     
     let numberOfTimePeriods = data
         .map((d) => <number>d.breakP)
         .reduce((a,b) => Math.max(a,b), 0 )
-
-    //console.log(levelOfDateHeirarchy.split(":")[0])
-    
 
     return {
         dataPoints: data,
@@ -192,32 +188,38 @@ export function createDataset(options: VisualUpdateOptions, host: IVisualHost, f
     //SPC Marker Colors Rules 
     allData = getMarkerColors(allData, formatSettings)
     allData = identifyOutliers(allData, formatSettings)
+    console.log("allData", allData)
 
-    let outlier = allData.dataPoints[allData.n - 1].outlier
-    let run = allData.dataPoints[allData.n - 1].run
-    let shift = allData.dataPoints[allData.n - 1].shift
-    let twoInThree = allData.dataPoints[allData.n - 1].twoInThree
+    if( allData.n == 0 ){
+        return allData
+    } else {
+        let outlier = allData.dataPoints[allData.n - 1].outlier
+        let run = allData.dataPoints[allData.n - 1].run
+        let shift = allData.dataPoints[allData.n - 1].shift
+        let twoInThree = allData.dataPoints[allData.n - 1].twoInThree
+        
+        return {
+            dataPoints: allData.dataPoints,
 
-    return {
-        dataPoints: allData.dataPoints,
+            n: allData.n,
+            numberOfTimePeriods: allData.numberOfTimePeriods,
+            direction: allData.direction,
+            target: allData.target,
 
-        n: allData.n,
-        numberOfTimePeriods: allData.numberOfTimePeriods,
-        direction: allData.direction,
-        target: allData.target,
+            strokeWidth: allData.strokeWidth,
+            strokeColor: allData.strokeColor,
+            markerSize: allData.markerSize,
 
-        strokeWidth: allData.strokeWidth,
-        strokeColor: allData.strokeColor,
-        markerSize: allData.markerSize,
+            measureName: allData.measureName,
+            measureFormat: allData.measureFormat,
+            decimalPlaces: allData.decimalPlaces,
+            levelOfDateHeirarchy: allData.levelOfDateHeirarchy,
 
-        measureName: allData.measureName, 
-        measureFormat: allData.measureFormat,
-        decimalPlaces: allData.decimalPlaces,
-        levelOfDateHeirarchy: allData.levelOfDateHeirarchy,
+            outlier,
+            run,
+            shift,
+            twoInThree
 
-        outlier,
-        run,
-        shift,
-        twoInThree
+        }
     }
 }

@@ -1479,7 +1479,6 @@ function yAxisDomain(data) {
         yScale_minData = Math.min(minData, minLCL, data.target);
     }
     let yScale_increase_window = yScale_maxData * 1.1 - yScale_maxData;
-    console.log(yData, minData, minLCL);
     return [yScale_minData - yScale_increase_window, yScale_maxData + yScale_increase_window];
 }
 function getFillColor(options, objectString, propString, colorPalette, defaultColor) {
@@ -1646,11 +1645,9 @@ function fullData(options, formatSettings) {
     let [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .PBIformatingKeeper */ .WN)(options);
     let data = dataSet(dates_input, value_input, breakPoint_input, levelOfDateHeirarchy, formatSettings);
     let target = getTarget(target_input, formatSettings);
-    console.log(data.map(d => d.breakP));
     let numberOfTimePeriods = data
         .map((d) => d.breakP)
         .reduce((a, b) => Math.max(a, b), 0);
-    //console.log(levelOfDateHeirarchy.split(":")[0])
     return {
         dataPoints: data,
         n: data.length,
@@ -1678,28 +1675,34 @@ function createDataset(options, host, formatSettings) {
     //SPC Marker Colors Rules 
     allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_1__/* .getMarkerColors */ .gT)(allData, formatSettings);
     allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_1__/* .identifyOutliers */ .b5)(allData, formatSettings);
-    let outlier = allData.dataPoints[allData.n - 1].outlier;
-    let run = allData.dataPoints[allData.n - 1].run;
-    let shift = allData.dataPoints[allData.n - 1].shift;
-    let twoInThree = allData.dataPoints[allData.n - 1].twoInThree;
-    return {
-        dataPoints: allData.dataPoints,
-        n: allData.n,
-        numberOfTimePeriods: allData.numberOfTimePeriods,
-        direction: allData.direction,
-        target: allData.target,
-        strokeWidth: allData.strokeWidth,
-        strokeColor: allData.strokeColor,
-        markerSize: allData.markerSize,
-        measureName: allData.measureName,
-        measureFormat: allData.measureFormat,
-        decimalPlaces: allData.decimalPlaces,
-        levelOfDateHeirarchy: allData.levelOfDateHeirarchy,
-        outlier,
-        run,
-        shift,
-        twoInThree
-    };
+    console.log("allData", allData);
+    if (allData.n == 0) {
+        return allData;
+    }
+    else {
+        let outlier = allData.dataPoints[allData.n - 1].outlier;
+        let run = allData.dataPoints[allData.n - 1].run;
+        let shift = allData.dataPoints[allData.n - 1].shift;
+        let twoInThree = allData.dataPoints[allData.n - 1].twoInThree;
+        return {
+            dataPoints: allData.dataPoints,
+            n: allData.n,
+            numberOfTimePeriods: allData.numberOfTimePeriods,
+            direction: allData.direction,
+            target: allData.target,
+            strokeWidth: allData.strokeWidth,
+            strokeColor: allData.strokeColor,
+            markerSize: allData.markerSize,
+            measureName: allData.measureName,
+            measureFormat: allData.measureFormat,
+            decimalPlaces: allData.decimalPlaces,
+            levelOfDateHeirarchy: allData.levelOfDateHeirarchy,
+            outlier,
+            run,
+            shift,
+            twoInThree
+        };
+    }
 }
 
 
@@ -2266,83 +2269,88 @@ function getControlLimits(dataset) {
     };
 }
 function getMarkerColors(dataset, formatSettings) {
-    let data = dataset.dataPoints;
-    let [direction, up_color, down_color] = directionColors(formatSettings);
-    for (let i = 0; i < dataset.n; i++) {
-        if (i > 3) { //two in three rules 
-            let latest3 = data.slice(i - 3 + 1, i + 1);
-            let twoInThreeCheck = latest3
-                .map((d) => twoInThreeRule(d.value, d.Upper_Zone_A, d.Lower_Zone_A, dataset.direction))
-                .reduce((a, b) => a + b, 0);
-            if (Math.abs(twoInThreeCheck) >= 2) {
-                latest3.forEach(d => d.color = up_color);
-                latest3.forEach(d => d.markerSize = dataset.markerSize);
-                latest3.forEach(d => d.twoInThree = 1);
-            }
-            else if (Math.abs(twoInThreeCheck) <= -2) {
-                latest3.forEach(d => d.color = down_color);
-                latest3.forEach(d => d.markerSize = dataset.markerSize);
-                latest3.forEach(d => d.twoInThree = 1);
-            }
-        }
-        let p = formatSettings.SPCSettings.markerOptions.runNumber.value;
-        if (i > p) {
-            let latest7 = data.slice(i - p + 1, i + 1);
-            //run of 7
-            let runOfNumbers = latest7
-                .map((d) => Math.sign(d.difference))
-                .reduce((a, b) => a + b, 0);
-            if (runOfNumbers == p) {
-                latest7.forEach(d => d.color = up_color);
-                latest7.forEach(d => d.markerSize = dataset.markerSize);
-                latest7.forEach(d => d.run = 1);
-            }
-            if (runOfNumbers == -1 * p) {
-                latest7.forEach(d => d.color = down_color);
-                latest7.forEach(d => d.markerSize = dataset.markerSize);
-                latest7.forEach(d => d.run = -1);
-            }
-            //oneside of mean 
-            let shift7 = latest7
-                .map((d) => Math.sign(d.value - d.mean))
-                .reduce((a, b) => a + b, 0);
-            if (shift7 == p) {
-                latest7.forEach(d => d.color = up_color);
-                latest7.forEach(d => d.markerSize = dataset.markerSize);
-                latest7.forEach(d => d.shift = 1);
-            }
-            if (shift7 == -1 * p) {
-                latest7.forEach(d => d.color = down_color);
-                latest7.forEach(d => d.markerSize = dataset.markerSize);
-                latest7.forEach(d => d.shift = -1);
-            }
-        }
-        if (i > 15) {
-            let latest15 = data.slice(i - 15 + 1, i + 1);
-        }
+    if (dataset.n == 0) {
+        return dataset;
     }
-    if (dataset.n == 1) {
-        data.forEach(d => d.markerSize = dataset.markerSize);
-        data.forEach(d => d.color = dataset.strokeColor);
+    else {
+        let data = dataset.dataPoints;
+        let [direction, up_color, down_color] = directionColors(formatSettings);
+        for (let i = 0; i < dataset.n; i++) {
+            if (i > 3) { //two in three rules 
+                let latest3 = data.slice(i - 3 + 1, i + 1);
+                let twoInThreeCheck = latest3
+                    .map((d) => twoInThreeRule(d.value, d.Upper_Zone_A, d.Lower_Zone_A, dataset.direction))
+                    .reduce((a, b) => a + b, 0);
+                if (Math.abs(twoInThreeCheck) >= 2) {
+                    latest3.forEach(d => d.color = up_color);
+                    latest3.forEach(d => d.markerSize = dataset.markerSize);
+                    latest3.forEach(d => d.twoInThree = 1);
+                }
+                else if (Math.abs(twoInThreeCheck) <= -2) {
+                    latest3.forEach(d => d.color = down_color);
+                    latest3.forEach(d => d.markerSize = dataset.markerSize);
+                    latest3.forEach(d => d.twoInThree = 1);
+                }
+            }
+            let p = formatSettings.SPCSettings.markerOptions.runNumber.value;
+            if (i > p) {
+                let latest7 = data.slice(i - p + 1, i + 1);
+                //run of 7
+                let runOfNumbers = latest7
+                    .map((d) => Math.sign(d.difference))
+                    .reduce((a, b) => a + b, 0);
+                if (runOfNumbers == p) {
+                    latest7.forEach(d => d.color = up_color);
+                    latest7.forEach(d => d.markerSize = dataset.markerSize);
+                    latest7.forEach(d => d.run = 1);
+                }
+                if (runOfNumbers == -1 * p) {
+                    latest7.forEach(d => d.color = down_color);
+                    latest7.forEach(d => d.markerSize = dataset.markerSize);
+                    latest7.forEach(d => d.run = -1);
+                }
+                //oneside of mean 
+                let shift7 = latest7
+                    .map((d) => Math.sign(d.value - d.mean))
+                    .reduce((a, b) => a + b, 0);
+                if (shift7 == p) {
+                    latest7.forEach(d => d.color = up_color);
+                    latest7.forEach(d => d.markerSize = dataset.markerSize);
+                    latest7.forEach(d => d.shift = 1);
+                }
+                if (shift7 == -1 * p) {
+                    latest7.forEach(d => d.color = down_color);
+                    latest7.forEach(d => d.markerSize = dataset.markerSize);
+                    latest7.forEach(d => d.shift = -1);
+                }
+            }
+            if (i > 15) {
+                let latest15 = data.slice(i - 15 + 1, i + 1);
+            }
+        }
+        if (dataset.n == 1) {
+            data.forEach(d => d.markerSize = dataset.markerSize);
+            data.forEach(d => d.color = dataset.strokeColor);
+        }
+        return {
+            dataPoints: data,
+            n: dataset.n,
+            numberOfTimePeriods: dataset.numberOfTimePeriods,
+            direction: dataset.direction,
+            target: dataset.target,
+            strokeWidth: dataset.strokeWidth,
+            strokeColor: dataset.strokeColor,
+            markerSize: dataset.markerSize,
+            measureName: dataset.measureName,
+            measureFormat: dataset.measureFormat,
+            decimalPlaces: dataset.decimalPlaces,
+            levelOfDateHeirarchy: dataset.levelOfDateHeirarchy,
+            outlier: dataset.outlier,
+            run: data[dataset.n - 1].run,
+            shift: data[dataset.n - 1].shift,
+            twoInThree: data[dataset.n - 1].twoInThree
+        };
     }
-    return {
-        dataPoints: data,
-        n: dataset.n,
-        numberOfTimePeriods: dataset.numberOfTimePeriods,
-        direction: dataset.direction,
-        target: dataset.target,
-        strokeWidth: dataset.strokeWidth,
-        strokeColor: dataset.strokeColor,
-        markerSize: dataset.markerSize,
-        measureName: dataset.measureName,
-        measureFormat: dataset.measureFormat,
-        decimalPlaces: dataset.decimalPlaces,
-        levelOfDateHeirarchy: dataset.levelOfDateHeirarchy,
-        outlier: dataset.outlier,
-        run: data[dataset.n - 1].run,
-        shift: data[dataset.n - 1].shift,
-        twoInThree: data[dataset.n - 1].twoInThree
-    };
 }
 
 
@@ -2537,10 +2545,6 @@ class SPCChart {
         let data = (0,_dataLoad__WEBPACK_IMPORTED_MODULE_4__/* .createDataset */ .Ty)(options, this.host, this.formattingSettings);
         this.dataPoints = data.dataPoints.filter(d => d.value !== null);
         let n = this.dataPoints.length;
-        console.log("n", n);
-        /*         if(data.n == 0){
-                    this.svg.selectAll().remove();
-                } */
         //Define the chart size
         let width = options.viewport.width;
         let height = options.viewport.height;
@@ -2549,9 +2553,18 @@ class SPCChart {
         let widthChartStart = 0;
         let widthChartEnd = 0.98 * width; //0.98 so the final labels fit on the screen
         //Give the chart image a width and a height based on the size of the image in the report
-        this.svg
-            .attr("width", width)
-            .attr("height", height);
+        //If no data then the chart has no size
+        if (n == 0) {
+            this.svg
+                .attr("width", 0)
+                .attr("height", 0);
+            return;
+        }
+        else {
+            this.svg
+                .attr("width", width)
+                .attr("height", height);
+        }
         //Option to show/hide the x axis 
         if (this.formattingSettings.enableAxis.show.value) {
             height -= margins.bottom;

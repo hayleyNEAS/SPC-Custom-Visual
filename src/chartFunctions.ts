@@ -30,7 +30,6 @@ export function yAxisDomain(data: SPCChartData){
     
 
     let yScale_increase_window = yScale_maxData*1.1 - yScale_maxData
-    console.log(yData, minData, minLCL)
     return [yScale_minData - yScale_increase_window, yScale_maxData + yScale_increase_window]
 
 }

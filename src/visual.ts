@@ -171,11 +171,6 @@ export class SPCChart implements IVisual {
         let data = createDataset(options, this.host, this.formattingSettings);
         this.dataPoints = data.dataPoints.filter(d => d.value !== null);
         let n =  this.dataPoints.length
-        console.log("n", n)
-
-        /*         if(data.n == 0){
-                    this.svg.selectAll().remove();
-                } */
 
         //Define the chart size
         let width = options.viewport.width;
@@ -187,9 +182,17 @@ export class SPCChart implements IVisual {
         let widthChartEnd = 0.98 * width; //0.98 so the final labels fit on the screen
 
         //Give the chart image a width and a height based on the size of the image in the report
-        this.svg
-            .attr("width", width)
-            .attr("height", height);
+        //If no data then the chart has no size
+        if (n == 0) {
+            this.svg
+            .attr("width", 0)
+            .attr("height", 0);
+            return
+        } else {
+            this.svg
+                .attr("width", width)
+                .attr("height", height);
+        }
 
         //Option to show/hide the x axis 
         if (this.formattingSettings.enableAxis.show.value) {

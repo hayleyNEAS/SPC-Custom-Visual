@@ -269,85 +269,89 @@ export function getControlLimits(dataset: SPCChartData): SPCChartData {
 }
 
 export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSettingsModel): SPCChartData {
-    let data = dataset.dataPoints
-    let [direction, up_color, down_color] = directionColors(formatSettings)
-
-    for (let i = 0; i < dataset.n; i++) {
-        if (i > 3) { //two in three rules 
-            let latest3 = data.slice(i - 3 + 1, i + 1)
-            let twoInThreeCheck = latest3
-                .map((d) => twoInThreeRule(d.value, d.Upper_Zone_A, d.Lower_Zone_A, dataset.direction))
-                .reduce((a, b) => a + b, 0)
-            if (Math.abs(twoInThreeCheck) >= 2) {
-                latest3.forEach(d => d.color = up_color)
-                latest3.forEach(d => d.markerSize = dataset.markerSize)
-                latest3.forEach(d => d.twoInThree = 1)
-            } else if (Math.abs(twoInThreeCheck) <= -2) {
-                latest3.forEach(d => d.color = down_color)
-                latest3.forEach(d => d.markerSize = dataset.markerSize)
-                latest3.forEach(d => d.twoInThree = 1)
+    if (dataset.n == 0) {
+        return dataset;
+    } else {
+        let data = dataset.dataPoints
+        let [direction, up_color, down_color] = directionColors(formatSettings)
+        
+        for (let i = 0; i < dataset.n; i++) {
+            if (i > 3) { //two in three rules 
+                let latest3 = data.slice(i - 3 + 1, i + 1)
+                let twoInThreeCheck = latest3
+                    .map((d) => twoInThreeRule(d.value, d.Upper_Zone_A, d.Lower_Zone_A, dataset.direction))
+                    .reduce((a, b) => a + b, 0)
+                if (Math.abs(twoInThreeCheck) >= 2) {
+                    latest3.forEach(d => d.color = up_color)
+                    latest3.forEach(d => d.markerSize = dataset.markerSize)
+                    latest3.forEach(d => d.twoInThree = 1)
+                } else if (Math.abs(twoInThreeCheck) <= -2) {
+                    latest3.forEach(d => d.color = down_color)
+                    latest3.forEach(d => d.markerSize = dataset.markerSize)
+                    latest3.forEach(d => d.twoInThree = 1)
+                }
+            }
+            let p = formatSettings.SPCSettings.markerOptions.runNumber.value
+            if (i > p) {
+                let latest7 = data.slice(i - p + 1, i + 1)
+                //run of 7
+                let runOfNumbers = latest7
+                    .map((d) => Math.sign(d.difference))
+                    .reduce((a, b) => a + b, 0)
+                if (runOfNumbers == p) {
+                    latest7.forEach(d => d.color = up_color)
+                    latest7.forEach(d => d.markerSize = dataset.markerSize)
+                    latest7.forEach(d => d.run = 1)
+                } if (runOfNumbers == -1 * p) {
+                    latest7.forEach(d => d.color = down_color)
+                    latest7.forEach(d => d.markerSize = dataset.markerSize)
+                    latest7.forEach(d => d.run = -1)
+                }
+                //oneside of mean 
+                let shift7 = latest7
+                    .map((d) => Math.sign(<number>d.value - d.mean))
+                    .reduce((a, b) => a + b, 0)
+                if (shift7 == p) {
+                    latest7.forEach(d => d.color = up_color)
+                    latest7.forEach(d => d.markerSize = dataset.markerSize)
+                    latest7.forEach(d => d.shift = 1)
+                } if (shift7 == -1 * p) {
+                    latest7.forEach(d => d.color = down_color)
+                    latest7.forEach(d => d.markerSize = dataset.markerSize)
+                    latest7.forEach(d => d.shift = -1)
+                }
+            }
+            if (i > 15) {
+                let latest15 = data.slice(i - 15 + 1, i + 1)
             }
         }
-        let p = formatSettings.SPCSettings.markerOptions.runNumber.value
-        if (i > p) {
-            let latest7 = data.slice(i - p + 1, i + 1)
-            //run of 7
-            let runOfNumbers = latest7
-                .map((d) => Math.sign(d.difference))
-                .reduce((a, b) => a + b, 0)
-            if (runOfNumbers == p) {
-                latest7.forEach(d => d.color = up_color)
-                latest7.forEach(d => d.markerSize = dataset.markerSize)
-                latest7.forEach(d => d.run = 1)
-            } if (runOfNumbers == -1 * p) {
-                latest7.forEach(d => d.color = down_color)
-                latest7.forEach(d => d.markerSize = dataset.markerSize)
-                latest7.forEach(d => d.run = -1)
-            }
-            //oneside of mean 
-            let shift7 = latest7
-                .map((d) => Math.sign(<number>d.value - d.mean))
-                .reduce((a, b) => a + b, 0)
-            if (shift7 == p) {
-                latest7.forEach(d => d.color = up_color)
-                latest7.forEach(d => d.markerSize = dataset.markerSize)
-                latest7.forEach(d => d.shift = 1)
-            } if (shift7 == -1 * p) {
-                latest7.forEach(d => d.color = down_color)
-                latest7.forEach(d => d.markerSize = dataset.markerSize)
-                latest7.forEach(d => d.shift = -1)
-            }
+
+        if (dataset.n == 1) {
+            data.forEach(d => d.markerSize = dataset.markerSize);
+            data.forEach(d => d.color = dataset.strokeColor);
         }
-        if (i > 15) {
-            let latest15 = data.slice(i - 15 + 1, i + 1)
-        }
-    }
 
-    if (dataset.n == 1) {
-        data.forEach(d => d.markerSize = dataset.markerSize)
-        data.forEach(d => d.color = dataset.strokeColor)
-    }
+        return {
+            dataPoints: data,
 
-    return {
-        dataPoints: data, //this is the pivitol step
+            n: dataset.n,
+            numberOfTimePeriods: dataset.numberOfTimePeriods,
+            direction: dataset.direction,
+            target: dataset.target,
 
-        n: dataset.n,
-        numberOfTimePeriods: dataset.numberOfTimePeriods,
-        direction: dataset.direction,
-        target: dataset.target,
+            strokeWidth: dataset.strokeWidth,
+            strokeColor: dataset.strokeColor,
+            markerSize: dataset.markerSize,
 
-        strokeWidth: dataset.strokeWidth,
-        strokeColor: dataset.strokeColor,
-        markerSize: dataset.markerSize,
+            measureName: dataset.measureName,
+            measureFormat: dataset.measureFormat,
+            decimalPlaces: dataset.decimalPlaces,
+            levelOfDateHeirarchy: dataset.levelOfDateHeirarchy,
 
-        measureName: dataset.measureName,
-        measureFormat: dataset.measureFormat,
-        decimalPlaces: dataset.decimalPlaces,
-        levelOfDateHeirarchy: dataset.levelOfDateHeirarchy,
-
-        outlier: dataset.outlier,
-        run: data[dataset.n - 1].run,
-        shift: data[dataset.n - 1].shift,
-        twoInThree: data[dataset.n - 1].twoInThree
+            outlier: dataset.outlier,
+            run: data[dataset.n - 1].run,
+            shift: data[dataset.n - 1].shift,
+            twoInThree: data[dataset.n - 1].twoInThree
+        };
     }
 }
