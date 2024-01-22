@@ -1,7 +1,7 @@
 import { SPCChartDataPoint, SPCChartData } from "./dataStructure";
 import { VisualSettingsModel } from "./visualSettingsModel";
 export declare function identifyOutliers(dataset: SPCChartData, formatSettings: VisualSettingsModel): {
-    datapoints: SPCChartDataPoint[];
+    dataPoints: SPCChartDataPoint[];
     n: number;
     numberOfTimePeriods: number;
     direction: number;

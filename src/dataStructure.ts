@@ -28,7 +28,7 @@ export interface SPCChartDataPoint {
 }
 
 export interface SPCChartData {
-    datapoints: SPCChartDataPoint[];
+    dataPoints: SPCChartDataPoint[];
 
     n: number;
     numberOfTimePeriods: number;

@@ -159,7 +159,7 @@ export function fullData(options: VisualUpdateOptions, formatSettings: VisualSet
     
 
     return {
-        datapoints: data,
+        dataPoints: data,
 
         n: data.length,
         numberOfTimePeriods,
@@ -193,13 +193,13 @@ export function createDataset(options: VisualUpdateOptions, host: IVisualHost, f
     allData = getMarkerColors(allData, formatSettings)
     allData = identifyOutliers(allData, formatSettings)
 
-    let outlier = allData.datapoints[allData.n - 1].outlier
-    let run = allData.datapoints[allData.n - 1].run
-    let shift = allData.datapoints[allData.n - 1].shift
-    let twoInThree = allData.datapoints[allData.n - 1].twoInThree
+    let outlier = allData.dataPoints[allData.n - 1].outlier
+    let run = allData.dataPoints[allData.n - 1].run
+    let shift = allData.dataPoints[allData.n - 1].shift
+    let twoInThree = allData.dataPoints[allData.n - 1].twoInThree
 
     return {
-        datapoints: allData.datapoints,
+        dataPoints: allData.dataPoints,
 
         n: allData.n,
         numberOfTimePeriods: allData.numberOfTimePeriods,

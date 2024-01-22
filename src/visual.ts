@@ -169,8 +169,13 @@ export class SPCChart implements IVisual {
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualSettingsModel, options.dataViews[0]);
 
         let data = createDataset(options, this.host, this.formattingSettings);
-        this.dataPoints = data.datapoints;
-        console.log(this.dataPoints.filter(d => d.value !== null))
+        this.dataPoints = data.dataPoints.filter(d => d.value !== null);
+        let n =  this.dataPoints.length
+        console.log("n", n)
+
+        /*         if(data.n == 0){
+                    this.svg.selectAll().remove();
+                } */
 
         //Define the chart size
         let width = options.viewport.width;
@@ -257,11 +262,11 @@ export class SPCChart implements IVisual {
             ;
 
         let xScale = scalePoint()
-            .domain(this.dataPoints.map(d => d.category))
+            .domain(data.dataPoints.map(d => d.category))
             .range([widthChartStart, widthChartEnd])
             ;
 
-        let span = [0, -1].map(i => new Date(this.dataPoints.at(i).category))
+        let span = [0, -1].map(i => new Date(data.dataPoints.at(i).category))
         let xAxis = axisBottom(xScale)
             .tickFormat(d => parseDateLabel(d, data.levelOfDateHeirarchy, span))
             ;
@@ -293,8 +298,8 @@ export class SPCChart implements IVisual {
             });
 
         let n_xTicks = Math.ceil(total_label_coverage * 1.2 / (widthChartEnd - widthChartStart))
-        
-         if (data.n > 1) {
+
+        if (data.n > 1) {
             if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) { //BUG if chart reduces to one data point chart doesnt refresh 
                 this.xAxis
                     .selectAll(`.tick`)
@@ -305,7 +310,7 @@ export class SPCChart implements IVisual {
                     .attr('display', 'block')
             }
 
-        } 
+        }
 
         //Create target line
         if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
@@ -330,7 +335,7 @@ export class SPCChart implements IVisual {
 
         //Create data line
         this.lineData
-            .datum(this.dataPoints.filter(d => d.value !== null))
+            .datum(this.dataPoints)
             .style("stroke-linecap", "round")
             .attr("fill", "none")
             .attr("stroke", function (d) { return data.strokeColor })
@@ -345,7 +350,7 @@ export class SPCChart implements IVisual {
 
         if (this.formattingSettings.SPCSettings.markerOptions.showMarker.value) {
             this.dataMarkers
-                .data(this.dataPoints.filter(d => d.value !== null))
+                .data(this.dataPoints)
                 .enter()
                 .append("circle")
                 .attr("class", "markers")
@@ -356,7 +361,7 @@ export class SPCChart implements IVisual {
         }
 
         this.tooltipMarkers
-            .data(this.dataPoints.filter(d => d.value !== null))
+            .data(this.dataPoints)
             .enter()
             .append("circle")
             .attr("class", "markers tooltip")
@@ -367,7 +372,7 @@ export class SPCChart implements IVisual {
             .attr("opacity", 0);
 
         this.dataMarkers
-            .data(this.dataPoints.filter(d => d.value !== null))
+            .data(this.dataPoints)
             .enter()
             .append("rect")
             .attr("class", "markers")
@@ -379,7 +384,7 @@ export class SPCChart implements IVisual {
             .attr("opacity", 0); //invisable rectangles 
 
         this.tooltipMarkers
-            .data(this.dataPoints.filter(d => d.value !== null))
+            .data(this.dataPoints)
             .enter()
             .append("rect")
             .attr("class", "markers tooltip")
@@ -390,127 +395,130 @@ export class SPCChart implements IVisual {
             .attr("stroke", "#777777")
             .attr("opacity", 0); //invisable rectangles 
 
-        //Create mean line
-        if (this.formattingSettings.SPCSettings.lineOptions.showMean.value) {
-            this.lineMean
-                .datum(this.dataPoints.filter(d => d.value !== null))
-                .attr("class", "mean")
-                .attr("fill", "none")
-                .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.meanColor.value.value)
-                .attr("stroke-width", 1.5)
-                .attr("stroke-linejoin", "round")
-                .style("stroke-linecap", "round")
-                .attr("d", d3.line<SPCChartDataPoint>()
-                    .x(function (d) { return xScale(d.category) })
-                    .y(function (d) { return yScale(<number>d.mean) })
-                );
-        } else {
-            this.lineMean
-                .attr("stroke-width", 0)
+        if (n > 1) {
+
+
+            //Create mean line
+            if (this.formattingSettings.SPCSettings.lineOptions.showMean.value) {
+                this.lineMean
+                    .datum(this.dataPoints)
+                    .attr("class", "mean")
+                    .attr("fill", "none")
+                    .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.meanColor.value.value)
+                    .attr("stroke-width", 1.5)
+                    .attr("stroke-linejoin", "round")
+                    .style("stroke-linecap", "round")
+                    .attr("d", d3.line<SPCChartDataPoint>()
+                        .x(function (d) { return xScale(d.category) })
+                        .y(function (d) { return yScale(<number>d.mean) })
+                    );
+            } else {
+                this.lineMean
+                    .attr("stroke-width", 0)
+            }
+
+            //Create limit lines   
+            if (this.formattingSettings.SPCSettings.lineOptions.showControl.value) {
+                this.lineUCL
+                    .datum(this.dataPoints)
+                    .attr("class", "ControlLimit")
+                    .attr("fill", "none")
+                    .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value)
+                    .attr("stroke-width", 2)
+                    .style("stroke-dasharray", ("5,5"))
+                    .style("stroke-linecap", "round")
+                    .attr("d", d3.line<SPCChartDataPoint>()
+                        .x(function (d) { return xScale(d.category) })
+                        .y(function (d) { return yScale(<number>d.UCLValue) })
+                    );
+
+                this.lineLCL
+                    .datum(this.dataPoints)
+                    .attr("class", "ControlLimit")
+                    .attr("fill", "none")
+                    .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.lowerCL.value.value)
+                    .attr("stroke-width", 2)
+                    .style("stroke-dasharray", ("5,5"))
+                    .style("stroke-linecap", "round")
+                    .attr("d", d3.line<SPCChartDataPoint>()
+                        .x(function (d) { return xScale(d.category) })
+                        .y(function (d) { return yScale(<number>d.LCLValue) })
+                    );
+            } else {
+                this.lineUCL
+                    .attr("stroke-width", 0)
+
+                this.lineLCL
+                    .attr("stroke-width", 0)
+            }
+
+            //Create Zone lines 
+            if (this.formattingSettings.SPCSettings.lineOptions.showSubControl.value) {
+                this.lineUpperZoneA
+                    .datum(this.dataPoints)
+                    .style("stroke-dasharray", ("5,5"))
+                    .style("stroke-linecap", "round")
+                    .attr("class", "subControl")
+                    .attr("fill", "none")
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 1)
+                    .attr("d", d3.line<SPCChartDataPoint>()
+                        .x(function (d) { return xScale(d.category) })
+                        .y(function (d) { return yScale(<number>d.Upper_Zone_A) })
+                    );
+
+                this.lineUpperZoneB
+                    .datum(this.dataPoints)
+                    .style("stroke-dasharray", ("5,5"))
+                    .style("stroke-linecap", "round")
+                    .attr("class", "subControl")
+                    .attr("fill", "none")
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 1)
+                    .attr("d", d3.line<SPCChartDataPoint>()
+                        .x(function (d) { return xScale(d.category) })
+                        .y(function (d) { return yScale(<number>d.Upper_Zone_B) })
+                    );
+
+                this.lineLowerZoneA
+                    .datum(this.dataPoints)
+                    .style("stroke-dasharray", ("5,5"))
+                    .style("stroke-linecap", "round")
+                    .attr("class", "subControl")
+                    .attr("fill", "none")
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 1)
+                    .attr("d", d3.line<SPCChartDataPoint>()
+                        .x(function (d) { return xScale(d.category) })
+                        .y(function (d) { return yScale(<number>d.Lower_Zone_A) })
+                    );
+
+                this.lineLowerZoneB
+                    .datum(this.dataPoints)
+                    .style("stroke-dasharray", ("5,5"))
+                    .style("stroke-linecap", "round")
+                    .attr("class", "subControl")
+                    .attr("fill", "none")
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 1)
+                    .attr("d", d3.line<SPCChartDataPoint>()
+                        .x(function (d) { return xScale(d.category) })
+                        .y(function (d) { return yScale(<number>d.Lower_Zone_B) })
+                    );
+            } else {
+                this.lineUpperZoneA
+                    .attr("stroke-width", 0)
+
+                this.lineUpperZoneB
+                    .attr("stroke-width", 0)
+
+                this.lineLowerZoneA
+                    .attr("stroke-width", 0)
+
+                this.lineLowerZoneB
+                    .attr("stroke-width", 0)
+            }
         }
-
-        //Create limit lines   
-        if (this.formattingSettings.SPCSettings.lineOptions.showControl.value) {
-            this.lineUCL
-                .datum(this.dataPoints.filter(d => d.value !== null))
-                .attr("class", "ControlLimit")
-                .attr("fill", "none")
-                .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value)
-                .attr("stroke-width", 2)
-                .style("stroke-dasharray", ("5,5"))
-                .style("stroke-linecap", "round")
-                .attr("d", d3.line<SPCChartDataPoint>()
-                    .x(function (d) { return xScale(d.category) })
-                    .y(function (d) { return yScale(<number>d.UCLValue) })
-                );
-
-            this.lineLCL
-                .datum(this.dataPoints.filter(d => d.value !== null))
-                .attr("class", "ControlLimit")
-                .attr("fill", "none")
-                .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.lowerCL.value.value)
-                .attr("stroke-width", 2)
-                .style("stroke-dasharray", ("5,5"))
-                .style("stroke-linecap", "round")
-                .attr("d", d3.line<SPCChartDataPoint>()
-                    .x(function (d) { return xScale(d.category) })
-                    .y(function (d) { return yScale(<number>d.LCLValue) })
-                );
-        } else {
-            this.lineUCL
-                .attr("stroke-width", 0)
-
-            this.lineLCL
-                .attr("stroke-width", 0)
-        }
-
-        //Create Zone lines 
-        if (this.formattingSettings.SPCSettings.lineOptions.showSubControl.value) {
-            this.lineUpperZoneA
-                .datum(this.dataPoints.filter(d => d.value !== null))
-                .style("stroke-dasharray", ("5,5"))
-                .style("stroke-linecap", "round")
-                .attr("class", "subControl")
-                .attr("fill", "none")
-                .attr("stroke", "black")
-                .attr("stroke-width", 1)
-                .attr("d", d3.line<SPCChartDataPoint>()
-                    .x(function (d) { return xScale(d.category) })
-                    .y(function (d) { return yScale(<number>d.Upper_Zone_A) })
-                );
-
-            this.lineUpperZoneB
-                .datum(this.dataPoints.filter(d => d.value !== null))
-                .style("stroke-dasharray", ("5,5"))
-                .style("stroke-linecap", "round")
-                .attr("class", "subControl")
-                .attr("fill", "none")
-                .attr("stroke", "black")
-                .attr("stroke-width", 1)
-                .attr("d", d3.line<SPCChartDataPoint>()
-                    .x(function (d) { return xScale(d.category) })
-                    .y(function (d) { return yScale(<number>d.Upper_Zone_B) })
-                );
-
-            this.lineLowerZoneA
-                .datum(this.dataPoints.filter(d => d.value !== null))
-                .style("stroke-dasharray", ("5,5"))
-                .style("stroke-linecap", "round")
-                .attr("class", "subControl")
-                .attr("fill", "none")
-                .attr("stroke", "black")
-                .attr("stroke-width", 1)
-                .attr("d", d3.line<SPCChartDataPoint>()
-                    .x(function (d) { return xScale(d.category) })
-                    .y(function (d) { return yScale(<number>d.Lower_Zone_A) })
-                );
-
-            this.lineLowerZoneB
-                .datum(this.dataPoints.filter(d => d.value !== null))
-                .style("stroke-dasharray", ("5,5"))
-                .style("stroke-linecap", "round")
-                .attr("class", "subControl")
-                .attr("fill", "none")
-                .attr("stroke", "black")
-                .attr("stroke-width", 1)
-                .attr("d", d3.line<SPCChartDataPoint>()
-                    .x(function (d) { return xScale(d.category) })
-                    .y(function (d) { return yScale(<number>d.Lower_Zone_B) })
-                );
-        } else {
-            this.lineUpperZoneA
-                .attr("stroke-width", 0)
-
-            this.lineUpperZoneB
-                .attr("stroke-width", 0)
-
-            this.lineLowerZoneA
-                .attr("stroke-width", 0)
-
-            this.lineLowerZoneB
-                .attr("stroke-width", 0)
-        }
-
         // Move logo 
         let logoX = widthChartStart
         if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == -1) {
@@ -551,7 +559,7 @@ export class SPCChart implements IVisual {
         //ToolTips
         let thissvg = this.svg;
         let tt = this.tooltipMarkers;
-        let dm = this.dataPoints.filter(d => d.value !== null);
+        let dm = this.dataPoints;
 
         this.svg
             .on('mouseover', function () {

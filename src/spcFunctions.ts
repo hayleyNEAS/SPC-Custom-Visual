@@ -28,7 +28,7 @@ const none = require("./../assets/no_image.png")
 //Functions
 
 export function identifyOutliers(dataset: SPCChartData, formatSettings: VisualSettingsModel) {
-    let data = dataset.datapoints
+    let data = dataset.dataPoints
     let outlierColor = formatSettings.SPCSettings.markerOptions.outlier.value.value
     let outlierShow = Number(formatSettings.SPCSettings.markerOptions.showOutlier.value)
 
@@ -50,7 +50,7 @@ export function identifyOutliers(dataset: SPCChartData, formatSettings: VisualSe
     }
 
     return {
-        datapoints: data,
+        dataPoints: data,
 
         n: dataset.n,
         numberOfTimePeriods: dataset.numberOfTimePeriods,
@@ -95,7 +95,7 @@ export function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
 
 export function logoSelector(data: SPCChartData, option): any {
     if (option == "variation") {
-        //let dataPoints = data.datapoints
+        //let dataPoints = data.dataPoints
         if (data.direction > 0) {
             if (data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1) {
                 return variation_ciHigh
@@ -126,26 +126,26 @@ export function logoSelector(data: SPCChartData, option): any {
     if (option == "target") {
         if (data.target > -Infinity) {
             if (data.direction < 0) {
-                if (data.target < data.datapoints[data.n - 1].LCLValue) {
+                if (data.target < data.dataPoints[data.n - 1].LCLValue) {
                     return fail_above
-                } if (data.target >= data.datapoints[data.n - 1].UCLValue) {
+                } if (data.target >= data.dataPoints[data.n - 1].UCLValue) {
                     return pass_below
                 } else {
                     return atTarget
                 }
 
             } if (data.direction > 0) {
-                if (data.target < data.datapoints[data.n - 1].LCLValue) {
+                if (data.target < data.dataPoints[data.n - 1].LCLValue) {
                     return pass_above
-                } if (data.target >= data.datapoints[data.n - 1].UCLValue) {
+                } if (data.target >= data.dataPoints[data.n - 1].UCLValue) {
                     return fail_below
                 } else {
                     return atTarget
                 }
             } if (data.direction == 0) {
-                if (data.target < data.datapoints[data.n - 1].LCLValue) {
+                if (data.target < data.dataPoints[data.n - 1].LCLValue) {
                     return above
-                } if (data.target >= data.datapoints[data.n - 1].UCLValue) {
+                } if (data.target >= data.dataPoints[data.n - 1].UCLValue) {
                     return below
                 } else {
                     return atTarget
@@ -176,7 +176,7 @@ export function directionColors(formatSettings: VisualSettingsModel): [number, s
 }
 
 export function getMean(dataset: SPCChartData): SPCChartData {
-    let data = dataset.datapoints
+    let data = dataset.dataPoints
     let numberTimePeriods = dataset.numberOfTimePeriods
 
     for (let i = 0, len = numberTimePeriods + 1; i < len; i++) {
@@ -193,7 +193,7 @@ export function getMean(dataset: SPCChartData): SPCChartData {
     }
 
     return {
-        datapoints: data,
+        dataPoints: data,
 
         n: dataset.n,
         numberOfTimePeriods: dataset.numberOfTimePeriods,
@@ -217,7 +217,7 @@ export function getMean(dataset: SPCChartData): SPCChartData {
 }
 
 export function getControlLimits(dataset: SPCChartData): SPCChartData {
-    let data = dataset.datapoints;
+    let data = dataset.dataPoints;
     let numberTimePeriods = dataset.numberOfTimePeriods;
 
     for (let i = 0, len = numberTimePeriods + 1; i < len; i++) {
@@ -245,7 +245,7 @@ export function getControlLimits(dataset: SPCChartData): SPCChartData {
 
 
     return {
-        datapoints: data,
+        dataPoints: data,
 
         n: dataset.n,
         numberOfTimePeriods: dataset.numberOfTimePeriods,
@@ -269,7 +269,7 @@ export function getControlLimits(dataset: SPCChartData): SPCChartData {
 }
 
 export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSettingsModel): SPCChartData {
-    let data = dataset.datapoints
+    let data = dataset.dataPoints
     let [direction, up_color, down_color] = directionColors(formatSettings)
 
     for (let i = 0; i < dataset.n; i++) {
@@ -329,7 +329,7 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSet
     }
 
     return {
-        datapoints: data, //this is the pivitol step
+        dataPoints: data, //this is the pivitol step
 
         n: dataset.n,
         numberOfTimePeriods: dataset.numberOfTimePeriods,

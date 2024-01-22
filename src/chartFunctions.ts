@@ -11,7 +11,7 @@ import {SPCChartDataPoint, SPCChartData, PrimitiveValue} from "./dataStructure"
 
 
 export function yAxisDomain(data: SPCChartData){
-    let dataPoints = data.datapoints.filter(d => d.value !== null)
+    let dataPoints = data.dataPoints.filter(d => d.value !== null)
     let yData = dataPoints.map(d => <number>d.value)
     let UCLData = dataPoints.map(d => <number>d.UCLValue)
     let LCLData = dataPoints.map(d => <number>d.LCLValue)
