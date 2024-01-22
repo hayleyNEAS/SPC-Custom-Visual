@@ -19,7 +19,7 @@ export interface SPCChartDataPoint {
     twoInThree: number;
 }
 export interface SPCChartData {
-    datapoints: SPCChartDataPoint[];
+    dataPoints: SPCChartDataPoint[];
     n: number;
     numberOfTimePeriods: number;
     direction: number;
@@ -35,4 +35,8 @@ export interface SPCChartData {
     run: number;
     shift: number;
     twoInThree: number;
+}
+export interface additionalTooltip {
+    name: string;
+    values: any[];
 }

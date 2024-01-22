@@ -4,9 +4,9 @@ import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import * as d3 from "d3";
 
 
-import { SPCChartData, SPCChartDataPoint } from "./dataStructure"
+import { SPCChartData, SPCChartDataPoint, additionalTooltip } from "./dataStructure"
 import { VisualSettingsModel } from "./visualSettingsModel";
-import { PBIformatingKeeper, parseDates, getDayDiff, parseDateLabel } from "./formattingFunctions";
+import { PBIformatingKeeper, parseDates } from "./formattingFunctions";
 import { getMean, getControlLimits, getMarkerColors, identifyOutliers } from "./spcFunctions";
 
 
@@ -51,10 +51,12 @@ export function getTarget(target_input: any[], formatSettings: VisualSettingsMod
     return target
 }
 
-export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], any[]] {
+export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], any[], additionalTooltip[]] {
     let value_input = []
     let target_input = []
     let breakPoint_input = []
+    let tooltip_input: additionalTooltip[] = []
+
     let dates_input = []
 
     let dataViews = options.dataViews;
@@ -65,19 +67,24 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
         || !dataViews[0].categorical.categories[0].source
         || !dataViews[0].categorical.values
     ) {
-        return [[], [], [], []];
+        return [[], [], [], [], []];
     }
 
     for (let i = 0, len = options.dataViews[0].categorical.values.length; i < len; i++) {
         if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'measure') {
-            value_input = options.dataViews[0].categorical.values[i].values
+            value_input      = options.dataViews[0].categorical.values[i].values
         } else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'target_measure') {
-            target_input = options.dataViews[0].categorical.values[i].values
+            target_input     = options.dataViews[0].categorical.values[i].values
         } else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'break_points') {
             breakPoint_input = options.dataViews[0].categorical.values[i].values
-        }
+            console.log(breakPoint_input)
+        } else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'tooltip_extra') {
+            tooltip_input.push({
+                name: options.dataViews[0].categorical.values[i].source.displayName, 
+                values: options.dataViews[0].categorical.values[i].values
+            })
+        } 
     }
-    
     if(breakPoint_input.length == 0){
         let n = value_input.length
         breakPoint_input = new Array(n); for (let i=0; i<n; ++i) breakPoint_input[i] = 0; //if there are no break points provided then set the break point array to 0
@@ -85,7 +92,7 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
 
     dates_input = dataViews[0].categorical.categories[0].values
     let dates_input_parsed = dates_input.map(d => parseDates(d) )
-    return [dates_input_parsed, value_input, target_input, breakPoint_input]
+    return [dates_input_parsed, value_input, target_input, breakPoint_input, tooltip_input]
 }
 
 export function dataSet(dates:any, input: any[], breakPoints: any[], levelOfDateHeirarchy: string, formatSettings:VisualSettingsModel): SPCChartDataPoint[] {
@@ -145,7 +152,7 @@ export function dataSet(dates:any, input: any[], breakPoints: any[], levelOfDate
 }
 
 export function fullData(options: VisualUpdateOptions, formatSettings: VisualSettingsModel): SPCChartData {
-    let [dates_input, value_input, target_input, breakPoint_input] = dataLoad(options)
+    let [dates_input, value_input, target_input, breakPoint_input, tooltip_input] = dataLoad(options)
     let [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = PBIformatingKeeper(options)
     let data = dataSet(dates_input, value_input, breakPoint_input, levelOfDateHeirarchy, formatSettings)
     let target = getTarget(target_input, formatSettings)
@@ -188,7 +195,6 @@ export function createDataset(options: VisualUpdateOptions, host: IVisualHost, f
     //SPC Marker Colors Rules 
     allData = getMarkerColors(allData, formatSettings)
     allData = identifyOutliers(allData, formatSettings)
-    console.log("allData", allData)
 
     if( allData.n == 0 ){
         return allData
@@ -197,7 +203,7 @@ export function createDataset(options: VisualUpdateOptions, host: IVisualHost, f
         let run = allData.dataPoints[allData.n - 1].run
         let shift = allData.dataPoints[allData.n - 1].shift
         let twoInThree = allData.dataPoints[allData.n - 1].twoInThree
-        
+
         return {
             dataPoints: allData.dataPoints,
 

@@ -1,9 +1,10 @@
 {
     "dataRoles": [
-        {"displayName": "Time Hierarchy",   "name": "category",         "kind": "Grouping"},
-        {"displayName": "Measure Data",     "name": "measure",          "kind": "Measure"},
-        {"displayName": "Target (optional)","name": "target_measure",   "kind": "Measure"},
-        {"displayName": "Break Points (optional)","name": "break_points",   "kind": "Measure"}
+        {"displayName": "Time Hierarchy",           "name": "category",         "kind": "Grouping"},
+        {"displayName": "Measure Data",             "name": "measure",          "kind": "Measure"},
+        {"displayName": "Target (optional)",        "name": "target_measure",   "kind": "Measure"},
+        {"displayName": "Break Points (optional)",  "name": "break_points",     "kind": "Measure"},
+        {"displayName": "Additional ToolTips",      "name": "tooltip_extra",    "kind": "Measure"}
     ],
     "dataViewMappings": [
         {
@@ -16,6 +17,9 @@
                         "max": 1
                     },
                     "target_measure": {
+                        "max": 1
+                    },
+                    "break_points": {
                         "max": 1
                     }
                 }
@@ -35,7 +39,8 @@
                     "select": [
                         {"bind": {"to": "measure"}},
                         {"bind": {"to": "target_measure"}},
-                        {"bind": {"to": "break_points"}}
+                        {"bind": {"to": "break_points"}},
+                        {"bind": {"to": "tooltip_extra"}}
                     ]
                 }
             }
@@ -255,7 +260,8 @@
         },
         "roles": [
             "Tooltips"
-        ]
+        ],
+        "supportEnhancedTooltips": true
     },
     "supportsLandingPage": false,
     "drilldown": {

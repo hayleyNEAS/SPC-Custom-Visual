@@ -1563,6 +1563,7 @@ function dataLoad(options) {
     let value_input = [];
     let target_input = [];
     let breakPoint_input = [];
+    let tooltip_input = [];
     let dates_input = [];
     let dataViews = options.dataViews;
     if (!dataViews //checks data exists
@@ -1571,7 +1572,7 @@ function dataLoad(options) {
         || !dataViews[0].categorical.categories
         || !dataViews[0].categorical.categories[0].source
         || !dataViews[0].categorical.values) {
-        return [[], [], [], []];
+        return [[], [], [], [], []];
     }
     for (let i = 0, len = options.dataViews[0].categorical.values.length; i < len; i++) {
         if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'measure') {
@@ -1582,6 +1583,13 @@ function dataLoad(options) {
         }
         else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'break_points') {
             breakPoint_input = options.dataViews[0].categorical.values[i].values;
+            console.log(breakPoint_input);
+        }
+        else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'tooltip_extra') {
+            tooltip_input.push({
+                name: options.dataViews[0].categorical.values[i].source.displayName,
+                values: options.dataViews[0].categorical.values[i].values
+            });
         }
     }
     if (breakPoint_input.length == 0) {
@@ -1592,7 +1600,7 @@ function dataLoad(options) {
     }
     dates_input = dataViews[0].categorical.categories[0].values;
     let dates_input_parsed = dates_input.map(d => (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .parseDates */ .Y8)(d));
-    return [dates_input_parsed, value_input, target_input, breakPoint_input];
+    return [dates_input_parsed, value_input, target_input, breakPoint_input, tooltip_input];
 }
 function dataSet(dates, input, breakPoints, levelOfDateHeirarchy, formatSettings) {
     let SPCChartDataPoints = [];
@@ -1641,7 +1649,7 @@ function dataSet(dates, input, breakPoints, levelOfDateHeirarchy, formatSettings
     return SPCChartDataPoints;
 }
 function fullData(options, formatSettings) {
-    let [dates_input, value_input, target_input, breakPoint_input] = dataLoad(options);
+    let [dates_input, value_input, target_input, breakPoint_input, tooltip_input] = dataLoad(options);
     let [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .PBIformatingKeeper */ .WN)(options);
     let data = dataSet(dates_input, value_input, breakPoint_input, levelOfDateHeirarchy, formatSettings);
     let target = getTarget(target_input, formatSettings);
@@ -1675,7 +1683,6 @@ function createDataset(options, host, formatSettings) {
     //SPC Marker Colors Rules 
     allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_1__/* .getMarkerColors */ .gT)(allData, formatSettings);
     allData = (0,_spcFunctions__WEBPACK_IMPORTED_MODULE_1__/* .identifyOutliers */ .b5)(allData, formatSettings);
-    console.log("allData", allData);
     if (allData.n == 0) {
         return allData;
     }
