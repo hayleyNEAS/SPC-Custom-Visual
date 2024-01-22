@@ -6,6 +6,8 @@ import { parseDateLabel, parseinHMS, parseXLabels, parseYLabels } from "./format
 import { VisualSettingsModel } from "./visualSettingsModel";
 
 export function getTooltipData(d: SPCChartDataPoint, data: SPCChartData, formating: VisualSettingsModel): VisualTooltipDataItem[] {
+    let tooltip_data: VisualTooltipDataItem[] = []
+
     let header = {
         header: d.category,
         displayName: data.measureName,
@@ -25,16 +27,34 @@ export function getTooltipData(d: SPCChartDataPoint, data: SPCChartData, formati
         color: formating.SPCSettings.lineOptions.lowerCL.value.value
     };
 
-    let target = {
-        displayName: "Target",
-        value: parseYLabels(data.target, formating.enableYAxis.formatter.time.value),
-        color: formating.SPCSettings.lineOptions.targetColor.value.value
-    };
+    tooltip_data = [header, UCL, LCL]
 
-    if (data.target == -Infinity) {
+    //add target to tooltip
+    if (data.target != -Infinity) {
+        let target = {
+            displayName: "Target",
+            value: parseYLabels(data.target, formating.enableYAxis.formatter.time.value),
+            color: formating.SPCSettings.lineOptions.targetColor.value.value
+        };
+        tooltip_data.push(target)
+    }
+
+    //add additional data to tooltip
+    for (let j = 0, len = d.additionalTooltipData.length; j < len; j++) {
+        let tooltip_extra = {
+            displayName: d.additionalTooltipData[j].name,
+            value: d.additionalTooltipData[j].values.toString(),
+            color: "#00000000"
+        };
+        tooltip_data.push(tooltip_extra)
+    }
+
+    return tooltip_data
+
+/*     if (data.target == -Infinity) {
         return [header, UCL, LCL];
     } else {
         return [header, UCL, LCL, target];
-    }
+    } */
 
 }

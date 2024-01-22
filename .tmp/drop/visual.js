@@ -1602,22 +1602,36 @@ function dataLoad(options) {
     let dates_input_parsed = dates_input.map(d => (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .parseDates */ .Y8)(d));
     return [dates_input_parsed, value_input, target_input, breakPoint_input, tooltip_input];
 }
-function dataSet(dates, input, breakPoints, levelOfDateHeirarchy, formatSettings) {
+function dataSet(options, levelOfDateHeirarchy, formatSettings) {
+    let [dates_input, value_input, target_input, breakPoint_input, tooltip_input] = dataLoad(options);
     let SPCChartDataPoints = [];
-    let allDates = getDatesArray(dates.at(0), dates.at(-1), levelOfDateHeirarchy);
-    for (let i = 0, len = formatSettings.dataManipulator.fillMissing0.value ? allDates.length : dates.length; i < len; i++) {
+    let allDates = getDatesArray(dates_input.at(0), dates_input.at(-1), levelOfDateHeirarchy);
+    for (let i = 0, len = formatSettings.dataManipulator.fillMissing0.value ? allDates.length : dates_input.length; i < len; i++) {
         let value;
         let breakP;
         let category;
+        let addTooltip = [];
         if (formatSettings.dataManipulator.fillMissing0.value) {
-            value = input[dates.indexOf(allDates[i])] ? input[dates.indexOf(allDates[i])] : 0;
-            breakP = breakPoints[dates.indexOf(allDates[i])] ? breakPoints[dates.indexOf(allDates[i])] : 0;
+            value = value_input[dates_input.indexOf(allDates[i])] ? value_input[dates_input.indexOf(allDates[i])] : 0;
+            breakP = breakPoint_input[dates_input.indexOf(allDates[i])] ? breakPoint_input[dates_input.indexOf(allDates[i])] : 0;
             category = allDates[i];
+            for (let j = 0, len = tooltip_input.length; j < len; j++) {
+                addTooltip.push({
+                    name: tooltip_input[j].name,
+                    values: tooltip_input[j].values.at(dates_input.indexOf(allDates[i]))
+                });
+            }
         }
         else {
-            value = input[i];
-            breakP = breakPoints[i];
-            category = dates[i];
+            value = value_input[i];
+            breakP = breakPoint_input[i];
+            category = dates_input[i];
+            for (let j = 0, len = tooltip_input.length; j < len; j++) {
+                addTooltip.push({
+                    name: tooltip_input[j].name,
+                    values: tooltip_input[j].values.at(i)
+                });
+            }
         }
         let difference = null;
         let previous_not_null_values = SPCChartDataPoints.filter(d => d.value !== null);
@@ -1633,7 +1647,7 @@ function dataSet(dates, input, breakPoints, levelOfDateHeirarchy, formatSettings
             category,
             breakP,
             difference,
-            mean: input[0],
+            mean: value_input[0],
             UCLValue: Infinity,
             LCLValue: -Infinity,
             Upper_Zone_A: Infinity,
@@ -1643,7 +1657,8 @@ function dataSet(dates, input, breakPoints, levelOfDateHeirarchy, formatSettings
             outlier: 0,
             run: 0,
             shift: 0,
-            twoInThree: 0
+            twoInThree: 0,
+            additionalTooltipData: addTooltip
         });
     }
     return SPCChartDataPoints;
@@ -1651,7 +1666,8 @@ function dataSet(dates, input, breakPoints, levelOfDateHeirarchy, formatSettings
 function fullData(options, formatSettings) {
     let [dates_input, value_input, target_input, breakPoint_input, tooltip_input] = dataLoad(options);
     let [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .PBIformatingKeeper */ .WN)(options);
-    let data = dataSet(dates_input, value_input, breakPoint_input, levelOfDateHeirarchy, formatSettings);
+    let data = dataSet(options, levelOfDateHeirarchy, formatSettings);
+    console.log(data);
     let target = getTarget(target_input, formatSettings);
     let numberOfTimePeriods = data
         .map((d) => d.breakP)
@@ -2373,6 +2389,7 @@ function getMarkerColors(dataset, formatSettings) {
 /* harmony import */ var _formattingFunctions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9540);
 
 function getTooltipData(d, data, formating) {
+    let tooltip_data = [];
     let header = {
         header: d.category,
         displayName: data.measureName,
@@ -2389,17 +2406,31 @@ function getTooltipData(d, data, formating) {
         value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .parseYLabels */ .Qo)(d.LCLValue, formating.enableYAxis.formatter.time.value),
         color: formating.SPCSettings.lineOptions.lowerCL.value.value
     };
-    let target = {
-        displayName: "Target",
-        value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .parseYLabels */ .Qo)(data.target, formating.enableYAxis.formatter.time.value),
-        color: formating.SPCSettings.lineOptions.targetColor.value.value
-    };
-    if (data.target == -Infinity) {
-        return [header, UCL, LCL];
+    tooltip_data = [header, UCL, LCL];
+    //add target to tooltip
+    if (data.target != -Infinity) {
+        let target = {
+            displayName: "Target",
+            value: (0,_formattingFunctions__WEBPACK_IMPORTED_MODULE_0__/* .parseYLabels */ .Qo)(data.target, formating.enableYAxis.formatter.time.value),
+            color: formating.SPCSettings.lineOptions.targetColor.value.value
+        };
+        tooltip_data.push(target);
     }
-    else {
-        return [header, UCL, LCL, target];
+    //add additional data to tooltip
+    for (let j = 0, len = d.additionalTooltipData.length; j < len; j++) {
+        let tooltip_extra = {
+            displayName: d.additionalTooltipData[j].name,
+            value: d.additionalTooltipData[j].values.toString(),
+            color: "#00000000"
+        };
+        tooltip_data.push(tooltip_extra);
     }
+    return tooltip_data;
+    /*     if (data.target == -Infinity) {
+            return [header, UCL, LCL];
+        } else {
+            return [header, UCL, LCL, target];
+        } */
 }
 
 

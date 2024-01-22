@@ -604,7 +604,8 @@ export class SPCChart implements IVisual {
             });
 
         this.tooltipServiceWrapper
-            .addTooltip(this.svg.selectAll('rect.markers'),
+            .addTooltip(
+                this.svg.selectAll('rect.markers'),
                 d => getTooltipData(d, data, this.formattingSettings),
                 (d: SPCChartDataPoint) => null,
                 true
