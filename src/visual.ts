@@ -399,9 +399,7 @@ export class SPCChart implements IVisual {
             .attr("opacity", 0); //invisable rectangles 
 
         if (n > 1) {
-
-
-            //Create mean line
+        //Create mean line
             if (this.formattingSettings.SPCSettings.lineOptions.showMean.value) {
                 this.lineMean
                     .datum(this.dataPoints)
@@ -532,7 +530,7 @@ export class SPCChart implements IVisual {
             logoX = widthChartEnd - 100
         }
         let logo = logoSelector(data, "variation")
-        if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
+        if (this.formattingSettings.SPCSettings.logoOptions.show.value && n > 1) {
             this.logo
                 .attr('href', logo)
                 .attr('width', 50)
@@ -546,7 +544,7 @@ export class SPCChart implements IVisual {
         }
 
         let logoTarget = logoSelector(data, "target")
-        if (this.formattingSettings.SPCSettings.logoOptions.show.value && data.target) {
+        if (this.formattingSettings.SPCSettings.logoOptions.show.value && data.target && n > 1) {
             this.logoTarget
                 .attr('href', logoTarget)
                 .attr('width', 50)

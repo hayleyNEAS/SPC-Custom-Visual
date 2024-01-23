@@ -172,7 +172,6 @@ export function fullData(options: VisualUpdateOptions, formatSettings: VisualSet
     let [dates_input, value_input, target_input, breakPoint_input, tooltip_input] = dataLoad(options)
     let [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = PBIformatingKeeper(options)
     let data = dataSet(options, levelOfDateHeirarchy, formatSettings)
-    console.log(data)
     let target = getTarget(target_input, formatSettings)
 
     let numberOfTimePeriods = data
