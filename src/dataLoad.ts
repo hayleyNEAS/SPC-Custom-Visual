@@ -4,7 +4,7 @@ import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import * as d3 from "d3";
 
 
-import { SPCChartData, SPCChartDataPoint, additionalTooltip } from "./dataStructure"
+import { SPCChartData, SPCChartDataPoint, additionalKeyValue } from "./dataStructure"
 import { VisualSettingsModel } from "./visualSettingsModel";
 import { PBIformatingKeeper, parseDates } from "./formattingFunctions";
 import { getMean, getControlLimits, getMarkerColors, identifyOutliers } from "./spcFunctions";
@@ -51,11 +51,11 @@ export function getTarget(target_input: any[], formatSettings: VisualSettingsMod
     return target
 }
 
-export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], any[], additionalTooltip[]] {
+export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], any[], additionalKeyValue[]] {
     let value_input = []
     let target_input = []
-    let breakPoint_input = []
-    let tooltip_input: additionalTooltip[] = []
+    let breakPoint_input: additionalKeyValue[] = []
+    let tooltip_input: additionalKeyValue[] = []
 
     let dates_input = []
 
@@ -76,8 +76,10 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
         } else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'target_measure') {
             target_input = options.dataViews[0].categorical.values[i].values
         } else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'break_points') {
-            breakPoint_input = options.dataViews[0].categorical.values[i].values
-            console.log(breakPoint_input)
+            breakPoint_input.push({
+                name: options.dataViews[0].categorical.values[i].source.displayName,
+                values: options.dataViews[0].categorical.values[i].values
+            })
         } else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'tooltip_extra') {
             tooltip_input.push({
                 name: options.dataViews[0].categorical.values[i].source.displayName,
@@ -85,14 +87,19 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
             })
         }
     }
-    if (breakPoint_input.length == 0) {
-        let n = value_input.length
-        breakPoint_input = new Array(n); for (let i = 0; i < n; ++i) breakPoint_input[i] = 0; //if there are no break points provided then set the break point array to 0
+
+    let breakPoint_parsed = []
+    let n = value_input.length
+    breakPoint_parsed = new Array(n); for (let i = 0; i < n; ++i) breakPoint_parsed[i] = 0; 
+    
+    for( let j = 0, len = breakPoint_input.length; j < len; j++){
+        breakPoint_parsed = breakPoint_parsed.map((d, i) => d+breakPoint_input[j].values[i]) 
+        
     }
 
     dates_input = dataViews[0].categorical.categories[0].values
     let dates_input_parsed = dates_input.map(d => parseDates(d))
-    return [dates_input_parsed, value_input, target_input, breakPoint_input, tooltip_input]
+    return [dates_input_parsed, value_input, target_input, breakPoint_parsed, tooltip_input]
 }
 
 export function dataSet(options: VisualUpdateOptions, levelOfDateHeirarchy: string, formatSettings: VisualSettingsModel): SPCChartDataPoint[] {
@@ -105,7 +112,7 @@ export function dataSet(options: VisualUpdateOptions, levelOfDateHeirarchy: stri
         let value: number;
         let breakP: number;
         let category: string;
-        let addTooltip: additionalTooltip[] = []
+        let addTooltip: additionalKeyValue[] = []
 
         if (formatSettings.dataManipulator.fillMissing0.value) {
             value = value_input[dates_input.indexOf(allDates[i])] ? value_input[dates_input.indexOf(allDates[i])] : 0;

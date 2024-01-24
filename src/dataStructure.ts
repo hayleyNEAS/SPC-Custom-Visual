@@ -26,7 +26,7 @@ export interface SPCChartDataPoint {
     shift: number;
     twoInThree: number;
 
-    additionalTooltipData: additionalTooltip[];
+    additionalTooltipData: additionalKeyValue[];
 }
 
 export interface SPCChartData {
@@ -52,7 +52,7 @@ export interface SPCChartData {
     twoInThree: number;
 }
 
-export interface additionalTooltip{
+export interface additionalKeyValue{
     name: string,
     values: any[]
 }

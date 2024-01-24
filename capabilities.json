@@ -18,9 +18,6 @@
                     },
                     "target_measure": {
                         "max": 1
-                    },
-                    "break_points": {
-                        "max": 1
                     }
                 }
             ],
