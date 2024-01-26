@@ -170,7 +170,7 @@ export class SPCChart implements IVisual {
 
         let data = createDataset(options, this.host, this.formattingSettings);
         this.dataPoints = data.dataPoints.filter(d => d.value !== null);
-        let n =  this.dataPoints.length
+        let n = this.dataPoints.length
 
         //Define the chart size
         let width = options.viewport.width;
@@ -179,14 +179,14 @@ export class SPCChart implements IVisual {
 
         //Define the usable chart size
         let widthChartStart = 0;
-        let widthChartEnd = 0.98 * width; //0.98 so the final labels fit on the screen
+        let widthChartEnd = width;
 
         //Give the chart image a width and a height based on the size of the image in the report
         //If no data then the chart has no size
         if (n == 0) {
             this.svg
-            .attr("width", 0)
-            .attr("height", 0);
+                .attr("width", 0)
+                .attr("height", 0);
             return
         } else {
             this.svg
@@ -257,53 +257,68 @@ export class SPCChart implements IVisual {
             .attr('transform', 'translate(' + (yShift) + ',0)')
 
         //Set up the X Axis
-        widthChartStart = yShift + (width - widthChartEnd)
-        let bandwidth = data.n == 1 ? (widthChartEnd - widthChartStart) : (widthChartEnd - widthChartStart) / (data.n - 1); //each datapoint takes up one "bandwidth" of the chart area
+        widthChartStart = yShift 
+        let xScale = scalePoint();
+        let maxW_xAxis = 0;
+        let total_label_coverage = 0;
+        let bandwidth;
 
-        this.xAxis
-            .style("font-size", 11)
-            ;
+        for (let i = 0; i < 2; i++) { //should only run twice to "fit" the chart to size
 
-        let xScale = scalePoint()
-            .domain(data.dataPoints.map(d => d.category))
-            .range([widthChartStart, widthChartEnd])
-            ;
+            let inner_chartMargin = width - widthChartEnd
+            bandwidth = data.n == 1 ? (widthChartEnd - widthChartStart) : (widthChartEnd - widthChartStart) / (data.n - 1); //each datapoint takes up one "bandwidth" of the chart area
 
-        let span = [0, -1].map(i => new Date(data.dataPoints.at(i).category))
-        let xAxis = axisBottom(xScale)
-            .tickFormat(d => parseDateLabel(d, data.levelOfDateHeirarchy, span))
-            ;
+            this.xAxis
+                .style("font-size", 11)
+                ;
 
-        let xAxisObject = this.xAxis
-            .attr('transform', 'translate(0, ' + (height + 2) + ')')
-            .call(xAxis)
-            .transition().duration(500)
-            .attr("color", getFillColor(
-                options,
-                'enableAxis',
-                'fill',
-                this.host.colorPalette,
-                this.formattingSettings.enableAxis.formatter.fill.value.value
-            ));
+            xScale = scalePoint()
+                .domain(data.dataPoints.map(d => d.category))
+                .range([widthChartStart, widthChartEnd])
+                ;
 
-        xAxisObject.selectAll('.xAxis path, line')
-            .attr('opacity', 0)
-            ;
+            let span = [0, -1].map(i => new Date(data.dataPoints.at(i).category))
+            let xAxis = axisBottom(xScale)
+                .tickFormat(d => parseDateLabel(d, data.levelOfDateHeirarchy, span))
+                ;
 
-        //XAxis label reducer  
-        let maxW_xAxis = 0
-        let total_label_coverage = 0
-        this.xAxis
-            .selectAll("text")
-            .each(function (this: SVGGraphicsElement) {
-                total_label_coverage += this.getBBox().width
-                if (this.getBBox().width > maxW_xAxis) maxW_xAxis = this.getBBox().width;
-            });
+            let xAxisObject = this.xAxis
+                .attr('transform', 'translate(0, ' + (height + 2) + ')')
+                .call(xAxis)
+                .transition().duration(500)
+                .attr("color", getFillColor(
+                    options,
+                    'enableAxis',
+                    'fill',
+                    this.host.colorPalette,
+                    this.formattingSettings.enableAxis.formatter.fill.value.value
+                ));
+
+            xAxisObject.selectAll('.xAxis path, line')
+                .attr('opacity', 0)
+                ;
+
+            //XAxis label reducer  
+            this.xAxis
+                .selectAll("text")
+                .each(function (this: SVGGraphicsElement, d, i) {
+                    total_label_coverage += this.getBBox().width
+                    if (this.getBBox().width > maxW_xAxis) maxW_xAxis = this.getBBox().width;
+                    if (i == n - 1) inner_chartMargin = this.getBBox().width / 2.;
+                    //console.log('bb',this.getBBox().width, widthChartEnd, inner_chartMargin, inner_chartMargin > this.getBBox().width/2.,  d, i, n)
+                });
+            if (widthChartEnd + inner_chartMargin > width) {
+                widthChartEnd -= inner_chartMargin
+                widthChartStart += inner_chartMargin
+            } else {
+                break
+            }
+        }
 
         let n_xTicks = Math.ceil(total_label_coverage * 1.2 / (widthChartEnd - widthChartStart))
 
         if (data.n > 1) {
-            if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) { //BUG if chart reduces to one data point chart doesnt refresh 
+            if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) {
                 this.xAxis
                     .selectAll(`.tick`)
                     .attr('display', 'none')
@@ -399,7 +414,7 @@ export class SPCChart implements IVisual {
             .attr("opacity", 0); //invisable rectangles 
 
         if (n > 1) {
-        //Create mean line
+            //Create mean line
             if (this.formattingSettings.SPCSettings.lineOptions.showMean.value) {
                 this.lineMean
                     .datum(this.dataPoints)
@@ -564,7 +579,7 @@ export class SPCChart implements IVisual {
 
         this.svg
             .on('mouseover', function () {
-                console.log('on')
+                //console.log('on')
             })
             .on('mousemove', function (ev) {
                 thissvg //clear previous tooltip
@@ -598,7 +613,7 @@ export class SPCChart implements IVisual {
                 thissvg
                     .selectAll('.markers.tooltip')
                     .attr("opacity", 0);
-                console.log('left')
+                //console.log('left')
             });
 
         this.tooltipServiceWrapper
