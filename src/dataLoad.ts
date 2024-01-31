@@ -78,12 +78,33 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
         } else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'break_points') {
             breakPoint_input.push({
                 name: options.dataViews[0].categorical.values[i].source.displayName,
-                values: options.dataViews[0].categorical.values[i].values
+                values: options.dataViews[0].categorical.values[i].values,
+                format: '',
+                decimalPlaces: 0
             })
         } else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'tooltip_extra') {
+            let format = 's'
+            let decimalPlaces = 0
+            for(let j = 0, len = options.dataViews[0].metadata.columns.length; j < len; j++){
+                let meta = options.dataViews[0].metadata.columns[j]
+                if(Object.keys(options.dataViews[0].metadata.columns[j].roles)[0] == 'tooltip_extra'){
+                    if (!meta.format) {
+                        format = 's';
+                    } else if (meta.format.includes('%')) {
+                        format = '%'
+                    } else if (meta.format.includes('.')) {
+                        decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1).length;
+                        format = 's';
+                    } else {
+                        format = 's';
+                    }
+                }
+            }
             tooltip_input.push({
                 name: options.dataViews[0].categorical.values[i].source.displayName,
-                values: options.dataViews[0].categorical.values[i].values
+                values: options.dataViews[0].categorical.values[i].values,
+                format,
+                decimalPlaces
             })
         }
     }
@@ -96,7 +117,6 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
         breakPoint_parsed = breakPoint_parsed.map((d, i) => d+breakPoint_input[j].values[i]) 
         
     }
-
     dates_input = dataViews[0].categorical.categories[0].values
     let dates_input_parsed = dates_input.map(d => parseDates(d))
     return [dates_input_parsed, value_input, target_input, breakPoint_parsed, tooltip_input]
@@ -122,7 +142,9 @@ export function dataSet(options: VisualUpdateOptions, levelOfDateHeirarchy: stri
             for (let j = 0, len = tooltip_input.length; j < len; j++) {
                 addTooltip.push({
                     name: tooltip_input[j].name,
-                    values: tooltip_input[j].values.at(dates_input.indexOf(allDates[i]))
+                    values: [tooltip_input[j].values.at(dates_input.indexOf(allDates[i]))],
+                    format: tooltip_input[j].format,
+                    decimalPlaces: tooltip_input[j].decimalPlaces
                 });
             }
         } else {
@@ -133,7 +155,9 @@ export function dataSet(options: VisualUpdateOptions, levelOfDateHeirarchy: stri
             for (let j = 0, len = tooltip_input.length; j < len; j++) {
                 addTooltip.push({
                     name: tooltip_input[j].name,
-                    values: tooltip_input[j].values.at(i)
+                    values: [tooltip_input[j].values.at(i)],
+                    format: tooltip_input[j].format,
+                    decimalPlaces: tooltip_input[j].decimalPlaces
                 });
             }
         }

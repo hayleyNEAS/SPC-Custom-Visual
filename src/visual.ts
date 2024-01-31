@@ -305,8 +305,8 @@ export class SPCChart implements IVisual {
                     total_label_coverage += this.getBBox().width
                     if (this.getBBox().width > maxW_xAxis) maxW_xAxis = this.getBBox().width;
                     if (i == n - 1) inner_chartMargin = this.getBBox().width / 2.;
-                    //console.log('bb',this.getBBox().width, widthChartEnd, inner_chartMargin, inner_chartMargin > this.getBBox().width/2.,  d, i, n)
                 });
+            if (inner_chartMargin == 0){inner_chartMargin = 0.02*width}//if there is no final tick label then we need the margin to be 2% of the chart width
             if (widthChartEnd + inner_chartMargin > width) {
                 widthChartEnd -= inner_chartMargin
                 widthChartStart += inner_chartMargin

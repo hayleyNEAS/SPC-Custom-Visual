@@ -53,6 +53,8 @@ export interface SPCChartData {
 }
 
 export interface additionalKeyValue{
-    name: string,
-    values: any[]
+    name: string;
+    values: any[];
+    format: string;
+    decimalPlaces: number;
 }

@@ -1,6 +1,7 @@
 
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import * as d3 from "d3";
+import { dataLoad } from "./dataLoad";
 
 export function parseDates(label: string) {
     let formatter = d3.timeParse('%Y');
@@ -179,18 +180,19 @@ export function parseinHMS(d: d3.NumberValue) {
     return sign + String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0')
 }
 
-export function parseYLabels(d: d3.NumberValue, hms: boolean) {
+export function parseYLabels(d: d3.NumberValue, hms: boolean, digits: number) {
     if (d !== null) {
         if (hms) {
             return parseinHMS(d)
         } else {
-            return d.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+            return d.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits })
         }
 
     } return "Undefined"
 }
 
 export function PBIformatingKeeper(options: VisualUpdateOptions): [string, string, number, string] {
+    let [dates_input, value_input, target_input, breakPoint_input, tooltip_input] = dataLoad(options)
     let metadata = options.dataViews[0].metadata.columns
     let measureFormat = ''
     let decimalPlaces = 0
