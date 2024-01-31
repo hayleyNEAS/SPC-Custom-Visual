@@ -4,7 +4,7 @@ import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import * as d3 from "d3";
 
 
-import { SPCChartData, SPCChartDataPoint, additionalKeyValue } from "./dataStructure"
+import { PrimitiveValue, SPCChartData, SPCChartDataPoint, additionalKeyValue } from "./dataStructure"
 import { VisualSettingsModel } from "./visualSettingsModel";
 import { PBIformatingKeeper, parseDates } from "./formattingFunctions";
 import { getMean, getControlLimits, getMarkerColors, identifyOutliers } from "./spcFunctions";
@@ -52,7 +52,7 @@ export function getTarget(target_input: any[], formatSettings: VisualSettingsMod
 }
 
 export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], any[], additionalKeyValue[]] {
-    let value_input = []
+    let value_input:PrimitiveValue[] = []
     let target_input = []
     let breakPoint_input: additionalKeyValue[] = []
     let tooltip_input: additionalKeyValue[] = []
@@ -119,7 +119,20 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
     }
     dates_input = dataViews[0].categorical.categories[0].values
     let dates_input_parsed = dates_input.map(d => parseDates(d))
-    return [dates_input_parsed, value_input, target_input, breakPoint_parsed, tooltip_input]
+
+    
+    let indx = value_input.map((e, i) => typeof e != "number" ? i: "").filter(String) as number[]
+    console.log(indx)
+    let value_input_parsed = [...value_input]
+    for(let i of indx.reverse()){
+        dates_input_parsed.splice(i,1)
+        value_input_parsed.splice(i,1)
+        target_input.splice(i,1)
+        breakPoint_parsed.splice(i,1)
+        tooltip_input.forEach((t) => t.values.splice(i,1))
+    }
+    console.log(value_input, value_input_parsed)
+    return [dates_input_parsed, value_input_parsed, target_input, breakPoint_parsed, tooltip_input]
 }
 
 export function dataSet(options: VisualUpdateOptions, levelOfDateHeirarchy: string, formatSettings: VisualSettingsModel): SPCChartDataPoint[] {
@@ -147,6 +160,7 @@ export function dataSet(options: VisualUpdateOptions, levelOfDateHeirarchy: stri
                     decimalPlaces: tooltip_input[j].decimalPlaces
                 });
             }
+
         } else {
             value = value_input[i];
             breakP = breakPoint_input[i];
@@ -169,6 +183,8 @@ export function dataSet(options: VisualUpdateOptions, levelOfDateHeirarchy: stri
                 difference = <number>value - <number>previous_not_null_values.at(-1).value
             }
         }
+
+        breakP =  breakP < SPCChartDataPoints.map((d) => d.breakP).at(-1) ? SPCChartDataPoints.map((d) => d.breakP).at(-1) : breakP;
 
         SPCChartDataPoints.push({
             color: 'steelblue',
