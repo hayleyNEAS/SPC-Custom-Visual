@@ -6,6 +6,7 @@ import "./../style/visual.less";
 import { axisBottom, axisLeft } from "d3-axis";
 import { timeFormat, timeParse } from "d3-time-format";
 import * as d3 from "d3";
+import { BaseType } from "d3-selection"
 
 import powerbi from "powerbi-visuals-api";
 import "regenerator-runtime/runtime";
@@ -16,6 +17,7 @@ import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
+import ISelectionManager = powerbi.extensibility.ISelectionManager;
 
 import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
 import { createTooltipServiceWrapper, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
@@ -39,6 +41,7 @@ export class SPCChart implements IVisual {
     private svg: Selection<any>;                            //Chart
     private host: IVisualHost;                              //Interactability 
     private tooltipServiceWrapper: ITooltipServiceWrapper;  //ToolTips
+    private selectionManager: ISelectionManager;            //Right click menu
     private locale: string;                                 //Locale of user
 
     //The logos
@@ -93,6 +96,7 @@ export class SPCChart implements IVisual {
         this.host = options.host;
         const localizationManager = this.host.createLocalizationManager();
         this.formattingSettingsService = new FormattingSettingsService(localizationManager);
+        this.selectionManager = options.host.createSelectionManager();
         this.locale = options.host.locale;
 
         this.svg = d3Select(options.element)
@@ -160,9 +164,20 @@ export class SPCChart implements IVisual {
             .append('image');
 
         this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, options.element);
+        this.handleContextMenu();
     }
-
-
+    private handleContextMenu() {
+        this.svg.on('contextmenu', (event) => {
+            const mouseEvent: MouseEvent = event;
+            const eventTarget: EventTarget = mouseEvent.target;
+            const dataPoint: any = d3Select(<BaseType>eventTarget).datum();
+            this.selectionManager.showContextMenu(dataPoint ? dataPoint.selectionId : {}, {
+                x: mouseEvent.clientX,
+                y: mouseEvent.clientY
+            });
+            mouseEvent.preventDefault();
+        });
+    }
     //This updates the chart - ran each time anything changes in the visual (ie filters, mouse moves, drilling up/down)
     public update(options: VisualUpdateOptions) {
         //Set up the charting object 
