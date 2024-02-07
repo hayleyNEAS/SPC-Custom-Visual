@@ -1,5 +1,7 @@
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import IVisualHost = powerbi.extensibility.visual.IVisualHost;
+import ISelectionId = powerbi.visuals.ISelectionId;
+import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
 
 import * as d3 from "d3";
 
@@ -51,13 +53,13 @@ export function getTarget(target_input: any[], formatSettings: VisualSettingsMod
     return target
 }
 
-export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], any[], additionalKeyValue[]] {
-    let value_input:PrimitiveValue[] = []
-    let target_input = []
-    let breakPoint_input: additionalKeyValue[] = []
-    let tooltip_input: additionalKeyValue[] = []
+export function dataLoad(options: VisualUpdateOptions): [DataViewCategoryColumn, any[], any[], any[], additionalKeyValue[]] {
+    let value_input:PrimitiveValue[] = [];
+    let target_input = [];
+    let breakPoint_input: additionalKeyValue[] = [];
+    let tooltip_input: additionalKeyValue[] = [];
 
-    let dates_input = []
+    let dates_input: DataViewCategoryColumn;
 
     let dataViews = options.dataViews;
     if (!dataViews //checks data exists
@@ -67,7 +69,7 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
         || !dataViews[0].categorical.categories[0].source
         || !dataViews[0].categorical.values
     ) {
-        return [[], [], [], [], []];
+        return [undefined, [], [], [], []];
     }
 
     for (let i = 0, len = options.dataViews[0].categorical.values.length; i < len; i++) {
@@ -117,26 +119,28 @@ export function dataLoad(options: VisualUpdateOptions): [any[], any[], any[], an
         breakPoint_parsed = breakPoint_parsed.map((d, i) => d+breakPoint_input[j].values[i]) 
         
     }
-    dates_input = dataViews[0].categorical.categories[0].values
-    let dates_input_parsed = dates_input.map(d => parseDates(d))
+    dates_input = dataViews[0].categorical.categories[0];
+    let dates_input_parsed = dates_input;
+    dates_input_parsed.values = dates_input.values.map(d => parseDates(<string>d))
 
     
     let indx = value_input.map((e, i) => typeof e != "number" ? i: "").filter(String) as number[]
-    console.log(indx)
+    
     let value_input_parsed = [...value_input]
     for(let i of indx.reverse()){
-        dates_input_parsed.splice(i,1)
+        dates_input_parsed.values.splice(i,1)
         value_input_parsed.splice(i,1)
         target_input.splice(i,1)
         breakPoint_parsed.splice(i,1)
         tooltip_input.forEach((t) => t.values.splice(i,1))
     }
-    console.log(value_input, value_input_parsed)
+    
     return [dates_input_parsed, value_input_parsed, target_input, breakPoint_parsed, tooltip_input]
 }
 
-export function dataSet(options: VisualUpdateOptions, levelOfDateHeirarchy: string, formatSettings: VisualSettingsModel): SPCChartDataPoint[] {
-    let [dates_input, value_input, target_input, breakPoint_input, tooltip_input] = dataLoad(options)
+export function dataSet(host: IVisualHost, options: VisualUpdateOptions, levelOfDateHeirarchy: string, formatSettings: VisualSettingsModel): SPCChartDataPoint[] {
+    let [dates_input_column, value_input, target_input, breakPoint_input, tooltip_input] = dataLoad(options)
+    let dates_input = dates_input_column.values
     let SPCChartDataPoints: SPCChartDataPoint[] = []
 
     let allDates = getDatesArray(dates_input.at(0), dates_input.at(-1), levelOfDateHeirarchy)
@@ -144,13 +148,13 @@ export function dataSet(options: VisualUpdateOptions, levelOfDateHeirarchy: stri
     for (let i = 0, len = formatSettings.dataManipulator.fillMissing0.value ? allDates.length : dates_input.length; i < len; i++) {
         let value: number;
         let breakP: number;
-        let category: string;
+        let category: PrimitiveValue;
         let addTooltip: additionalKeyValue[] = []
 
         if (formatSettings.dataManipulator.fillMissing0.value) {
             value = value_input[dates_input.indexOf(allDates[i])] ? value_input[dates_input.indexOf(allDates[i])] : 0;
             breakP = <number>breakPoint_input[dates_input.indexOf(allDates[i])] ? <number>breakPoint_input[dates_input.indexOf(allDates[i])] : 0;
-            category = <string>allDates[i];
+            category = allDates[i];
 
             for (let j = 0, len = tooltip_input.length; j < len; j++) {
                 addTooltip.push({
@@ -186,12 +190,16 @@ export function dataSet(options: VisualUpdateOptions, levelOfDateHeirarchy: stri
 
         breakP =  breakP < SPCChartDataPoints.map((d) => d.breakP).at(-1) ? SPCChartDataPoints.map((d) => d.breakP).at(-1) : breakP;
 
+        const selectionID: ISelectionId = host.createSelectionIdBuilder()
+            .withCategory(dates_input_column, i)
+            .createSelectionId();
+
         SPCChartDataPoints.push({
             color: 'steelblue',
             markerSize: 0,
 
             value,
-            category,
+            category: category as string,
             breakP,
 
             difference,
@@ -209,16 +217,18 @@ export function dataSet(options: VisualUpdateOptions, levelOfDateHeirarchy: stri
             shift: 0,
             twoInThree: 0,
 
-            additionalTooltipData: addTooltip
+            additionalTooltipData: addTooltip,
+
+            selectionID
         });
     }
     return SPCChartDataPoints;
 }
 
-export function fullData(options: VisualUpdateOptions, formatSettings: VisualSettingsModel): SPCChartData {
+export function fullData(host: IVisualHost, options: VisualUpdateOptions, formatSettings: VisualSettingsModel): SPCChartData {
     let [dates_input, value_input, target_input, breakPoint_input, tooltip_input] = dataLoad(options)
     let [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = PBIformatingKeeper(options)
-    let data = dataSet(options, levelOfDateHeirarchy, formatSettings)
+    let data = dataSet(host, options, levelOfDateHeirarchy, formatSettings)
     let target = getTarget(target_input, formatSettings)
 
     let numberOfTimePeriods = data
@@ -251,7 +261,7 @@ export function fullData(options: VisualUpdateOptions, formatSettings: VisualSet
 
 export function createDataset(options: VisualUpdateOptions, host: IVisualHost, formatSettings: VisualSettingsModel): SPCChartData {
     //MEASURES INPUT
-    let allData = fullData(options, formatSettings)
+    let allData = fullData(host, options, formatSettings)
 
     allData = getMean(allData)
     allData = getControlLimits(allData)

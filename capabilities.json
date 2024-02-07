@@ -261,6 +261,7 @@
         "supportEnhancedTooltips": true
     },
     "supportsLandingPage": false,
+    "supportsMultiVisualSelection": true,
     "drilldown": {
         "roles": [
             "category"

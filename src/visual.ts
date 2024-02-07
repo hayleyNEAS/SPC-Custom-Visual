@@ -18,6 +18,7 @@ import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import ISelectionManager = powerbi.extensibility.ISelectionManager;
+import ISelectionId = powerbi.visuals.ISelectionId;
 
 import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
 import { createTooltipServiceWrapper, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
@@ -64,10 +65,11 @@ export class SPCChart implements IVisual {
     private lineTarget: Selection<SVGElement>;
 
     //The Markers
-    private dataMarkers: Selection<SVGElement>;
+    private dataMarkers: Selection<any>;
     private tooltipMarkers: Selection<SVGElement>;
 
     //The Data
+    private data: SPCChartData;
     private dataPoints: SPCChartDataPoint[];
     private formattingSettings: VisualSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
@@ -98,6 +100,10 @@ export class SPCChart implements IVisual {
         this.formattingSettingsService = new FormattingSettingsService(localizationManager);
         this.selectionManager = options.host.createSelectionManager();
         this.locale = options.host.locale;
+
+        this.selectionManager.registerOnSelectCallback(() => {
+            this.syncSelectionState(this.dataMarkers, this.dataMarkers, <ISelectionId[]>this.selectionManager.getSelectionIds());
+        });
 
         this.svg = d3Select(options.element)
             .append('svg')
@@ -177,13 +183,95 @@ export class SPCChart implements IVisual {
             });
             mouseEvent.preventDefault();
         });
+    }    
+    private handleClick(selection: Selection<any>, selection2: Selection<any>) {
+        // Clear selection when clicking outside a bar
+        this.svg.on('click', () => {
+            if (this.host.hostCapabilities.allowInteractions) {
+                this.selectionManager
+                    .clear()
+                    .then(() => {
+                        this.syncSelectionState(selection, selection2, []);
+                    });
+            }
+        });
+    }
+
+    private syncSelectionState( selection: Selection<SPCChartDataPoint>, circle: Selection<SPCChartDataPoint>, selectionIds: ISelectionId[]): void {
+        if (!selection || !selectionIds) {
+            return;
+        }
+        //console.log('click success')
+        const self: this = this;
+        if (!selectionIds.length) { //nothing selected 
+            const opacity: number = 0.0//this.barChartSettings.generalView.opacity / 100;
+            selection
+                .style("fill-opacity", opacity)
+                .style("stroke-opacity", opacity);
+
+            this.lineData
+                .style("opacity", 1)
+
+            if (this.formattingSettings.SPCSettings.markerOptions.showMarker.value) {
+                circle
+                    .style("opacity", 1)
+            } else {
+                circle
+                    .style("opacity", 0)
+            }
+
+            circle.each(function (datapoint: SPCChartDataPoint) {
+                d3Select(this)
+                    .attr("r", datapoint.markerSize)
+            }); 
+            return;
+        }
+        
+        this.lineData
+            .style("opacity", 0.3)
+            
+        circle
+            .style("opacity", 1) 
+
+        selection.each(function (datapoint: SPCChartDataPoint) {
+            const isSelected: boolean = self.isSelectionIdInArray(selectionIds, datapoint.selectionID);
+
+            const opacity: number = isSelected? 0: 0;
+            d3Select(this)
+                .style("fill-opacity", opacity)
+                .style("stroke-opacity", opacity);
+        });
+
+        circle.each(function (datapoint: SPCChartDataPoint) {
+            const isSelected: boolean = self.isSelectionIdInArray(selectionIds, datapoint.selectionID);
+            d3Select(this)
+                .attr("r", isSelected? self.data.markerSize: datapoint.markerSize)
+            if (self.formattingSettings.SPCSettings.markerOptions.showMarker.value) {
+                d3Select(this)
+                    .style("opacity", isSelected? 1: 0.3)
+            } else {
+                d3Select(this)
+                    .style("opacity", isSelected? 1: 0)
+            }
+        }); 
+    }
+
+    private isSelectionIdInArray(selectionIds: ISelectionId[], selectionId: ISelectionId): boolean {
+        if (!selectionIds || !selectionId) {
+            return false;
+        }
+
+        return selectionIds.some((currentSelectionId: ISelectionId) => {
+            return currentSelectionId.includes(selectionId);
+        });
     }
     //This updates the chart - ran each time anything changes in the visual (ie filters, mouse moves, drilling up/down)
     public update(options: VisualUpdateOptions) {
         //Set up the charting object 
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualSettingsModel, options.dataViews[0]);
 
-        let data = createDataset(options, this.host, this.formattingSettings);
+        this.data = createDataset(options, this.host, this.formattingSettings);
+        let data = this.data
         this.dataPoints = data.dataPoints.filter(d => d.value !== null);
         let n = this.dataPoints.length
 
@@ -366,6 +454,7 @@ export class SPCChart implements IVisual {
                 .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' && data.target == -Infinity ? 0 : 2)
         }
 
+
         //Create data line
         this.lineData
             .datum(this.dataPoints)
@@ -381,8 +470,7 @@ export class SPCChart implements IVisual {
 
         this.svg.selectAll('.markers').remove();
 
-        if (this.formattingSettings.SPCSettings.markerOptions.showMarker.value) {
-            this.dataMarkers
+            let circlemarkers = this.dataMarkers
                 .data(this.dataPoints)
                 .enter()
                 .append("circle")
@@ -391,7 +479,7 @@ export class SPCChart implements IVisual {
                 .attr("cy", function (d) { return yScale(<number>d.value) })
                 .attr("r", function (d) { return d.markerSize })
                 .attr("fill", function (d) { return d.color });
-        }
+        
 
         this.tooltipMarkers
             .data(this.dataPoints)
@@ -404,7 +492,7 @@ export class SPCChart implements IVisual {
             .attr("fill", function (d) { return d.color })
             .attr("opacity", 0);
 
-        this.dataMarkers
+        const invisibleBars = this.dataMarkers
             .data(this.dataPoints)
             .enter()
             .append("rect")
@@ -413,8 +501,13 @@ export class SPCChart implements IVisual {
             .attr("height", height)
             .attr("x", function (d) { return xScale(d.category) - bandwidth / 2 })
             .attr("y", 0)
-            .attr("fill", function (d) { return d.color })
-            .attr("opacity", 0); //invisable rectangles 
+            .attr("fill", function (d) { return d.color }); //invisable rectangles 
+
+        this.syncSelectionState(
+            invisibleBars,
+            circlemarkers,
+            <ISelectionId[]>this.selectionManager.getSelectionIds()
+        );
 
         this.tooltipMarkers
             .data(this.dataPoints)
@@ -427,6 +520,25 @@ export class SPCChart implements IVisual {
             .attr("y", 0)
             .attr("stroke", "#777777")
             .attr("opacity", 0); //invisable rectangles 
+
+        //To allopw cross filtering
+        invisibleBars.on('click', (event: Event, datum: SPCChartDataPoint) => {
+            // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
+            if (this.host.hostCapabilities.allowInteractions) {
+                const isCtrlPressed: boolean = (<MouseEvent>event).ctrlKey;
+
+                this.selectionManager
+                    .select(datum.selectionID, isCtrlPressed)
+                    .then((ids: ISelectionId[]) => {
+                        this.syncSelectionState(invisibleBars, circlemarkers, ids);
+                    });
+                (<Event>event).stopPropagation();
+            }
+        });
+        this.dataMarkers
+            .exit()
+            .remove();
+        this.handleClick(invisibleBars, circlemarkers);
 
         if (n > 1) {
             //Create mean line
