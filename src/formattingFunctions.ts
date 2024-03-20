@@ -211,9 +211,9 @@ export function PBIformatingKeeper(options: VisualUpdateOptions): [string, strin
                     measureFormat = 's';
                 } else if (meta.format.includes('%')) {
                     measureFormat = '%'
-                    decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1).length;
+                    decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1, meta.format.indexOf(';')-1).length;
                 } else if (meta.format.includes('.')) {
-                    decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1).length;
+                    decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1, meta.format.indexOf(';')-1).length;
                     measureFormat = 's';
                 } else {
                     measureFormat = 's';
