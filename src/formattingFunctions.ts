@@ -180,10 +180,13 @@ export function parseinHMS(d: d3.NumberValue) {
     return sign + String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0')
 }
 
-export function parseYLabels(d: d3.NumberValue, hms: boolean, digits: number) {
+export function parseYLabels(d: d3.NumberValue, hms: boolean, digits: number, format: string) {
     if (d !== null) {
         if (hms) {
             return parseinHMS(d)
+        } else if (format == '%'){
+            let perc = <number>d*100
+            return perc.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits }) + '%'
         } else {
             return d.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits })
         }
