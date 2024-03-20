@@ -94,6 +94,7 @@ export function dataLoad(options: VisualUpdateOptions): [DataViewCategoryColumn,
                         format = 's';
                     } else if (meta.format.includes('%')) {
                         format = '%'
+                        decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1).length;
                     } else if (meta.format.includes('.')) {
                         decimalPlaces = meta.format.substring(meta.format.indexOf('.') + 1).length;
                         format = 's';
