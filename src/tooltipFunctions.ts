@@ -54,10 +54,12 @@ export function getTooltipData(d: SPCChartDataPoint, data: SPCChartData, formati
 
     //add additional data to tooltip
     for (let j = 0, len = d.additionalTooltipData.length; j < len; j++) {
+        console.log(d.additionalTooltipData[j])
         let value = <NumberValue>d.additionalTooltipData[j].values[0];
         let tooltip_extra = {
             displayName: d.additionalTooltipData[j].name,
-            value: value.toLocaleString(undefined, { minimumFractionDigits: d.additionalTooltipData[j].decimalPlaces, maximumFractionDigits: d.additionalTooltipData[j].decimalPlaces }),
+            //value: value.toLocaleString(undefined, { minimumFractionDigits: d.additionalTooltipData[j].decimalPlaces, maximumFractionDigits: d.additionalTooltipData[j].decimalPlaces }),
+            value: parseYLabels(<number>value, false, d.additionalTooltipData[j].decimalPlaces, d.additionalTooltipData[j].format),
             color: "#00C0FFEE"
         };
         tooltip_data.push(tooltip_extra)
