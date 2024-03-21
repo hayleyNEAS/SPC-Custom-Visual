@@ -246,6 +246,11 @@
                     "type": {
                         "bool": true
                     }
+                },
+                "percentage": {
+                    "type": {
+                        "bool": true
+                    }
                 }
             }
         }

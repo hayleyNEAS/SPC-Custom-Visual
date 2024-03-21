@@ -249,7 +249,7 @@ export function fullData(host: IVisualHost, options: VisualUpdateOptions, format
         markerSize: 3,
 
         measureName,
-        measureFormat,
+        measureFormat: formatSettings.enableYAxis.formatter.percentage.value ? '%' : measureFormat,
         decimalPlaces,
         levelOfDateHeirarchy,
 

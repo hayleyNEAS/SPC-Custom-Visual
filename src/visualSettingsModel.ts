@@ -240,10 +240,16 @@ class YAxisFormatter extends SimpleCard {
         value: false
     });
 
-    
+    // Option for formatting y axis as percentage
+    percentage = new formattingSettings.ToggleSwitch({
+        name: "percentage",
+        displayName: "Format as %",
+        value: false
+    });
+
     name: string = "YAxisFormatter";
     displayName: string = "Y-Axis Formatter";
-    slices: Array<FormattingSettingsSlice> = [this.fill, this.time];
+    slices: Array<FormattingSettingsSlice> = [this.fill, this.time, this.percentage];
 }
 
 class EnableYAxisCardSettings extends CompCard {

@@ -8,7 +8,6 @@ import { VisualSettingsModel } from "./visualSettingsModel";
 
 export function getTooltipData(d: SPCChartDataPoint, data: SPCChartData, formating: VisualSettingsModel): VisualTooltipDataItem[] {
     let tooltip_data: VisualTooltipDataItem[] = []
-    console.log(data.decimalPlaces)
 
     let header = {
         header: d.category,
@@ -55,7 +54,6 @@ export function getTooltipData(d: SPCChartDataPoint, data: SPCChartData, formati
 
     //add additional data to tooltip
     for (let j = 0, len = d.additionalTooltipData.length; j < len; j++) {
-        console.log(d.additionalTooltipData[j])
         let value = <NumberValue>d.additionalTooltipData[j].values[0];
         let tooltip_extra = {
             displayName: d.additionalTooltipData[j].name,
