@@ -1,10 +1,9 @@
-import { scaleBand, scaleLinear, scalePoint } from "d3-scale";
+import { scaleLinear, scalePoint } from "d3-scale";
 import { select as d3Select } from "d3-selection";
 
 import "./../style/visual.less";
 
 import { axisBottom, axisLeft } from "d3-axis";
-import { timeFormat, timeParse } from "d3-time-format";
 import * as d3 from "d3";
 import { BaseType } from "d3-selection"
 
@@ -14,7 +13,6 @@ import "regenerator-runtime/runtime";
 
 import IVisual = powerbi.extensibility.IVisual;
 import IVisualHost = powerbi.extensibility.visual.IVisualHost;
-import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import ISelectionManager = powerbi.extensibility.ISelectionManager;
@@ -24,7 +22,6 @@ import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel
 import { createTooltipServiceWrapper, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
 
 import { VisualSettingsModel } from "./visualSettingsModel";
-import { getLocalizedString } from "./localisation/localisationHelper"
 
 //Importing functions from file
 import { SPCChartData, SPCChartDataPoint } from "./dataStructure";
@@ -202,7 +199,7 @@ export class SPCChart implements IVisual {
             return;
         }
         //console.log('click success')
-        const self: this = this;
+        
         if (!selectionIds.length) { //nothing selected 
             const opacity: number = 0.0//this.barChartSettings.generalView.opacity / 100;
             selection
@@ -233,16 +230,16 @@ export class SPCChart implements IVisual {
         circle
             .style("opacity", 1) 
 
-        selection.each(function (datapoint: SPCChartDataPoint) {
+        selection.each(((self) => function (datapoint: SPCChartDataPoint) {
             const isSelected: boolean = self.isSelectionIdInArray(selectionIds, datapoint.selectionID);
 
             const opacity: number = isSelected? 0: 0;
             d3Select(this)
                 .style("fill-opacity", opacity)
                 .style("stroke-opacity", opacity);
-        });
+        })(this));
 
-        circle.each(function (datapoint: SPCChartDataPoint) {
+        circle.each(((self) => function (datapoint: SPCChartDataPoint) {
             const isSelected: boolean = self.isSelectionIdInArray(selectionIds, datapoint.selectionID);
             d3Select(this)
                 .attr("r", isSelected? self.data.markerSize: datapoint.markerSize)
@@ -253,7 +250,7 @@ export class SPCChart implements IVisual {
                 d3Select(this)
                     .style("opacity", isSelected? 1: 0)
             }
-        }); 
+        })(this)); 
     }
 
     private isSelectionIdInArray(selectionIds: ISelectionId[], selectionId: ISelectionId): boolean {
@@ -265,20 +262,22 @@ export class SPCChart implements IVisual {
             return currentSelectionId.includes(selectionId);
         });
     }
+
+    
     //This updates the chart - ran each time anything changes in the visual (ie filters, mouse moves, drilling up/down)
     public update(options: VisualUpdateOptions) {
         //Set up the charting object 
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualSettingsModel, options.dataViews[0]);
 
         this.data = createDataset(options, this.host, this.formattingSettings);
-        let data = this.data
+        const data = this.data
         this.dataPoints = data.dataPoints.filter(d => d.value !== null);
-        let n = this.dataPoints.length
+        const n = this.dataPoints.length
 
         //Define the chart size
-        let width = options.viewport.width;
         let height = options.viewport.height;
-        let margins = SPCChart.Config.margins;
+        const width = options.viewport.width;
+        const margins = SPCChart.Config.margins;
 
         //Define the usable chart size
         let widthChartStart = 0;
@@ -303,11 +302,11 @@ export class SPCChart implements IVisual {
         }
 
         //Set up the Y Axis
-        let yScale = scaleLinear()
+        const yScale = scaleLinear()
             .domain(yAxisDomain(data))
             .range([height, 5]);
 
-        let yTicks = 5;
+        const yTicks = 5;
 
         let yAxis = axisLeft(yScale)
             .tickSizeInner(-widthChartEnd);
@@ -320,10 +319,9 @@ export class SPCChart implements IVisual {
         } else {
             yAxis = yAxis
                 .ticks(yTicks, data.measureFormat); //format n=yTicks ticks into SI units
-            ;
-        };
+        }
 
-        let yAxisObject = this.yAxis
+        const yAxisObject = this.yAxis
             .call(yAxis)
             .transition().duration(500)
             .attr("color", getYAxisTextFillColor(
@@ -380,12 +378,12 @@ export class SPCChart implements IVisual {
                 .range([widthChartStart, widthChartEnd])
                 ;
 
-            let span = [0, -1].map(i => new Date(data.dataPoints.at(i).category))
-            let xAxis = axisBottom(xScale)
+            const span = [0, -1].map(i => new Date(data.dataPoints.at(i).category))
+            const xAxis = axisBottom(xScale)
                 .tickFormat(d => parseDateLabel(d, data.levelOfDateHeirarchy, span))
                 ;
 
-            let xAxisObject = this.xAxis
+            const xAxisObject = this.xAxis
                 .attr('transform', 'translate(0, ' + (height + 2) + ')')
                 .call(xAxis)
                 .transition().duration(500)
@@ -418,7 +416,7 @@ export class SPCChart implements IVisual {
             }
         }
 
-        let n_xTicks = Math.ceil(total_label_coverage * 1.2 / (widthChartEnd - widthChartStart))
+        const n_xTicks = Math.ceil(total_label_coverage * 1.2 / (widthChartEnd - widthChartStart))
 
         if (data.n > 1) {
             if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) {
@@ -441,12 +439,12 @@ export class SPCChart implements IVisual {
                 .attr("stroke-width", 1.5)
                 .attr("x1", widthChartStart)
                 .attr("x2", widthChartEnd)
-                .attr("y1", function (d) {
-                    let val = yScale(data.target)
+                .attr("y1", function () {
+                    const val = yScale(data.target)
                     return isNaN(val) ? 0 : val;
                 })
-                .attr("y2", function (d) {
-                    let val = yScale(data.target)
+                .attr("y2", function () {
+                    const val = yScale(data.target)
                     return isNaN(val) ? 0 : val;
                 })
                 .attr("fill", "none")
@@ -460,8 +458,8 @@ export class SPCChart implements IVisual {
             .datum(this.dataPoints)
             .style("stroke-linecap", "round")
             .attr("fill", "none")
-            .attr("stroke", function (d) { return data.strokeColor })
-            .attr("stroke-width", function (d) { return data.strokeWidth })
+            .attr("stroke", function () { return data.strokeColor })
+            .attr("stroke-width", function () { return data.strokeWidth })
             .attr("stroke-linejoin", "round")
             .attr("d", d3.line<SPCChartDataPoint>()
                 .x(function (d) { return xScale(d.category) })
@@ -470,7 +468,7 @@ export class SPCChart implements IVisual {
 
         this.svg.selectAll('.markers').remove();
 
-            let circlemarkers = this.dataMarkers
+            const circlemarkers = this.dataMarkers
                 .data(this.dataPoints)
                 .enter()
                 .append("circle")
@@ -488,7 +486,7 @@ export class SPCChart implements IVisual {
             .attr("class", "markers tooltip")
             .attr("cx", function (d) { return xScale(d.category) })
             .attr("cy", function (d) { return yScale(<number>d.value) })
-            .attr("r", function (d) { return data.markerSize })
+            .attr("r", function () { return data.markerSize })
             .attr("fill", function (d) { return d.color })
             .attr("opacity", 0);
 
@@ -671,7 +669,7 @@ export class SPCChart implements IVisual {
         } if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 1) {
             logoX = widthChartEnd - 100
         }
-        let logo = logoSelector(data, "variation")
+        const logo = logoSelector(data, "variation")
         if (this.formattingSettings.SPCSettings.logoOptions.show.value && n > 1) {
             this.logo
                 .attr('href', logo)
@@ -685,7 +683,7 @@ export class SPCChart implements IVisual {
                 .attr('height', 0)
         }
 
-        let logoTarget = logoSelector(data, "target")
+        const logoTarget = logoSelector(data, "target")
         if (this.formattingSettings.SPCSettings.logoOptions.show.value && data.target && n > 1) {
             this.logoTarget
                 .attr('href', logoTarget)
@@ -700,9 +698,9 @@ export class SPCChart implements IVisual {
         }
 
         //ToolTips
-        let thissvg = this.svg;
-        let tt = this.tooltipMarkers;
-        let dm = this.dataPoints;
+        const thissvg = this.svg;
+        //let tt = this.tooltipMarkers;
+        const dm = this.dataPoints;
 
         this.svg
             .on('mouseover', function () {
@@ -713,18 +711,18 @@ export class SPCChart implements IVisual {
                     .selectAll('.markers.tooltip')
                     .attr("opacity", 0);
 
-                let pointer = d3.pointer(ev)
-                let cats = dm.map(d => xScale(d.category))
-                let closest = cats.reduce(function (prev, curr) {
+                const pointer = d3.pointer(ev)
+                const cats = dm.map(d => xScale(d.category))
+                const closest = cats.reduce(function (prev, curr) {
                     return (Math.abs(curr - pointer[0]) < Math.abs(prev - pointer[0]) ? curr : prev);
                 });
 
-                let index = cats.map(d => d == closest).indexOf(true)
-                let tooltiplines = thissvg
+                const index = cats.map(d => d == closest).indexOf(true)
+                const tooltiplines = thissvg
                     .selectAll('rect.markers.tooltip')
                     .nodes();
 
-                let tooltipmarkers = thissvg
+                const tooltipmarkers = thissvg
                     .selectAll('circle.markers.tooltip')
                     .nodes();
 
@@ -746,9 +744,7 @@ export class SPCChart implements IVisual {
         this.tooltipServiceWrapper
             .addTooltip(
                 this.svg.selectAll('rect.markers'),
-                d => getTooltipData(d, data, this.formattingSettings),
-                (d: SPCChartDataPoint) => null,
-                true
+                (d: SPCChartDataPoint) => getTooltipData(d, data, this.formattingSettings)
             );
 
     }

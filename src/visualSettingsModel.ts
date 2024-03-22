@@ -1,15 +1,10 @@
-import powerbi from "powerbi-visuals-api";
-import { dataViewWildcard } from "powerbi-visuals-utils-dataviewutils";
 import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
-
-import visuals = powerbi.visuals;
 
 import SimpleCard = formattingSettings.SimpleCard;
 import CompCard = formattingSettings.CompositeCard;
 import FormattingSettingsSlice = formattingSettings.Slice;
-import FormattingSettingsCompositeSlice = formattingSettings.CompositeSlice;
+//import FormattingSettingsCompositeSlice = formattingSettings.CompositeSlice;
 import FormattingSettingsModel = formattingSettings.Model;
-import { ColorPicker, CompositeSlice, ToggleSwitch } from "powerbi-visuals-utils-formattingmodel/lib/FormattingSettingsComponents";
 
 class SPCSetUp extends SimpleCard {
     direction = new formattingSettings.ItemDropdown({

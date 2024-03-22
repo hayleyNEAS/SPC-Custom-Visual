@@ -3,25 +3,23 @@ import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import ISelectionId = powerbi.visuals.ISelectionId;
 import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
 
-import * as d3 from "d3";
-
-
 import { PrimitiveValue, SPCChartData, SPCChartDataPoint, additionalKeyValue } from "./dataStructure"
 import { VisualSettingsModel } from "./visualSettingsModel";
 import { PBIformatingKeeper, parseDates } from "./formattingFunctions";
 import { getMean, getControlLimits, getMarkerColors, identifyOutliers } from "./spcFunctions";
 
 
-var getDatesArray = function (min, max, levelOfDateHeirarchy: string) {
-    var start = Date.parse(min)
-    var end = Date.parse(max)
-    for (var allDays = [], dt = new Date(start); dt <= new Date(end); dt.setDate(dt.getDate() + 1)) {
+const getDatesArray = function (min, max, levelOfDateHeirarchy: string) {
+    const start = Date.parse(min)
+    const end = Date.parse(max)
+    const allDays = []
+    for (let dt = new Date(start); dt <= new Date(end); dt.setDate(dt.getDate() + 1)) {
         allDays.push(new Date(dt));
     }
 
-    let arr = []
+    const arr = []
     for (let i = 0, len = allDays.length; i < len; i++) {
-        let dt = allDays[i]
+        const dt = allDays[i]
         if (levelOfDateHeirarchy == "Year" && dt.getMonth() == 0 && dt.getDate() == 1) {
             arr.push(new Date(dt));
         } else if (levelOfDateHeirarchy == "Quarter" && dt.getDate() == 1 && (dt.getMonth() == 0 || dt.getMonth() == 3 || dt.getMonth() == 6 || dt.getMonth(9))) {
@@ -41,8 +39,8 @@ export function getTarget(target_input: any[], formatSettings: VisualSettingsMod
     let target = -Infinity
     if (formatSettings.SPCSettings.spcSetUp.target.value != '') {
         target = 0
-        let targetSplit = formatSettings.SPCSettings.spcSetUp.target.value.valueOf().split(":").reverse()
-        let toSeconds = [1, 60, 3600, 86400]
+        const targetSplit = formatSettings.SPCSettings.spcSetUp.target.value.valueOf().split(":").reverse()
+        const toSeconds = [1, 60, 3600, 86400]
         for (let i = 0, len = targetSplit.length; i < len; i++) {
             target = target + Number(targetSplit[i]) * toSeconds[i]
         }
@@ -56,12 +54,10 @@ export function getTarget(target_input: any[], formatSettings: VisualSettingsMod
 export function dataLoad(options: VisualUpdateOptions): [DataViewCategoryColumn, any[], any[], any[], additionalKeyValue[]] {
     let value_input:PrimitiveValue[] = [];
     let target_input = [];
-    let breakPoint_input: additionalKeyValue[] = [];
-    let tooltip_input: additionalKeyValue[] = [];
+    const breakPoint_input: additionalKeyValue[] = [];
+    const tooltip_input: additionalKeyValue[] = [];
 
-    let dates_input: DataViewCategoryColumn;
-
-    let dataViews = options.dataViews;
+    const dataViews = options.dataViews;
     if (!dataViews //checks data exists
         || !dataViews[0]
         || !dataViews[0].categorical
@@ -88,7 +84,7 @@ export function dataLoad(options: VisualUpdateOptions): [DataViewCategoryColumn,
             let format = 's'
             let decimalPlaces = 0
             for(let j = 0, len = options.dataViews[0].metadata.columns.length; j < len; j++){
-                let meta = options.dataViews[0].metadata.columns[j]
+                const meta = options.dataViews[0].metadata.columns[j]
                 if(Object.keys(options.dataViews[0].metadata.columns[j].roles)[0] == 'tooltip_extra'){
                     if (!meta.format) {
                         format = 's';
@@ -113,22 +109,22 @@ export function dataLoad(options: VisualUpdateOptions): [DataViewCategoryColumn,
     }
 
     let breakPoint_parsed = []
-    let n = value_input.length
+    const n = value_input.length
     breakPoint_parsed = new Array(n); for (let i = 0; i < n; ++i) breakPoint_parsed[i] = 0; 
     
     for( let j = 0, len = breakPoint_input.length; j < len; j++){
         breakPoint_parsed = breakPoint_parsed.map((d, i) => d+breakPoint_input[j].values[i]) 
         
     }
-    dates_input = dataViews[0].categorical.categories[0];
-    let dates_input_parsed = dates_input;
+    const dates_input = dataViews[0].categorical.categories[0];
+    const dates_input_parsed = dates_input;
     dates_input_parsed.values = dates_input.values.map(d => parseDates(<string>d))
 
     
-    let indx = value_input.map((e, i) => typeof e != "number" ? i: "").filter(String) as number[]
+    const indx = value_input.map((e, i) => typeof e != "number" ? i: "").filter(String) as number[]
     
-    let value_input_parsed = [...value_input]
-    for(let i of indx.reverse()){
+    const value_input_parsed = [...value_input]
+    for(const i of indx.reverse()){
         dates_input_parsed.values.splice(i,1)
         value_input_parsed.splice(i,1)
         target_input.splice(i,1)
@@ -139,18 +135,18 @@ export function dataLoad(options: VisualUpdateOptions): [DataViewCategoryColumn,
     return [dates_input_parsed, value_input_parsed, target_input, breakPoint_parsed, tooltip_input]
 }
 
-export function dataSet(host: IVisualHost, options: VisualUpdateOptions, levelOfDateHeirarchy: string, formatSettings: VisualSettingsModel): SPCChartDataPoint[] {
-    let [dates_input_column, value_input, target_input, breakPoint_input, tooltip_input] = dataLoad(options)
-    let dates_input = dates_input_column.values
-    let SPCChartDataPoints: SPCChartDataPoint[] = []
+export function dataSet(host: IVisualHost, options: VisualUpdateOptions, levelOfDateHeirarchy: string, formatSettings: VisualSettingsModel): [SPCChartDataPoint[], any[]] {
+    const [dates_input_column, value_input, target_input, breakPoint_input, tooltip_input] = dataLoad(options)
+    const dates_input = dates_input_column.values
+    const SPCChartDataPoints: SPCChartDataPoint[] = []
 
-    let allDates = getDatesArray(dates_input.at(0), dates_input.at(-1), levelOfDateHeirarchy)
+    const allDates = getDatesArray(dates_input.at(0), dates_input.at(-1), levelOfDateHeirarchy)
 
     for (let i = 0, len = formatSettings.dataManipulator.fillMissing0.value ? allDates.length : dates_input.length; i < len; i++) {
         let value: number;
         let breakP: number;
         let category: PrimitiveValue;
-        let addTooltip: additionalKeyValue[] = []
+        const addTooltip: additionalKeyValue[] = []
 
         if (formatSettings.dataManipulator.fillMissing0.value) {
             value = value_input[dates_input.indexOf(allDates[i])] ? value_input[dates_input.indexOf(allDates[i])] : 0;
@@ -182,7 +178,7 @@ export function dataSet(host: IVisualHost, options: VisualUpdateOptions, levelOf
         }
 
         let difference = null
-        let previous_not_null_values = SPCChartDataPoints.filter(d => d.value !== null)
+        const previous_not_null_values = SPCChartDataPoints.filter(d => d.value !== null)
         if (i > 0) {
             if (value !== null && previous_not_null_values.length > 0) {
                 difference = <number>value - <number>previous_not_null_values.at(-1).value
@@ -223,16 +219,16 @@ export function dataSet(host: IVisualHost, options: VisualUpdateOptions, levelOf
             selectionID
         });
     }
-    return SPCChartDataPoints;
+    return [SPCChartDataPoints, target_input];
 }
 
 export function fullData(host: IVisualHost, options: VisualUpdateOptions, formatSettings: VisualSettingsModel): SPCChartData {
-    let [dates_input, value_input, target_input, breakPoint_input, tooltip_input] = dataLoad(options)
-    let [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = PBIformatingKeeper(options)
-    let data = dataSet(host, options, levelOfDateHeirarchy, formatSettings)
-    let target = getTarget(target_input, formatSettings)
+    //let [dates_input, value_input, target_input, breakPoint_input, tooltip_input] = dataLoad(options)
+    const [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = PBIformatingKeeper(options)
+    const [data, target_input] = dataSet(host, options, levelOfDateHeirarchy, formatSettings)
+    const target = getTarget(target_input, formatSettings)
 
-    let numberOfTimePeriods = data
+    const numberOfTimePeriods = data
         .map((d) => <number>d.breakP)
         .reduce((a, b) => Math.max(a, b), 0)
 
@@ -274,10 +270,10 @@ export function createDataset(options: VisualUpdateOptions, host: IVisualHost, f
     if (allData.n == 0) {
         return allData
     } else {
-        let outlier = allData.dataPoints[allData.n - 1].outlier
-        let run = allData.dataPoints[allData.n - 1].run
-        let shift = allData.dataPoints[allData.n - 1].shift
-        let twoInThree = allData.dataPoints[allData.n - 1].twoInThree
+        const outlier = allData.dataPoints[allData.n - 1].outlier
+        const run = allData.dataPoints[allData.n - 1].run
+        const shift = allData.dataPoints[allData.n - 1].shift
+        const twoInThree = allData.dataPoints[allData.n - 1].twoInThree
 
         return {
             dataPoints: allData.dataPoints,

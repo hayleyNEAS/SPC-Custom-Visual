@@ -1,7 +1,5 @@
-
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import * as d3 from "d3";
-import { dataLoad } from "./dataLoad";
 
 export function parseDates(label: string) {
     let formatter = d3.timeParse('%Y');
@@ -93,25 +91,11 @@ export function getDayDiff(startDate: Date, endDate: Date): number {
     );
 }
 
-function firstXDayOfMonth(day: number, date: Date): number {
-    //day = 1 for monday, 0 for sunday
-    let dayOfWeek = date.getDay()
-
-    if (dayOfWeek == day && date.getDate() == 1) {
-        return 1
-    } if (dayOfWeek == day && date.getDate() <= 7) {
-        return 1
-    } else {
-        return 0
-    }
-}
-
 export function parseDateLabel(label: string, levelOfDateHeirarchy: string, datelimits: Date[]) { //TODO if data is sparce and no infered as 0 then diff need to be data.length
-    let diff = getDayDiff(datelimits[0], datelimits[1])
+    const diff = getDayDiff(datelimits[0], datelimits[1])
 
-
-    let formatter = d3.timeParse('%a %b %d %Y');
-    let parsed = formatter(label);
+    const formatter = d3.timeParse('%a %b %d %Y');
+    const parsed = formatter(label);
     if (parsed) {
         if (diff >= 365 * 3) {
             //if you have more than 3 years worth of data then just show the 1st jan
@@ -159,10 +143,10 @@ export function parseDateLabel(label: string, levelOfDateHeirarchy: string, date
 
 }
 
-export function parseXLabels(d: string, index: number, n: number) {
+/* export function parseXLabels(d: string, index: number, n: number) {
     n = Math.ceil(n)
     return d
-}
+} */
 
 export function parseinHMS(d: d3.NumberValue) {
     let sign = ''
@@ -172,11 +156,11 @@ export function parseinHMS(d: d3.NumberValue) {
 
     d = Math.round(Math.abs(<number>d))
     let minutes = Math.floor(<number>d / 60);
-    let hours = Math.floor(minutes / 60);
+    const hours = Math.floor(minutes / 60);
     if (hours > 0) {
         minutes = minutes % 60
     }
-    let seconds = <number>d % 60;
+    const seconds = <number>d % 60;
     return sign + String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0')
 }
 
@@ -185,7 +169,7 @@ export function parseYLabels(d: d3.NumberValue, hms: boolean, digits: number, fo
         if (hms) {
             return parseinHMS(d)
         } else if (format == '%'){
-            let perc = <number>d*100
+            const perc = <number>d*100
             return perc.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits }) + '%'
         } else {
             return d.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits })
@@ -195,15 +179,16 @@ export function parseYLabels(d: d3.NumberValue, hms: boolean, digits: number, fo
 }
 
 export function PBIformatingKeeper(options: VisualUpdateOptions): [string, string, number, string] {
-    let [dates_input, value_input, target_input, breakPoint_input, tooltip_input] = dataLoad(options)
-    let metadata = options.dataViews[0].metadata.columns
+    //let [dates_input, value_input, target_input, breakPoint_input, tooltip_input] = dataLoad(options)
+    const metadata = options.dataViews[0].metadata.columns
+
     let measureFormat = ''
     let decimalPlaces = 0
     let measureName = ''
     let levelOfDateHeirarchy = ''
     for (let i = 0, len = metadata.length; i < len; i++) {
-        let meta = metadata[i]
-        let role  = meta.roles
+        const meta = metadata[i]
+        const role  = meta.roles
         if (meta.isMeasure && Object.keys(role)[0] == 'measure') {
             measureName = measureName == '' ? meta.displayName : measureName
             if (measureName == meta.displayName) {
@@ -222,15 +207,13 @@ export function PBIformatingKeeper(options: VisualUpdateOptions): [string, strin
 
         } else {
             levelOfDateHeirarchy = meta.displayName.split(' ').at(1);
-            if (levelOfDateHeirarchy) {
-                levelOfDateHeirarchy = levelOfDateHeirarchy
-            } else if ("expr" in meta && "arg" in meta.expr) {
-                let { hierarchy } = (meta.expr as any).arg
-                let level = (meta.expr as any).level
+            if (!levelOfDateHeirarchy && "expr" in meta && "arg" in meta.expr) {
+                const { hierarchy } = (meta.expr as any).arg
+                const level = (meta.expr as any).level
                 if (hierarchy) {
                     levelOfDateHeirarchy = "infered:" + level
                 }
-            }
+            } 
         }
     }
     return [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy]

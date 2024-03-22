@@ -2,14 +2,14 @@
 import { NumberValue } from "d3-scale";
 import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
 
-import { SPCChartDataPoint, SPCChartData, PrimitiveValue } from "./dataStructure"
-import { parseDateLabel, parseinHMS, parseXLabels, parseYLabels } from "./formattingFunctions"
+import { SPCChartDataPoint, SPCChartData } from "./dataStructure"
+import { parseYLabels } from "./formattingFunctions"
 import { VisualSettingsModel } from "./visualSettingsModel";
 
 export function getTooltipData(d: SPCChartDataPoint, data: SPCChartData, formating: VisualSettingsModel): VisualTooltipDataItem[] {
     let tooltip_data: VisualTooltipDataItem[] = []
 
-    let header = {
+    const header = {
         header: d.category,
         displayName: data.measureName,
         value: parseYLabels(<number>d.value, formating.enableYAxis.formatter.time.value, data.decimalPlaces, data.measureFormat),
@@ -28,7 +28,7 @@ export function getTooltipData(d: SPCChartDataPoint, data: SPCChartData, formati
 
     //add target to tooltip
     if (data.target != -Infinity && formating.SPCSettings.lineOptions.showTarget) {
-        let target = {
+        const target = {
             displayName: "Target",
             value: parseYLabels(data.target, formating.enableYAxis.formatter.time.value, data.decimalPlaces, data.measureFormat),
             color: formating.SPCSettings.lineOptions.targetColor.value.value
@@ -54,8 +54,8 @@ export function getTooltipData(d: SPCChartDataPoint, data: SPCChartData, formati
 
     //add additional data to tooltip
     for (let j = 0, len = d.additionalTooltipData.length; j < len; j++) {
-        let value = <NumberValue>d.additionalTooltipData[j].values[0];
-        let tooltip_extra = {
+        const value = <NumberValue>d.additionalTooltipData[j].values[0];
+        const tooltip_extra = {
             displayName: d.additionalTooltipData[j].name,
             //value: value.toLocaleString(undefined, { minimumFractionDigits: d.additionalTooltipData[j].decimalPlaces, maximumFractionDigits: d.additionalTooltipData[j].decimalPlaces }),
             value: parseYLabels(<number>value, false, d.additionalTooltipData[j].decimalPlaces, d.additionalTooltipData[j].format),
