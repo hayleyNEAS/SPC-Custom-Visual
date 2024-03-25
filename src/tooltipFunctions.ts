@@ -17,7 +17,7 @@ export function getTooltipData(d: SPCChartDataPoint, data: SPCChartData, formati
     tooltip_data = [header]
 
     //add mean to tooltip
-    if (data.target != -Infinity && formating.SPCSettings.lineOptions.showMean) {
+    if (formating.SPCSettings.lineOptions.showMean) {
         tooltip_data.push({
             displayName: "Mean",
             value: parseYLabels(d.mean, formating.enableYAxis.formatter.time.value, data.decimalPlaces, data.measureFormat),
