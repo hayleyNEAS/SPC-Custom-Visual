@@ -227,10 +227,10 @@ export class SPCChart implements IVisual {
                     .style("opacity", 0)
             }
 
-            circle.each(function (datapoint: SPCChartDataPoint) {
+            circle.each(((self) => function (datapoint: SPCChartDataPoint) {
                 d3Select(this)
-                    .attr("r", datapoint.markerSize)
-            }); 
+                    .attr("r", self.data.n == 1? self.data.markerSize: datapoint.markerSize)//datapoint.markerSize)
+            })(this)); 
             return;
         }
         
