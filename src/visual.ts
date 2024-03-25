@@ -89,7 +89,8 @@ export class SPCChart implements IVisual {
             width: 0
         },
 
-    yTicks: 5
+    yTicks: 5,
+    bandwidth: 0
 
     };
 
@@ -488,6 +489,83 @@ export class SPCChart implements IVisual {
         }
     }
 
+    public dataDisplayer(xScale: d3.ScalePoint<string>, yScale: d3.ScaleLinear<number, number, never>){
+        this.lineData
+            .datum(this.dataPoints)
+            .style("stroke-linecap", "round")
+            .attr("fill", "none")
+            .attr("stroke", ((self) => function () { return self.data.strokeColor })(this))
+            .attr("stroke-width", ((self) => function () { return self.data.strokeWidth })(this))
+            .attr("stroke-linejoin", "round")
+            .attr("d", d3.line<SPCChartDataPoint>()
+                .x(function (d) { return xScale(d.category) })
+                .y(function (d) { return yScale(<number>d.value) })
+            )
+
+        this.svg.selectAll('.markers').remove();
+
+        const circlemarkers = this.dataMarkers
+            .data(this.dataPoints)
+            .enter()
+            .append("circle")
+            .attr("class", "markers")
+            .attr("cx", function (d) { return xScale(d.category) })
+            .attr("cy", function (d) { return yScale(<number>d.value) })
+            .attr("r", function (d) { return d.markerSize })
+            .attr("fill", function (d) { return d.color });
+
+        
+
+            this.tooltipMarkers
+            .data(this.dataPoints)
+            .enter()
+            .append("circle")
+            .attr("class", "markers tooltip")
+            .attr("cx", function (d) { return xScale(d.category) })
+            .attr("cy", function (d) { return yScale(<number>d.value) })
+            .attr("r", ((self) => function () { return self.data.markerSize })(this))
+            .attr("fill", function (d) { return d.color })
+            .attr("opacity", 0);
+
+        const invisibleBars = this.dataMarkers
+            .data(this.dataPoints)
+            .enter()
+            .append("rect")
+            .attr("class", "markers")
+            .attr("width", SPCChart.Config.bandwidth)
+            .attr("height", SPCChart.Config.chartWidth.height)
+            .attr("x", function (d) { return xScale(d.category) - SPCChart.Config.bandwidth / 2 })
+            .attr("y", 0)
+            .attr("fill", function (d) { return d.color }); //invisable rectangles 
+
+        this.syncSelectionState( invisibleBars, circlemarkers, <ISelectionId[]>this.selectionManager.getSelectionIds() );
+
+        this.tooltipMarkers
+            .data(this.dataPoints)
+            .enter()
+            .append("rect")
+            .attr("class", "markers tooltip")
+            .attr("width", 0.05)
+            .attr("height", SPCChart.Config.chartWidth.height)
+            .attr("x", function (d) { return xScale(d.category) })
+            .attr("y", 0)
+            .attr("stroke", "#777777")
+            .attr("opacity", 0); //invisable rectangles 
+        
+        invisibleBars.on('click', (event: Event, datum: SPCChartDataPoint) => {//To allow cross filtering
+            if (this.host.hostCapabilities.allowInteractions) {// Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
+                const isCtrlPressed: boolean = (<MouseEvent>event).ctrlKey;
+                this.selectionManager
+                    .select(datum.selectionID, isCtrlPressed)
+                    .then((ids: ISelectionId[]) => { this.syncSelectionState(invisibleBars, circlemarkers, ids); });
+                (<Event>event).stopPropagation();
+            }
+        });
+        this.dataMarkers
+            .exit()
+            .remove();
+        this.handleClick(invisibleBars, circlemarkers);
+    }
     //This updates the chart - ran each time anything changes in the visual (ie filters, mouse moves, drilling up/down)
     public update(options: VisualUpdateOptions) {
         //Set up the charting object 
@@ -496,19 +574,16 @@ export class SPCChart implements IVisual {
         this.data = createDataset(options, this.host, this.formattingSettings);
         const data = this.data
         this.dataPoints = data.dataPoints.filter(d => d.value !== null);
-        const n = this.dataPoints.length;
         
-
         //Define the chart size
-        if(n > 0){
+        if(this.dataPoints.length > 0){
             SPCChart.Config.chartWidth.height = options.viewport.height;
             SPCChart.Config.chartWidth.width  = options.viewport.width;
             SPCChart.Config.chartWidth.height -= this.formattingSettings.enableAxis.show.value ? SPCChart.Config.margins.bottom : 0
         }
         SPCChart.Config.chartWidth.end    = options.viewport.width;
 
-        //Give the chart image a width and a height based on the size of the image in the report. If no data then the chart has no size
-        this.svg
+        this.svg //Give the chart image a width and a height based on the size of the image in the report. If no data then the chart has no size
             .attr("width", SPCChart.Config.chartWidth.width)
             .attr("height", SPCChart.Config.chartWidth.height);
 
@@ -537,16 +612,13 @@ export class SPCChart implements IVisual {
                 options,
                 this.host.colorPalette,
                 this.formattingSettings.enableYAxis.formatter.fill.value.value
-            ))
-            ;
+            ));
 
         yAxisObject.selectAll('.yAxis line')
             .attr('stroke', this.formattingSettings.enableYAxis.formatter.fill.value.value)
-            .attr('opacity', 0.2)
-            ;
+            .attr('opacity', 0.2);
         yAxisObject.selectAll('.yAxis path')
-            .attr('opacity', 0)
-            ;
+            .attr('opacity', 0);
 
         let yShift = 0;
         let maxW = 0;
@@ -557,10 +629,8 @@ export class SPCChart implements IVisual {
                 if (this.getBBox().width > maxW) maxW = this.getBBox().width;
             });
 
-        if (this.formattingSettings.enableYAxis.show.value || this.formattingSettings.enableYAxis.formatter.time.value) {
-            yShift = maxW + 10; //longest "word" plus 10 pixels
-        }
-
+        if (this.formattingSettings.enableYAxis.show.value || this.formattingSettings.enableYAxis.formatter.time.value) {yShift = maxW + 10; }//longest "word" plus 10 pixels
+        
         this.yAxis
             .style('font-family', 'inherit')
             .style('font-size', 11) //TODO make this a drop down
@@ -571,26 +641,21 @@ export class SPCChart implements IVisual {
         let xScale = scalePoint();
         let maxW_xAxis = 0;
         let total_label_coverage = 0;
-        let bandwidth;
 
         for (let i = 0; i < 2; i++) { //should only run twice to "fit" the chart to size
-
             let inner_chartMargin = SPCChart.Config.chartWidth.width - SPCChart.Config.chartWidth.end
-            bandwidth = data.n == 1 ? (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) : (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) / (data.n - 1); //each datapoint takes up one "bandwidth" of the chart area
+            SPCChart.Config.bandwidth = data.n == 1 ? (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) : (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) / (data.n - 1); //each datapoint takes up one "bandwidth" of the chart area
 
             this.xAxis
-                .style("font-size", 11)
-                ;
+                .style("font-size", 11);
 
             xScale = scalePoint()
                 .domain(data.dataPoints.map(d => d.category))
-                .range([SPCChart.Config.chartWidth.start, SPCChart.Config.chartWidth.end])
-                ;
+                .range([SPCChart.Config.chartWidth.start, SPCChart.Config.chartWidth.end]);
 
-            const span = [0, -1].map(i => new Date(data.dataPoints.at(i).category))
+            const span = [0, -1].map(i => new Date(data.dataPoints.at(i).category));
             const xAxis = axisBottom(xScale)
-                .tickFormat(d => parseDateLabel(d, data.levelOfDateHeirarchy, span))
-                ;
+                .tickFormat(d => parseDateLabel(d, data.levelOfDateHeirarchy, span));
 
             const xAxisObject = this.xAxis
                 .attr('transform', 'translate(0, ' + (SPCChart.Config.chartWidth.height + 2) + ')')
@@ -605,24 +670,21 @@ export class SPCChart implements IVisual {
                 ));
 
             xAxisObject.selectAll('.xAxis path, line')
-                .attr('opacity', 0)
-                ;
+                .attr('opacity', 0);
 
             //XAxis label reducer  
             this.xAxis
                 .selectAll("text")
-                .each(function (this: SVGGraphicsElement, d, i) {
+                .each(((self) => function (this: SVGGraphicsElement, d, i) {
                     total_label_coverage += this.getBBox().width
                     if (this.getBBox().width > maxW_xAxis) maxW_xAxis = this.getBBox().width;
-                    if (i == n - 1) inner_chartMargin = this.getBBox().width / 2.;
-                });
+                    if (i == self.dataPoints.length - 1) inner_chartMargin = this.getBBox().width / 2.;
+                })(this));
             if (inner_chartMargin == 0){inner_chartMargin = 0.02*SPCChart.Config.chartWidth.width}//if there is no final tick label then we need the margin to be 2% of the chart width
             if (SPCChart.Config.chartWidth.end + inner_chartMargin > SPCChart.Config.chartWidth.width) {
                 SPCChart.Config.chartWidth.end -= inner_chartMargin
                 SPCChart.Config.chartWidth.start += inner_chartMargin
-            } else {
-                break //catch run away loops
-            }
+            } else { break }//catch run away loops
         }
 
         if (data.n > 1) {   
@@ -631,7 +693,6 @@ export class SPCChart implements IVisual {
                 this.xAxis
                     .selectAll(`.tick`)
                     .attr('display', 'none')
-
                 this.xAxis
                     .selectAll(`.tick:nth-child(${n_xTicks}n + ${Math.floor(n_xTicks / 2)})`)
                     .attr('display', 'block')
@@ -640,89 +701,12 @@ export class SPCChart implements IVisual {
         }
 
         //Create data line
-        this.lineData
-            .datum(this.dataPoints)
-            .style("stroke-linecap", "round")
-            .attr("fill", "none")
-            .attr("stroke", function () { return data.strokeColor })
-            .attr("stroke-width", function () { return data.strokeWidth })
-            .attr("stroke-linejoin", "round")
-            .attr("d", d3.line<SPCChartDataPoint>()
-                .x(function (d) { return xScale(d.category) })
-                .y(function (d) { return yScale(<number>d.value) })
-            )
-
-        this.svg.selectAll('.markers').remove();
-
-        const circlemarkers = this.dataMarkers
-            .data(this.dataPoints)
-            .enter()
-            .append("circle")
-            .attr("class", "markers")
-            .attr("cx", function (d) { return xScale(d.category) })
-            .attr("cy", function (d) { return yScale(<number>d.value) })
-            .attr("r", function (d) { return d.markerSize })
-            .attr("fill", function (d) { return d.color });
-
-        this.tooltipMarkers
-            .data(this.dataPoints)
-            .enter()
-            .append("circle")
-            .attr("class", "markers tooltip")
-            .attr("cx", function (d) { return xScale(d.category) })
-            .attr("cy", function (d) { return yScale(<number>d.value) })
-            .attr("r", function () { return data.markerSize })
-            .attr("fill", function (d) { return d.color })
-            .attr("opacity", 0);
-
-        const invisibleBars = this.dataMarkers
-            .data(this.dataPoints)
-            .enter()
-            .append("rect")
-            .attr("class", "markers")
-            .attr("width", bandwidth)
-            .attr("height", SPCChart.Config.chartWidth.height)
-            .attr("x", function (d) { return xScale(d.category) - bandwidth / 2 })
-            .attr("y", 0)
-            .attr("fill", function (d) { return d.color }); //invisable rectangles 
-
-        this.syncSelectionState( invisibleBars, circlemarkers, <ISelectionId[]>this.selectionManager.getSelectionIds() );
-
-        this.tooltipMarkers
-            .data(this.dataPoints)
-            .enter()
-            .append("rect")
-            .attr("class", "markers tooltip")
-            .attr("width", 0.05)
-            .attr("height", SPCChart.Config.chartWidth.height)
-            .attr("x", function (d) { return xScale(d.category) })
-            .attr("y", 0)
-            .attr("stroke", "#777777")
-            .attr("opacity", 0); //invisable rectangles 
-
-        
-        invisibleBars.on('click', (event: Event, datum: SPCChartDataPoint) => {//To allow cross filtering
-            if (this.host.hostCapabilities.allowInteractions) {// Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
-                const isCtrlPressed: boolean = (<MouseEvent>event).ctrlKey;
-                this.selectionManager
-                    .select(datum.selectionID, isCtrlPressed)
-                    .then((ids: ISelectionId[]) => { this.syncSelectionState(invisibleBars, circlemarkers, ids); });
-                (<Event>event).stopPropagation();
-            }
-        });
-        this.dataMarkers
-            .exit()
-            .remove();
-        this.handleClick(invisibleBars, circlemarkers);
-
-        
+        this.dataDisplayer(xScale, yScale)
         this.controlLimitDisplayer(xScale, yScale)      //Create limit lines 
-        if (n > 1) {
-            this.meanDisplayer(xScale, yScale)              //Create mean line
-            this.targetDisplayer(yScale)                    //Create target line  
-            this.controlSubLimitDisplayer(xScale, yScale)   //Create Zone lines 
-            this.logoDisplayer()                            // Move logo 
-        }
+        this.meanDisplayer(xScale, yScale)              //Create mean line
+        this.targetDisplayer(yScale)                    //Create target line  
+        this.controlSubLimitDisplayer(xScale, yScale)   //Create Zone lines 
+        this.logoDisplayer()                            // Move logo 
 
         //ToolTips
         this.svg

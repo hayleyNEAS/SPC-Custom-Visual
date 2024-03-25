@@ -56,7 +56,6 @@ export function getTooltipData(d: SPCChartDataPoint, data: SPCChartData, formati
         const value = <NumberValue>d.additionalTooltipData[j].values[0];
         const tooltip_extra = {
             displayName: d.additionalTooltipData[j].name,
-            //value: value.toLocaleString(undefined, { minimumFractionDigits: d.additionalTooltipData[j].decimalPlaces, maximumFractionDigits: d.additionalTooltipData[j].decimalPlaces }),
             value: parseYLabels(<number>value, false, d.additionalTooltipData[j].decimalPlaces, d.additionalTooltipData[j].format),
             color: "#00C0FFEE"
         };
