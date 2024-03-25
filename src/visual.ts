@@ -383,6 +383,111 @@ export class SPCChart implements IVisual {
                 .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' && this.data.target == -Infinity ? 0 : 2)
         }
     }
+
+    public controlLimitDisplayer(xScale: d3.ScalePoint<string>, yScale: d3.ScaleLinear<number, number, never>){
+        if (this.formattingSettings.SPCSettings.lineOptions.showControl.value) {
+            this.lineUCL
+                .datum(this.dataPoints)
+                .attr("class", "ControlLimit")
+                .attr("fill", "none")
+                .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value)
+                .attr("stroke-width", 2)
+                .style("stroke-dasharray", ("5,5"))
+                .style("stroke-linecap", "round")
+                .attr("d", d3.line<SPCChartDataPoint>()
+                    .x(function (d) { return xScale(d.category) })
+                    .y(function (d) { return yScale(<number>d.UCLValue) })
+                );
+
+            this.lineLCL
+                .datum(this.dataPoints)
+                .attr("class", "ControlLimit")
+                .attr("fill", "none")
+                .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.lowerCL.value.value)
+                .attr("stroke-width", 2)
+                .style("stroke-dasharray", ("5,5"))
+                .style("stroke-linecap", "round")
+                .attr("d", d3.line<SPCChartDataPoint>()
+                    .x(function (d) { return xScale(d.category) })
+                    .y(function (d) { return yScale(<number>d.LCLValue) })
+                );
+        } else {
+            this.lineUCL
+                .attr("stroke-width", 0)
+
+            this.lineLCL
+                .attr("stroke-width", 0)
+        }
+    }
+
+    public controlSubLimitDisplayer(xScale: d3.ScalePoint<string>, yScale: d3.ScaleLinear<number, number, never>){
+        if (this.formattingSettings.SPCSettings.lineOptions.showSubControl.value) {
+            this.lineUpperZoneA
+                .datum(this.dataPoints)
+                .style("stroke-dasharray", ("5,5"))
+                .style("stroke-linecap", "round")
+                .attr("class", "subControl")
+                .attr("fill", "none")
+                .attr("stroke", "black")
+                .attr("stroke-width", 1)
+                .attr("d", d3.line<SPCChartDataPoint>()
+                    .x(function (d) { return xScale(d.category) })
+                    .y(function (d) { return yScale(<number>d.Upper_Zone_A) })
+                );
+
+            this.lineUpperZoneB
+                .datum(this.dataPoints)
+                .style("stroke-dasharray", ("5,5"))
+                .style("stroke-linecap", "round")
+                .attr("class", "subControl")
+                .attr("fill", "none")
+                .attr("stroke", "black")
+                .attr("stroke-width", 1)
+                .attr("d", d3.line<SPCChartDataPoint>()
+                    .x(function (d) { return xScale(d.category) })
+                    .y(function (d) { return yScale(<number>d.Upper_Zone_B) })
+                );
+
+            this.lineLowerZoneA
+                .datum(this.dataPoints)
+                .style("stroke-dasharray", ("5,5"))
+                .style("stroke-linecap", "round")
+                .attr("class", "subControl")
+                .attr("fill", "none")
+                .attr("stroke", "black")
+                .attr("stroke-width", 1)
+                .attr("d", d3.line<SPCChartDataPoint>()
+                    .x(function (d) { return xScale(d.category) })
+                    .y(function (d) { return yScale(<number>d.Lower_Zone_A) })
+                );
+
+            this.lineLowerZoneB
+                .datum(this.dataPoints)
+                .style("stroke-dasharray", ("5,5"))
+                .style("stroke-linecap", "round")
+                .attr("class", "subControl")
+                .attr("fill", "none")
+                .attr("stroke", "black")
+                .attr("stroke-width", 1)
+                .attr("d", d3.line<SPCChartDataPoint>()
+                    .x(function (d) { return xScale(d.category) })
+                    .y(function (d) { return yScale(<number>d.Lower_Zone_B) })
+                );
+        } else {
+            this.lineUpperZoneA
+                .attr("stroke-width", 0)
+
+            this.lineUpperZoneB
+                .attr("stroke-width", 0)
+
+            this.lineLowerZoneA
+                .attr("stroke-width", 0)
+
+            this.lineLowerZoneB
+                .attr("stroke-width", 0)
+        }
+    }
+
     //This updates the chart - ran each time anything changes in the visual (ie filters, mouse moves, drilling up/down)
     public update(options: VisualUpdateOptions) {
         //Set up the charting object 
@@ -610,114 +715,14 @@ export class SPCChart implements IVisual {
             .remove();
         this.handleClick(invisibleBars, circlemarkers);
 
+        
+        this.controlLimitDisplayer(xScale, yScale)      //Create limit lines 
         if (n > 1) {
-            this.meanDisplayer(xScale, yScale)//Create mean line
-            this.targetDisplayer(yScale)//Create target line
-
-            //Create limit lines   
-            if (this.formattingSettings.SPCSettings.lineOptions.showControl.value) {
-                this.lineUCL
-                    .datum(this.dataPoints)
-                    .attr("class", "ControlLimit")
-                    .attr("fill", "none")
-                    .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value)
-                    .attr("stroke-width", 2)
-                    .style("stroke-dasharray", ("5,5"))
-                    .style("stroke-linecap", "round")
-                    .attr("d", d3.line<SPCChartDataPoint>()
-                        .x(function (d) { return xScale(d.category) })
-                        .y(function (d) { return yScale(<number>d.UCLValue) })
-                    );
-
-                this.lineLCL
-                    .datum(this.dataPoints)
-                    .attr("class", "ControlLimit")
-                    .attr("fill", "none")
-                    .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.lowerCL.value.value)
-                    .attr("stroke-width", 2)
-                    .style("stroke-dasharray", ("5,5"))
-                    .style("stroke-linecap", "round")
-                    .attr("d", d3.line<SPCChartDataPoint>()
-                        .x(function (d) { return xScale(d.category) })
-                        .y(function (d) { return yScale(<number>d.LCLValue) })
-                    );
-            } else {
-                this.lineUCL
-                    .attr("stroke-width", 0)
-
-                this.lineLCL
-                    .attr("stroke-width", 0)
-            }
-
-            //Create Zone lines 
-            if (this.formattingSettings.SPCSettings.lineOptions.showSubControl.value) {
-                this.lineUpperZoneA
-                    .datum(this.dataPoints)
-                    .style("stroke-dasharray", ("5,5"))
-                    .style("stroke-linecap", "round")
-                    .attr("class", "subControl")
-                    .attr("fill", "none")
-                    .attr("stroke", "black")
-                    .attr("stroke-width", 1)
-                    .attr("d", d3.line<SPCChartDataPoint>()
-                        .x(function (d) { return xScale(d.category) })
-                        .y(function (d) { return yScale(<number>d.Upper_Zone_A) })
-                    );
-
-                this.lineUpperZoneB
-                    .datum(this.dataPoints)
-                    .style("stroke-dasharray", ("5,5"))
-                    .style("stroke-linecap", "round")
-                    .attr("class", "subControl")
-                    .attr("fill", "none")
-                    .attr("stroke", "black")
-                    .attr("stroke-width", 1)
-                    .attr("d", d3.line<SPCChartDataPoint>()
-                        .x(function (d) { return xScale(d.category) })
-                        .y(function (d) { return yScale(<number>d.Upper_Zone_B) })
-                    );
-
-                this.lineLowerZoneA
-                    .datum(this.dataPoints)
-                    .style("stroke-dasharray", ("5,5"))
-                    .style("stroke-linecap", "round")
-                    .attr("class", "subControl")
-                    .attr("fill", "none")
-                    .attr("stroke", "black")
-                    .attr("stroke-width", 1)
-                    .attr("d", d3.line<SPCChartDataPoint>()
-                        .x(function (d) { return xScale(d.category) })
-                        .y(function (d) { return yScale(<number>d.Lower_Zone_A) })
-                    );
-
-                this.lineLowerZoneB
-                    .datum(this.dataPoints)
-                    .style("stroke-dasharray", ("5,5"))
-                    .style("stroke-linecap", "round")
-                    .attr("class", "subControl")
-                    .attr("fill", "none")
-                    .attr("stroke", "black")
-                    .attr("stroke-width", 1)
-                    .attr("d", d3.line<SPCChartDataPoint>()
-                        .x(function (d) { return xScale(d.category) })
-                        .y(function (d) { return yScale(<number>d.Lower_Zone_B) })
-                    );
-            } else {
-                this.lineUpperZoneA
-                    .attr("stroke-width", 0)
-
-                this.lineUpperZoneB
-                    .attr("stroke-width", 0)
-
-                this.lineLowerZoneA
-                    .attr("stroke-width", 0)
-
-                this.lineLowerZoneB
-                    .attr("stroke-width", 0)
-            }
+            this.meanDisplayer(xScale, yScale)              //Create mean line
+            this.targetDisplayer(yScale)                    //Create target line  
+            this.controlSubLimitDisplayer(xScale, yScale)   //Create Zone lines 
+            this.logoDisplayer()                            // Move logo 
         }
-        // Move logo 
-        this.logoDisplayer()
 
         //ToolTips
         this.svg
