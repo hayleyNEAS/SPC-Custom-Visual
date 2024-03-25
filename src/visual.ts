@@ -263,6 +263,40 @@ export class SPCChart implements IVisual {
         });
     }
 
+    public tooltipMouseMove(xScale: d3.ScalePoint<string>, thissvg: Selection<any, any>, dm: SPCChartDataPoint[]){
+        return function(ev: Event){
+            thissvg //clear previous tooltip
+                .selectAll('.markers.tooltip')
+                .attr("opacity", 0);
+
+            const pointer = d3.pointer(ev)
+            const cats = dm.map(d => xScale(d.category))
+            const closest = cats.reduce(function (prev, curr) { return (Math.abs(curr - pointer[0]) < Math.abs(prev - pointer[0]) ? curr : prev); });
+
+            const index = cats.map(d => d == closest).indexOf(true)
+            const tooltiplines = thissvg
+                .selectAll('rect.markers.tooltip')
+                .nodes();
+
+            const tooltipmarkers = thissvg
+                .selectAll('circle.markers.tooltip')
+                .nodes();
+
+            d3Select(tooltiplines[index])
+                .attr("opacity", 1);
+
+            d3Select(tooltipmarkers[index])
+                .attr("opacity", 1);
+        }
+    }
+
+    public tooltipMouseOff(thissvg){
+        return function() {
+            thissvg
+            .selectAll('.markers.tooltip')
+            .attr("opacity", 0);
+        }
+    }
     
     //This updates the chart - ran each time anything changes in the visual (ie filters, mouse moves, drilling up/down)
     public update(options: VisualUpdateOptions) {
@@ -464,15 +498,15 @@ export class SPCChart implements IVisual {
 
         this.svg.selectAll('.markers').remove();
 
-            const circlemarkers = this.dataMarkers
-                .data(this.dataPoints)
-                .enter()
-                .append("circle")
-                .attr("class", "markers")
-                .attr("cx", function (d) { return xScale(d.category) })
-                .attr("cy", function (d) { return yScale(<number>d.value) })
-                .attr("r", function (d) { return d.markerSize })
-                .attr("fill", function (d) { return d.color });
+        const circlemarkers = this.dataMarkers
+            .data(this.dataPoints)
+            .enter()
+            .append("circle")
+            .attr("class", "markers")
+            .attr("cx", function (d) { return xScale(d.category) })
+            .attr("cy", function (d) { return yScale(<number>d.value) })
+            .attr("r", function (d) { return d.markerSize })
+            .attr("fill", function (d) { return d.color });
         
 
         this.tooltipMarkers
@@ -497,11 +531,7 @@ export class SPCChart implements IVisual {
             .attr("y", 0)
             .attr("fill", function (d) { return d.color }); //invisable rectangles 
 
-        this.syncSelectionState(
-            invisibleBars,
-            circlemarkers,
-            <ISelectionId[]>this.selectionManager.getSelectionIds()
-        );
+        this.syncSelectionState( invisibleBars, circlemarkers, <ISelectionId[]>this.selectionManager.getSelectionIds() );
 
         this.tooltipMarkers
             .data(this.dataPoints)
@@ -523,9 +553,7 @@ export class SPCChart implements IVisual {
 
                 this.selectionManager
                     .select(datum.selectionID, isCtrlPressed)
-                    .then((ids: ISelectionId[]) => {
-                        this.syncSelectionState(invisibleBars, circlemarkers, ids);
-                    });
+                    .then((ids: ISelectionId[]) => { this.syncSelectionState(invisibleBars, circlemarkers, ids); });
                 (<Event>event).stopPropagation();
             }
         });
@@ -694,58 +722,16 @@ export class SPCChart implements IVisual {
         }
 
         //ToolTips
-        const thissvg = this.svg;
-        //let tt = this.tooltipMarkers;
-        const dm = this.dataPoints;
-
         this.svg
-            .on('mouseover', function () {
-                //console.log('on')
-            })
-            .on('mousemove', function (ev) {
-                thissvg //clear previous tooltip
-                    .selectAll('.markers.tooltip')
-                    .attr("opacity", 0);
-
-                const pointer = d3.pointer(ev)
-                const cats = dm.map(d => xScale(d.category))
-                const closest = cats.reduce(function (prev, curr) {
-                    return (Math.abs(curr - pointer[0]) < Math.abs(prev - pointer[0]) ? curr : prev);
-                });
-
-                const index = cats.map(d => d == closest).indexOf(true)
-                const tooltiplines = thissvg
-                    .selectAll('rect.markers.tooltip')
-                    .nodes();
-
-                const tooltipmarkers = thissvg
-                    .selectAll('circle.markers.tooltip')
-                    .nodes();
-
-                d3Select(tooltiplines[index])
-                    .attr("opacity", 1);
-
-                d3Select(tooltipmarkers[index])
-                    .attr("opacity", 1);
-
-
-            })
-            .on('mouseleave', function () {
-                thissvg
-                    .selectAll('.markers.tooltip')
-                    .attr("opacity", 0);
-                //console.log('left')
-            });
+            .on('mousemove', this.tooltipMouseMove(xScale, this.svg, this.dataPoints))
+            .on('mouseleave', this.tooltipMouseOff(this.svg));
 
         this.tooltipServiceWrapper
             .addTooltip(
                 this.svg.selectAll('rect.markers'),
                 (d: SPCChartDataPoint) => getTooltipData(d, data, this.formattingSettings)
             );
-
     }
-
-
 }
 
 export { SPCChart as Visual };

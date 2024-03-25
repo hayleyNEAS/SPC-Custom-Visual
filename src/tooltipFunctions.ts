@@ -1,4 +1,3 @@
-
 import { NumberValue } from "d3-scale";
 import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
 
