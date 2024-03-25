@@ -84,8 +84,13 @@ export class SPCChart implements IVisual {
         },
         chartWidth: {
             start: 0,
-            end: 0
-        }
+            end: 0,
+            height: 0,
+            width: 0
+        },
+
+    yTicks: 5
+
     };
 
     //Creates formatting pane
@@ -349,48 +354,38 @@ export class SPCChart implements IVisual {
         this.data = createDataset(options, this.host, this.formattingSettings);
         const data = this.data
         this.dataPoints = data.dataPoints.filter(d => d.value !== null);
-        const n = this.dataPoints.length
+        const n = this.dataPoints.length;
+        
 
         //Define the chart size
-        let height = options.viewport.height;
-        const width = options.viewport.width;
-
-        //Define the usable chart size
-        SPCChart.Config.chartWidth.end = width;
+        if(n > 0){
+            SPCChart.Config.chartWidth.height = options.viewport.height;
+            SPCChart.Config.chartWidth.width  = options.viewport.width;
+            SPCChart.Config.chartWidth.height -= this.formattingSettings.enableAxis.show.value ? SPCChart.Config.margins.bottom : 0
+        }
+        SPCChart.Config.chartWidth.end    = options.viewport.width;
 
         //Give the chart image a width and a height based on the size of the image in the report. If no data then the chart has no size
-        if (n == 0) {
-            this.svg
-                .attr("width", 0)
-                .attr("height", 0);
-            return
-        } else {
-            this.svg
-                .attr("width", width)
-                .attr("height", height);
-        }
-
-        //Option to show/hide the x axis 
-        height -= this.formattingSettings.enableAxis.show.value ? SPCChart.Config.margins.bottom : 0
+        this.svg
+            .attr("width", SPCChart.Config.chartWidth.width)
+            .attr("height", SPCChart.Config.chartWidth.height);
 
         //Set up the Y Axis
         const yScale = scaleLinear()
             .domain(yAxisDomain(data))
-            .range([height, 5]);
-
-        const yTicks = 5;
+            .range([SPCChart.Config.chartWidth.height, 5]);
 
         let yAxis = axisLeft(yScale)
             .tickSizeInner(-SPCChart.Config.chartWidth.end);
 
         if (this.formattingSettings.enableYAxis.formatter.time.value) {
             yAxis = yAxis
-                .ticks(yTicks)
+                .ticks(SPCChart.Config.yTicks)
                 .tickFormat(d => parseinHMS(d))
                 ;
         } else {
             yAxis = yAxis
-                .ticks(yTicks, data.measureFormat); //format n=yTicks ticks into SI units
+                .ticks(SPCChart.Config.yTicks, data.measureFormat); //format n=yTicks ticks into SI units
         }
 
         const yAxisObject = this.yAxis
@@ -438,7 +433,7 @@ export class SPCChart implements IVisual {
 
         for (let i = 0; i < 2; i++) { //should only run twice to "fit" the chart to size
 
-            let inner_chartMargin = width - SPCChart.Config.chartWidth.end
+            let inner_chartMargin = SPCChart.Config.chartWidth.width - SPCChart.Config.chartWidth.end
             bandwidth = data.n == 1 ? (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) : (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) / (data.n - 1); //each datapoint takes up one "bandwidth" of the chart area
 
             this.xAxis
@@ -456,7 +451,7 @@ export class SPCChart implements IVisual {
                 ;
 
             const xAxisObject = this.xAxis
-                .attr('transform', 'translate(0, ' + (height + 2) + ')')
+                .attr('transform', 'translate(0, ' + (SPCChart.Config.chartWidth.height + 2) + ')')
                 .call(xAxis)
                 .transition().duration(500)
                 .attr("color", getFillColor(
@@ -479,18 +474,17 @@ export class SPCChart implements IVisual {
                     if (this.getBBox().width > maxW_xAxis) maxW_xAxis = this.getBBox().width;
                     if (i == n - 1) inner_chartMargin = this.getBBox().width / 2.;
                 });
-            if (inner_chartMargin == 0){inner_chartMargin = 0.02*width}//if there is no final tick label then we need the margin to be 2% of the chart width
-            if (SPCChart.Config.chartWidth.end + inner_chartMargin > width) {
+            if (inner_chartMargin == 0){inner_chartMargin = 0.02*SPCChart.Config.chartWidth.width}//if there is no final tick label then we need the margin to be 2% of the chart width
+            if (SPCChart.Config.chartWidth.end + inner_chartMargin > SPCChart.Config.chartWidth.width) {
                 SPCChart.Config.chartWidth.end -= inner_chartMargin
                 SPCChart.Config.chartWidth.start += inner_chartMargin
             } else {
-                break
+                break //catch run away loops
             }
         }
 
-        const n_xTicks = Math.ceil(total_label_coverage * 1.2 / (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start))
-
-        if (data.n > 1) {
+        if (data.n > 1) {   
+            const n_xTicks = Math.ceil(total_label_coverage * 1.2 / (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start))
             if (total_label_coverage / (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) > 1) {
                 this.xAxis
                     .selectAll(`.tick`)
@@ -505,25 +499,19 @@ export class SPCChart implements IVisual {
 
         //Create target line
         if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
+            const targetValue = isNaN(yScale(data.target)) ? 0 : yScale(data.target);
             this.lineTarget
                 .style("stroke-linecap", "round")
                 .attr("class", "target")
                 .attr("stroke-width", 1.5)
                 .attr("x1", SPCChart.Config.chartWidth.start)
                 .attr("x2", SPCChart.Config.chartWidth.end)
-                .attr("y1", function () {
-                    const val = yScale(data.target)
-                    return isNaN(val) ? 0 : val;
-                })
-                .attr("y2", function () {
-                    const val = yScale(data.target)
-                    return isNaN(val) ? 0 : val;
-                })
+                .attr("y1", targetValue)
+                .attr("y2", targetValue)
                 .attr("fill", "none")
                 .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.targetColor.value.value)
                 .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' && data.target == -Infinity ? 0 : 2)
         }
-
 
         //Create data line
         this.lineData
@@ -549,7 +537,6 @@ export class SPCChart implements IVisual {
             .attr("cy", function (d) { return yScale(<number>d.value) })
             .attr("r", function (d) { return d.markerSize })
             .attr("fill", function (d) { return d.color });
-        
 
         this.tooltipMarkers
             .data(this.dataPoints)
@@ -568,7 +555,7 @@ export class SPCChart implements IVisual {
             .append("rect")
             .attr("class", "markers")
             .attr("width", bandwidth)
-            .attr("height", height)
+            .attr("height", SPCChart.Config.chartWidth.height)
             .attr("x", function (d) { return xScale(d.category) - bandwidth / 2 })
             .attr("y", 0)
             .attr("fill", function (d) { return d.color }); //invisable rectangles 
@@ -581,18 +568,16 @@ export class SPCChart implements IVisual {
             .append("rect")
             .attr("class", "markers tooltip")
             .attr("width", 0.05)
-            .attr("height", height)
+            .attr("height", SPCChart.Config.chartWidth.height)
             .attr("x", function (d) { return xScale(d.category) })
             .attr("y", 0)
             .attr("stroke", "#777777")
             .attr("opacity", 0); //invisable rectangles 
 
-        //To allopw cross filtering
-        invisibleBars.on('click', (event: Event, datum: SPCChartDataPoint) => {
-            // Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
-            if (this.host.hostCapabilities.allowInteractions) {
+        
+        invisibleBars.on('click', (event: Event, datum: SPCChartDataPoint) => {//To allow cross filtering
+            if (this.host.hostCapabilities.allowInteractions) {// Allow selection only if the visual is rendered in a view that supports interactivity (e.g. Report)
                 const isCtrlPressed: boolean = (<MouseEvent>event).ctrlKey;
-
                 this.selectionManager
                     .select(datum.selectionID, isCtrlPressed)
                     .then((ids: ISelectionId[]) => { this.syncSelectionState(invisibleBars, circlemarkers, ids); });
