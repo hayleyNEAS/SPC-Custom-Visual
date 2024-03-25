@@ -346,6 +346,43 @@ export class SPCChart implements IVisual {
                 .attr('height', 0)
         }
     }
+
+    public meanDisplayer(xScale: d3.ScalePoint<string>, yScale: d3.ScaleLinear<number, number, never>){
+        if (this.formattingSettings.SPCSettings.lineOptions.showMean.value) {
+            this.lineMean
+                .datum(this.dataPoints)
+                .attr("class", "mean")
+                .attr("fill", "none")
+                .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.meanColor.value.value)
+                .attr("stroke-width", 1.5)
+                .attr("stroke-linejoin", "round")
+                .style("stroke-linecap", "round")
+                .attr("d", d3.line<SPCChartDataPoint>()
+                    .x(function (d) { return xScale(d.category) })
+                    .y(function (d) { return yScale(<number>d.mean) })
+                );
+        } else {
+            this.lineMean
+                .attr("stroke-width", 0)
+        }
+    }
+
+    public targetDisplayer(yScale: d3.ScaleLinear<number, number, never>){
+        if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
+            const targetValue = isNaN(yScale(this.data.target)) ? 0 : yScale(this.data.target);
+            this.lineTarget
+                .style("stroke-linecap", "round")
+                .attr("class", "target")
+                .attr("stroke-width", 1.5)
+                .attr("x1", SPCChart.Config.chartWidth.start)
+                .attr("x2", SPCChart.Config.chartWidth.end)
+                .attr("y1", targetValue)
+                .attr("y2", targetValue)
+                .attr("fill", "none")
+                .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.targetColor.value.value)
+                .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' && this.data.target == -Infinity ? 0 : 2)
+        }
+    }
     //This updates the chart - ran each time anything changes in the visual (ie filters, mouse moves, drilling up/down)
     public update(options: VisualUpdateOptions) {
         //Set up the charting object 
@@ -497,22 +534,6 @@ export class SPCChart implements IVisual {
 
         }
 
-        //Create target line
-        if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
-            const targetValue = isNaN(yScale(data.target)) ? 0 : yScale(data.target);
-            this.lineTarget
-                .style("stroke-linecap", "round")
-                .attr("class", "target")
-                .attr("stroke-width", 1.5)
-                .attr("x1", SPCChart.Config.chartWidth.start)
-                .attr("x2", SPCChart.Config.chartWidth.end)
-                .attr("y1", targetValue)
-                .attr("y2", targetValue)
-                .attr("fill", "none")
-                .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.targetColor.value.value)
-                .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' && data.target == -Infinity ? 0 : 2)
-        }
-
         //Create data line
         this.lineData
             .datum(this.dataPoints)
@@ -590,24 +611,8 @@ export class SPCChart implements IVisual {
         this.handleClick(invisibleBars, circlemarkers);
 
         if (n > 1) {
-            //Create mean line
-            if (this.formattingSettings.SPCSettings.lineOptions.showMean.value) {
-                this.lineMean
-                    .datum(this.dataPoints)
-                    .attr("class", "mean")
-                    .attr("fill", "none")
-                    .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.meanColor.value.value)
-                    .attr("stroke-width", 1.5)
-                    .attr("stroke-linejoin", "round")
-                    .style("stroke-linecap", "round")
-                    .attr("d", d3.line<SPCChartDataPoint>()
-                        .x(function (d) { return xScale(d.category) })
-                        .y(function (d) { return yScale(<number>d.mean) })
-                    );
-            } else {
-                this.lineMean
-                    .attr("stroke-width", 0)
-            }
+            this.meanDisplayer(xScale, yScale)//Create mean line
+            this.targetDisplayer(yScale)//Create target line
 
             //Create limit lines   
             if (this.formattingSettings.SPCSettings.lineOptions.showControl.value) {
