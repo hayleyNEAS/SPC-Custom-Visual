@@ -277,14 +277,12 @@ export class SPCChart implements IVisual {
         //Define the chart size
         let height = options.viewport.height;
         const width = options.viewport.width;
-        const margins = SPCChart.Config.margins;
 
         //Define the usable chart size
         let widthChartStart = 0;
         let widthChartEnd = width;
 
-        //Give the chart image a width and a height based on the size of the image in the report
-        //If no data then the chart has no size
+        //Give the chart image a width and a height based on the size of the image in the report. If no data then the chart has no size
         if (n == 0) {
             this.svg
                 .attr("width", 0)
@@ -297,9 +295,7 @@ export class SPCChart implements IVisual {
         }
 
         //Option to show/hide the x axis 
-        if (this.formattingSettings.enableAxis.show.value) {
-            height -= margins.bottom;
-        }
+        height -= this.formattingSettings.enableAxis.show.value ? SPCChart.Config.margins.bottom : 0
 
         //Set up the Y Axis
         const yScale = scaleLinear()
