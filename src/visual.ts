@@ -82,6 +82,10 @@ export class SPCChart implements IVisual {
             bottom: 25,
             left: 30,
         },
+        chartWidth: {
+            start: 0,
+            end: 0
+        }
     };
 
     //Creates formatting pane
@@ -180,7 +184,8 @@ export class SPCChart implements IVisual {
             });
             mouseEvent.preventDefault();
         });
-    }    
+    }  
+
     private handleClick(selection: Selection<any>, selection2: Selection<any>) {
         // Clear selection when clicking outside a bar
         this.svg.on('click', () => {
@@ -298,6 +303,44 @@ export class SPCChart implements IVisual {
         }
     }
     
+    public logoDisplayer(){
+
+        let logoX = SPCChart.Config.chartWidth.start
+        if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == -1) {
+            logoX = SPCChart.Config.chartWidth.start
+        } if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 0) {
+            logoX = (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) / 2 + SPCChart.Config.chartWidth.start - 50
+        } if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 1) {
+            logoX = SPCChart.Config.chartWidth.end - 100
+        }
+
+        const logo = logoSelector(this.data, "variation")
+        if (this.formattingSettings.SPCSettings.logoOptions.show.value && this.data.n > 1) {
+            this.logo
+                .attr('href', logo)
+                .attr('width', 50)
+                .attr('height', 50)
+                .attr('x', logoX)
+                .attr('y', 0)
+        } else {
+            this.logo
+                .attr('width', 0)
+                .attr('height', 0)
+        }
+        const logoTarget = logoSelector(this.data, "target")
+        if (this.formattingSettings.SPCSettings.logoOptions.show.value && this.data.target && this.data.n > 1) {
+            this.logoTarget
+                .attr('href', logoTarget)
+                .attr('width', 50)
+                .attr('height', 50)
+                .attr('x', logoX + 50)
+                .attr('y', 0)
+        } else {
+            this.logoTarget
+                .attr('width', 0)
+                .attr('height', 0)
+        }
+    }
     //This updates the chart - ran each time anything changes in the visual (ie filters, mouse moves, drilling up/down)
     public update(options: VisualUpdateOptions) {
         //Set up the charting object 
@@ -313,8 +356,7 @@ export class SPCChart implements IVisual {
         const width = options.viewport.width;
 
         //Define the usable chart size
-        let widthChartStart = 0;
-        let widthChartEnd = width;
+        SPCChart.Config.chartWidth.end = width;
 
         //Give the chart image a width and a height based on the size of the image in the report. If no data then the chart has no size
         if (n == 0) {
@@ -339,7 +381,7 @@ export class SPCChart implements IVisual {
         const yTicks = 5;
 
         let yAxis = axisLeft(yScale)
-            .tickSizeInner(-widthChartEnd);
+            .tickSizeInner(-SPCChart.Config.chartWidth.end);
 
         if (this.formattingSettings.enableYAxis.formatter.time.value) {
             yAxis = yAxis
@@ -388,7 +430,7 @@ export class SPCChart implements IVisual {
             .attr('transform', 'translate(' + (yShift) + ',0)')
 
         //Set up the X Axis
-        widthChartStart = yShift 
+        SPCChart.Config.chartWidth.start = yShift 
         let xScale = scalePoint();
         let maxW_xAxis = 0;
         let total_label_coverage = 0;
@@ -396,8 +438,8 @@ export class SPCChart implements IVisual {
 
         for (let i = 0; i < 2; i++) { //should only run twice to "fit" the chart to size
 
-            let inner_chartMargin = width - widthChartEnd
-            bandwidth = data.n == 1 ? (widthChartEnd - widthChartStart) : (widthChartEnd - widthChartStart) / (data.n - 1); //each datapoint takes up one "bandwidth" of the chart area
+            let inner_chartMargin = width - SPCChart.Config.chartWidth.end
+            bandwidth = data.n == 1 ? (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) : (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) / (data.n - 1); //each datapoint takes up one "bandwidth" of the chart area
 
             this.xAxis
                 .style("font-size", 11)
@@ -405,7 +447,7 @@ export class SPCChart implements IVisual {
 
             xScale = scalePoint()
                 .domain(data.dataPoints.map(d => d.category))
-                .range([widthChartStart, widthChartEnd])
+                .range([SPCChart.Config.chartWidth.start, SPCChart.Config.chartWidth.end])
                 ;
 
             const span = [0, -1].map(i => new Date(data.dataPoints.at(i).category))
@@ -438,18 +480,18 @@ export class SPCChart implements IVisual {
                     if (i == n - 1) inner_chartMargin = this.getBBox().width / 2.;
                 });
             if (inner_chartMargin == 0){inner_chartMargin = 0.02*width}//if there is no final tick label then we need the margin to be 2% of the chart width
-            if (widthChartEnd + inner_chartMargin > width) {
-                widthChartEnd -= inner_chartMargin
-                widthChartStart += inner_chartMargin
+            if (SPCChart.Config.chartWidth.end + inner_chartMargin > width) {
+                SPCChart.Config.chartWidth.end -= inner_chartMargin
+                SPCChart.Config.chartWidth.start += inner_chartMargin
             } else {
                 break
             }
         }
 
-        const n_xTicks = Math.ceil(total_label_coverage * 1.2 / (widthChartEnd - widthChartStart))
+        const n_xTicks = Math.ceil(total_label_coverage * 1.2 / (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start))
 
         if (data.n > 1) {
-            if (total_label_coverage / (widthChartEnd - widthChartStart) > 1) {
+            if (total_label_coverage / (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) > 1) {
                 this.xAxis
                     .selectAll(`.tick`)
                     .attr('display', 'none')
@@ -467,8 +509,8 @@ export class SPCChart implements IVisual {
                 .style("stroke-linecap", "round")
                 .attr("class", "target")
                 .attr("stroke-width", 1.5)
-                .attr("x1", widthChartStart)
-                .attr("x2", widthChartEnd)
+                .attr("x1", SPCChart.Config.chartWidth.start)
+                .attr("x2", SPCChart.Config.chartWidth.end)
                 .attr("y1", function () {
                     const val = yScale(data.target)
                     return isNaN(val) ? 0 : val;
@@ -685,41 +727,7 @@ export class SPCChart implements IVisual {
             }
         }
         // Move logo 
-        let logoX = widthChartStart
-        if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == -1) {
-            logoX = widthChartStart
-        } if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 0) {
-            logoX = (widthChartEnd - widthChartStart) / 2 + widthChartStart - 50
-        } if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 1) {
-            logoX = widthChartEnd - 100
-        }
-        const logo = logoSelector(data, "variation")
-        if (this.formattingSettings.SPCSettings.logoOptions.show.value && n > 1) {
-            this.logo
-                .attr('href', logo)
-                .attr('width', 50)
-                .attr('height', 50)
-                .attr('x', logoX)
-                .attr('y', 0)
-        } else {
-            this.logo
-                .attr('width', 0)
-                .attr('height', 0)
-        }
-
-        const logoTarget = logoSelector(data, "target")
-        if (this.formattingSettings.SPCSettings.logoOptions.show.value && data.target && n > 1) {
-            this.logoTarget
-                .attr('href', logoTarget)
-                .attr('width', 50)
-                .attr('height', 50)
-                .attr('x', logoX + 50)
-                .attr('y', 0)
-        } else {
-            this.logoTarget
-                .attr('width', 0)
-                .attr('height', 0)
-        }
+        this.logoDisplayer()
 
         //ToolTips
         this.svg
