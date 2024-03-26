@@ -514,8 +514,6 @@ export class SPCChart implements IVisual {
             .attr("r", function (d) { return d.markerSize })
             .attr("fill", function (d) { return d.color });
 
-        
-
             this.tooltipMarkers
             .data(this.dataPoints)
             .enter()
@@ -566,6 +564,72 @@ export class SPCChart implements IVisual {
             .remove();
         this.handleClick(invisibleBars, circlemarkers);
     }
+
+    public fitX(options: VisualUpdateOptions){
+        let xScale = scalePoint();
+        let maxW_xAxis = 0;
+        let total_label_coverage = 0;
+
+        for (let i = 0; i < 2; i++) { //should only run twice to "fit" the chart to size
+            let inner_chartMargin = SPCChart.Config.chartWidth.width - SPCChart.Config.chartWidth.end
+            SPCChart.Config.bandwidth = this.data.n == 1 ? (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) : (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) / (this.data.n - 1); //each datapoint takes up one "bandwidth" of the chart area
+
+            xScale = scalePoint()
+                .domain(this.data.dataPoints.map(d => d.category))
+                .range([SPCChart.Config.chartWidth.start, SPCChart.Config.chartWidth.end]);
+
+            const span = [0, -1].map(i => new Date(this.data.dataPoints.at(i).category));
+            const xAxis = axisBottom(xScale)
+                .tickFormat(d => parseDateLabel(d, this.data.levelOfDateHeirarchy, span));
+
+            const xAxisObject = this.xAxis
+                .attr('transform', 'translate(0, ' + (SPCChart.Config.chartWidth.height + 2) + ')')
+                .style("font-size", 11)
+                .call(xAxis)
+                .transition().duration(500)
+                .attr("color", getFillColor(
+                    options,
+                    'enableAxis',
+                    'fill',
+                    this.host.colorPalette,
+                    this.formattingSettings.enableAxis.formatter.fill.value.value
+                ));
+
+            xAxisObject.selectAll('.xAxis path, line')
+                .attr('opacity', 0);
+
+            //XAxis label reducer  
+            this.xAxis
+                .selectAll("text")
+                .each(((self) => function (this: SVGGraphicsElement, d, i) {
+                    total_label_coverage += this.getBBox().width
+                    if (this.getBBox().width > maxW_xAxis) maxW_xAxis = this.getBBox().width;
+                    if (i == self.dataPoints.length - 1) inner_chartMargin = this.getBBox().width / 2.;
+                })(this));
+            if (inner_chartMargin == 0){inner_chartMargin = 0.02*SPCChart.Config.chartWidth.width}//if there is no final tick label then we need the margin to be 2% of the chart width
+            if (SPCChart.Config.chartWidth.end + inner_chartMargin > SPCChart.Config.chartWidth.width) {
+                SPCChart.Config.chartWidth.end -= inner_chartMargin
+                SPCChart.Config.chartWidth.start += inner_chartMargin
+            } else { break }//catch run away loops
+        }
+
+        if (this.data.n > 1) {   
+            const n_xTicks = Math.ceil(total_label_coverage * 1.2 / (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start))
+            if (total_label_coverage / (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) > 1) {
+                this.xAxis
+                    .selectAll(`.tick`)
+                    .attr('display', 'none')
+                this.xAxis
+                    .selectAll(`.tick:nth-child(${n_xTicks}n + ${Math.floor(n_xTicks / 2)})`)
+                    .attr('display', 'block')
+            }
+
+        }
+
+        return xScale
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
     //This updates the chart - ran each time anything changes in the visual (ie filters, mouse moves, drilling up/down)
     public update(options: VisualUpdateOptions) {
         //Set up the charting object 
@@ -575,17 +639,17 @@ export class SPCChart implements IVisual {
         const data = this.data
         this.dataPoints = data.dataPoints.filter(d => d.value !== null);
         
-        //Define the chart size
-        if(this.dataPoints.length > 0){
+        if(this.dataPoints.length > 0){ //Define the chart size
             SPCChart.Config.chartWidth.height = options.viewport.height;
             SPCChart.Config.chartWidth.width  = options.viewport.width;
-            SPCChart.Config.chartWidth.height -= this.formattingSettings.enableAxis.show.value ? SPCChart.Config.margins.bottom : 0
         }
-        SPCChart.Config.chartWidth.end    = options.viewport.width;
 
         this.svg //Give the chart image a width and a height based on the size of the image in the report. If no data then the chart has no size
             .attr("width", SPCChart.Config.chartWidth.width)
             .attr("height", SPCChart.Config.chartWidth.height);
+
+        SPCChart.Config.chartWidth.end    = options.viewport.width;
+        SPCChart.Config.chartWidth.height -= this.formattingSettings.enableAxis.show.value ? SPCChart.Config.margins.bottom : 0
 
         //Set up the Y Axis
         const yScale = scaleLinear()
@@ -638,67 +702,8 @@ export class SPCChart implements IVisual {
 
         //Set up the X Axis
         SPCChart.Config.chartWidth.start = yShift 
-        let xScale = scalePoint();
-        let maxW_xAxis = 0;
-        let total_label_coverage = 0;
 
-        for (let i = 0; i < 2; i++) { //should only run twice to "fit" the chart to size
-            let inner_chartMargin = SPCChart.Config.chartWidth.width - SPCChart.Config.chartWidth.end
-            SPCChart.Config.bandwidth = data.n == 1 ? (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) : (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) / (data.n - 1); //each datapoint takes up one "bandwidth" of the chart area
-
-            this.xAxis
-                .style("font-size", 11);
-
-            xScale = scalePoint()
-                .domain(data.dataPoints.map(d => d.category))
-                .range([SPCChart.Config.chartWidth.start, SPCChart.Config.chartWidth.end]);
-
-            const span = [0, -1].map(i => new Date(data.dataPoints.at(i).category));
-            const xAxis = axisBottom(xScale)
-                .tickFormat(d => parseDateLabel(d, data.levelOfDateHeirarchy, span));
-
-            const xAxisObject = this.xAxis
-                .attr('transform', 'translate(0, ' + (SPCChart.Config.chartWidth.height + 2) + ')')
-                .call(xAxis)
-                .transition().duration(500)
-                .attr("color", getFillColor(
-                    options,
-                    'enableAxis',
-                    'fill',
-                    this.host.colorPalette,
-                    this.formattingSettings.enableAxis.formatter.fill.value.value
-                ));
-
-            xAxisObject.selectAll('.xAxis path, line')
-                .attr('opacity', 0);
-
-            //XAxis label reducer  
-            this.xAxis
-                .selectAll("text")
-                .each(((self) => function (this: SVGGraphicsElement, d, i) {
-                    total_label_coverage += this.getBBox().width
-                    if (this.getBBox().width > maxW_xAxis) maxW_xAxis = this.getBBox().width;
-                    if (i == self.dataPoints.length - 1) inner_chartMargin = this.getBBox().width / 2.;
-                })(this));
-            if (inner_chartMargin == 0){inner_chartMargin = 0.02*SPCChart.Config.chartWidth.width}//if there is no final tick label then we need the margin to be 2% of the chart width
-            if (SPCChart.Config.chartWidth.end + inner_chartMargin > SPCChart.Config.chartWidth.width) {
-                SPCChart.Config.chartWidth.end -= inner_chartMargin
-                SPCChart.Config.chartWidth.start += inner_chartMargin
-            } else { break }//catch run away loops
-        }
-
-        if (data.n > 1) {   
-            const n_xTicks = Math.ceil(total_label_coverage * 1.2 / (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start))
-            if (total_label_coverage / (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) > 1) {
-                this.xAxis
-                    .selectAll(`.tick`)
-                    .attr('display', 'none')
-                this.xAxis
-                    .selectAll(`.tick:nth-child(${n_xTicks}n + ${Math.floor(n_xTicks / 2)})`)
-                    .attr('display', 'block')
-            }
-
-        }
+        const xScale = this.fitX(options)
 
         //Create data line
         this.dataDisplayer(xScale, yScale)
