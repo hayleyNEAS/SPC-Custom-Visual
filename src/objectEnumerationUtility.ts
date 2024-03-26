@@ -15,16 +15,16 @@ import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
  * @param {T} defaultValue          - Default value of desired property.
  */
 export function getValue<T>(objects: DataViewObjects, objectName: string, propertyName: string, defaultValue: T): T {
-    if (objects) {
-        const object = objects[objectName];
-        if (object) {
-            const property: T = <T>object[propertyName];
-            if (property !== undefined) {
-                return property;
-            }
-        }
+  if (objects) {
+    const object = objects[objectName];
+    if (object) {
+      const property: T = <T>object[propertyName];
+      if (property !== undefined) {
+        return property;
+      }
     }
-    return defaultValue;
+  }
+  return defaultValue;
 }
 
 /**
@@ -38,19 +38,19 @@ export function getValue<T>(objects: DataViewObjects, objectName: string, proper
  * @param {T} defaultValue                  - Default value of desired property.
  */
 export function getCategoricalObjectValue<T>(category: DataViewCategoryColumn, index: number, objectName: string, propertyName: string, defaultValue: T): T {
-    const categoryObjects = category.objects;
+  const categoryObjects = category.objects;
 
-    if (categoryObjects) {
-        const categoryObject: DataViewObject = categoryObjects[index];
-        if (categoryObject) {
-            const object = categoryObject[objectName];
-            if (object) {
-                const property: T = <T>object[propertyName];
-                if (property !== undefined) {
-                    return property;
-                }
-            }
+  if (categoryObjects) {
+    const categoryObject: DataViewObject = categoryObjects[index];
+    if (categoryObject) {
+      const object = categoryObject[objectName];
+      if (object) {
+        const property: T = <T>object[propertyName];
+        if (property !== undefined) {
+          return property;
         }
+      }
     }
-    return defaultValue;
+  }
+  return defaultValue;
 }
