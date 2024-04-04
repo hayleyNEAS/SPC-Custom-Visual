@@ -84,7 +84,7 @@ export function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
     if (value < Lower_Zone_A) {
       return -1
     } else {
-      0
+      return 0
     }
   }
 }
@@ -278,14 +278,14 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSet
         const twoInThreeCheck = latest3
           .map((d) => twoInThreeRule(d.value, d.Upper_Zone_A, d.Lower_Zone_A, dataset.direction))
           .reduce((a, b) => a + b, 0)
-        if (Math.abs(twoInThreeCheck) >= 2) {
+        if (twoInThreeCheck >= 2) {
           latest3.forEach(d => d.color = up_color)
           latest3.forEach(d => d.markerSize = dataset.markerSize)
           latest3.forEach(d => d.twoInThree = 1)
-        } else if (Math.abs(twoInThreeCheck) <= -2) {
+        } else if (twoInThreeCheck <= -2) {
           latest3.forEach(d => d.color = down_color)
           latest3.forEach(d => d.markerSize = dataset.markerSize)
-          latest3.forEach(d => d.twoInThree = 1)
+          latest3.forEach(d => d.twoInThree = -1)
         }
       }
       const p = formatSettings.SPCSettings.markerOptions.runNumber.value
