@@ -2,3 +2,4 @@ node_modules
 /.tmp
 dist
 webpack.*
+webpack.statistics.dev.html
