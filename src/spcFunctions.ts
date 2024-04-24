@@ -25,18 +25,27 @@ const none = require("./../assets/no_image.png")
 
 export function identifyOutliers(dataset: SPCChartData, formatSettings: VisualSettingsModel) {
   const data = dataset.dataPoints
+  let [up_color, down_color] = directionColors(formatSettings)
+
   const outlierColor = formatSettings.SPCSettings.markerOptions.outlier.value.value
-  const outlierShow = Number(formatSettings.SPCSettings.markerOptions.showOutlier.value)
+  let outlierShow = Number(formatSettings.SPCSettings.markerOptions.showOutlier.value)
+
+  if(formatSettings.SPCSettings.markerOptions.showOutlier.value){
+    up_color = outlierColor
+    down_color = outlierColor
+  } else {
+    outlierShow = Number(formatSettings.SPCSettings.markerOptions.showMarker.value)
+  }
 
   if (dataset.n > 1) {
     for (let i = 0, len = dataset.n; i < len; i++) {
       if (<number>data[i].value > data[i].UCLValue) {
-        data[i].color = outlierColor
+        data[i].color = up_color
         data[i].markerSize = dataset.markerSize * outlierShow
         data[i].outlier = 1
       }
       if (<number>data[i].value < data[i].LCLValue) {
-        data[i].color = outlierColor
+        data[i].color = down_color
         data[i].markerSize = dataset.markerSize * outlierShow
         data[i].outlier = -1
       }
@@ -69,23 +78,17 @@ export function identifyOutliers(dataset: SPCChartData, formatSettings: VisualSe
   }
 }
 
-export function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A, Direction) {
+export function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A) {
   /**
    * Two in three rule activation.
    * +
    * **/
-  if (Direction == 1) {
-    if (value > Upper_Zone_A) {
-      return 1
-    } else {
-      return 0
-    }
+  if (value > Upper_Zone_A) {
+    return 1
+  } else if (value < Lower_Zone_A) {
+    return -1
   } else {
-    if (value < Lower_Zone_A) {
-      return -1
-    } else {
-      return 0
-    }
+    return 0
   }
 }
 
@@ -276,13 +279,16 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSet
       if (i > 3) { //two in three rules 
         const latest3 = data.slice(i - 3 + 1, i + 1)
         const twoInThreeCheck = latest3
-          .map((d) => twoInThreeRule(d.value, d.Upper_Zone_A, d.Lower_Zone_A, dataset.direction))
+          .map((d) => twoInThreeRule(d.value, d.Upper_Zone_A, d.Lower_Zone_A))
           .reduce((a, b) => a + b, 0)
-        if (twoInThreeCheck >= 2) {
+        const twoInThreeCheck_magnitude = latest3
+          .map((d) => Math.abs(twoInThreeRule(d.value, d.Upper_Zone_A, d.Lower_Zone_A)))
+          .reduce((a, b) => a + b, 0) //magnitude of the 2in3 check
+        if (twoInThreeCheck >= 2 || (twoInThreeCheck == 1 && twoInThreeCheck_magnitude == 3)) {
           latest3.forEach(d => d.color = up_color)
           latest3.forEach(d => d.markerSize = dataset.markerSize)
           latest3.forEach(d => d.twoInThree = 1)
-        } else if (twoInThreeCheck <= -2) {
+        } else if (twoInThreeCheck <= -2 || (twoInThreeCheck == -1 && twoInThreeCheck_magnitude == 3)) {
           latest3.forEach(d => d.color = down_color)
           latest3.forEach(d => d.markerSize = dataset.markerSize)
           latest3.forEach(d => d.twoInThree = -1)
@@ -323,32 +329,32 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSet
       } */
     }
 
-    if (dataset.n == 1) {
-      data.forEach(d => d.markerSize = dataset.markerSize);
-      data.forEach(d => d.color = dataset.strokeColor);
-    }
-
-    return {
-      dataPoints: data,
-
-      n: dataset.n,
-      numberOfTimePeriods: dataset.numberOfTimePeriods,
-      direction: dataset.direction,
-      target: dataset.target,
-
-      strokeWidth: dataset.strokeWidth,
-      strokeColor: dataset.strokeColor,
-      markerSize: dataset.markerSize,
-
-      measureName: dataset.measureName,
-      measureFormat: dataset.measureFormat,
-      decimalPlaces: dataset.decimalPlaces,
-      levelOfDateHeirarchy: dataset.levelOfDateHeirarchy,
-
-      outlier: dataset.outlier,
-      run: data[dataset.n - 1].run,
-      shift: data[dataset.n - 1].shift,
-      twoInThree: data[dataset.n - 1].twoInThree
-    };
+  if (dataset.n == 1) {
+    data.forEach(d => d.markerSize = dataset.markerSize);
+    data.forEach(d => d.color = dataset.strokeColor);
   }
+
+  return {
+    dataPoints: data,
+
+    n: dataset.n,
+    numberOfTimePeriods: dataset.numberOfTimePeriods,
+    direction: dataset.direction,
+    target: dataset.target,
+
+    strokeWidth: dataset.strokeWidth,
+    strokeColor: dataset.strokeColor,
+    markerSize: dataset.markerSize,
+
+    measureName: dataset.measureName,
+    measureFormat: dataset.measureFormat,
+    decimalPlaces: dataset.decimalPlaces,
+    levelOfDateHeirarchy: dataset.levelOfDateHeirarchy,
+
+    outlier: dataset.outlier,
+    run: data[dataset.n - 1].run,
+    shift: data[dataset.n - 1].shift,
+    twoInThree: data[dataset.n - 1].twoInThree
+  };
+}
 }
