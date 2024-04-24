@@ -270,7 +270,7 @@ class dataLabelsCard extends SimpleCard {
   show = new formattingSettings.ToggleSwitch({
     name: "show",
     displayName: undefined,
-    value: true,
+    value: false,
   });
   topLevelSlice = this.show;
 
@@ -285,7 +285,7 @@ class dataLabelsCard extends SimpleCard {
   last = new formattingSettings.ToggleSwitch({
     name: "last",
     displayName: "Only Display Last Label",
-    value: false
+    value: true
   });
 
   name: string = "dataLabels";
