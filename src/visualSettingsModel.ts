@@ -263,6 +263,35 @@ class EnableYAxisCardSettings extends CompCard {
   groups = [this.formatter];
 }
 
+/**
+ * Enable y-Axis Formatting Card
+ */
+class dataLabelsCard extends SimpleCard {
+  show = new formattingSettings.ToggleSwitch({
+    name: "show",
+    displayName: undefined,
+    value: true,
+  });
+  topLevelSlice = this.show;
+
+  // Formatting property `fill` color picker (formatting simple slice)
+  fill = new formattingSettings.ColorPicker({
+    name: "fill",
+    displayName: "Data Label Font Color",
+    value: { value: "#777777" }
+  });
+
+  // Option for formatting y axis as time
+  last = new formattingSettings.ToggleSwitch({
+    name: "last",
+    displayName: "Only Display Last Label",
+    value: false
+  });
+
+  name: string = "dataLabels";
+  displayName: string = "Data Labels";
+  slices: Array<FormattingSettingsSlice> = [this.fill, this.last];
+}
 
 /**
 * BarChart settings model class
@@ -275,8 +304,9 @@ export class VisualSettingsModel extends FormattingSettingsModel {
   dataManipulator = new dataManipulator();
   enableAxis = new EnableAxisCardSettings();
   enableYAxis = new EnableYAxisCardSettings();
+  dataLabels = new dataLabelsCard();
   //colorSelector = new ColorSelectorCardSettings();
-  cards = [this.SPCSettings, this.dataManipulator, this.enableAxis, this.enableYAxis];
+  cards = [this.SPCSettings, this.dataManipulator, this.enableAxis, this.enableYAxis, this.dataLabels];
 
 
   /**

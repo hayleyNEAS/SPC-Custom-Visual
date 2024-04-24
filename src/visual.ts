@@ -25,7 +25,7 @@ import { VisualSettingsModel } from "./visualSettingsModel";
 
 //Importing functions from file
 import { SPCChartData, SPCChartDataPoint } from "./dataStructure";
-import { parseDateLabel, parseinHMS } from "./formattingFunctions"
+import { parseDateLabel, parseinHMS, parseYLabels } from "./formattingFunctions"
 import { yAxisDomain, getFillColor, getYAxisTextFillColor } from "./chartFunctions"
 import { createDataset } from "./dataLoad"
 import { logoSelector } from "./spcFunctions";
@@ -559,10 +559,37 @@ export class SPCChart implements IVisual {
         (<Event>event).stopPropagation();
       }
     });
+
     this.dataMarkers
       .exit()
       .remove();
     this.handleClick(invisibleBars, circlemarkers);
+
+    this.svg.selectAll('.datalabels').remove();
+    if (this.formattingSettings.dataLabels.show.value) {
+      this.svg.selectAll('.datalabels')
+        .data(this.dataPoints)
+        .enter().append("text")
+        .attr("class", "datalabels")
+        .attr("text-anchor", "middle")
+        .attr("x", function (d) { return xScale(d.category) })
+        .attr("y", function (d) { return yScale(<number>d.value + 2.5) })
+        .text(((self) => function (d, i) { 
+          if(i < self.data.n-1){
+            if(self.formattingSettings.dataLabels.last.value){
+              return ''
+            } else {
+              return parseYLabels(<number>d.value, self.formattingSettings.enableYAxis.formatter.time.value, self.data.decimalPlaces, self.data.measureFormat)
+            }
+          } else {
+            return parseYLabels(<number>d.value, self.formattingSettings.enableYAxis.formatter.time.value, self.data.decimalPlaces, self.data.measureFormat)
+          }
+        })(this))
+        .attr("font-size", 11)
+        .attr("fill", ((self) => function () { return self.formattingSettings.dataLabels.fill.value.value })(this))
+        ;
+
+    }
   }
 
   public fitX(options: VisualUpdateOptions) {
@@ -601,6 +628,7 @@ export class SPCChart implements IVisual {
         .attr('opacity', 0);
 
       //XAxis label reducer  
+      
       this.xAxis
         .selectAll("text")
         .each(((self) => function (this: SVGGraphicsElement, d, i) {
@@ -617,7 +645,7 @@ export class SPCChart implements IVisual {
 
     if (this.data.n > 1) {
       const n_xTicks = Math.ceil(total_label_coverage * 1.2 / (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start))
-      if (total_label_coverage / (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) > 1) {
+      if (false){//(total_label_coverage / (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) > 1) {
         this.xAxis
           .selectAll(`.tick`)
           .attr('display', 'none')

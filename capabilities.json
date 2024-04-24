@@ -253,6 +253,29 @@
                     }
                 }
             }
+        },
+        "dataLabels":{
+            "properties": {
+                "show": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "fill": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "last": {
+                    "type": {
+                        "bool": true
+                    }
+                }
+            }
         }
     },
     "tooltips": {
