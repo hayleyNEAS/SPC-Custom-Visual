@@ -21,9 +21,16 @@ class SPCSetUp extends SimpleCard {
     placeholder: "Value"
 
   })
+
+  runNumber = new formattingSettings.NumUpDown({
+    name: "runNumber",
+    displayName: "Number of points",
+    value: 7
+  });
+
   name: string = "SPCSetUp";
   displayName?: string = "SPC Set Up";
-  slices: Array<FormattingSettingsSlice> = [this.direction, this.target];
+  slices: Array<FormattingSettingsSlice> = [this.direction, this.target, this.runNumber];
 }
 
 class LogoOptions extends SimpleCard {
@@ -41,9 +48,16 @@ class LogoOptions extends SimpleCard {
     value: { value: -1, displayName: "Left" }
   })
 
+  
+  size = new formattingSettings.NumUpDown({
+    name: "size",
+    displayName: "Size of Logo (px)",
+    value: 50
+  });
+
   name: string = "logoOptions";
   displayName?: string = "Logo Options";
-  slices: Array<FormattingSettingsSlice> = [this.location];
+  slices: Array<FormattingSettingsSlice> = [this.location, this.size];
 }
 
 class LineOptions extends SimpleCard {
@@ -96,9 +110,15 @@ class LineOptions extends SimpleCard {
     value: { value: "red" }
   });
 
+  dataColor = new formattingSettings.ColorPicker({
+    name: "dataColor",
+    displayName: "Data Line",
+    value: { value: "steelblue" }
+  });
+
   name: string = "lineOptions";
   displayName?: string = "Line Options";
-  slices: Array<FormattingSettingsSlice> = [this.showControl, this.upperCL, this.lowerCL, this.showSubControl, this.showMean, this.meanColor, this.showTarget, this.targetColor];
+  slices: Array<FormattingSettingsSlice> = [this.dataColor, this.showControl, this.upperCL, this.lowerCL, this.showSubControl, this.showMean, this.meanColor, this.showTarget, this.targetColor];
 }
 
 
@@ -122,22 +142,17 @@ class MarkerOptions extends SimpleCard {
     value: { value: "#DA291C" }
   });
 
-  showTrend = new formattingSettings.ToggleSwitch({
-    name: "showTrend",
-    displayName: "Trend",
-    value: true
+  showCC = new formattingSettings.ToggleSwitch({
+    name: "showCC",
+    displayName: "Show Common Cause Markers",
+    value: false
   });
-  run = new formattingSettings.ColorPicker({
-    name: "run",
+  
+  commonCause = new formattingSettings.ColorPicker({
+    name: "commonCause",
     displayName: undefined,
-    value: { value: "#FAE100" }
+    value: { value: "#CCCCCC" }
   });
-  runNumber = new formattingSettings.NumUpDown({
-    name: "runNumber",
-    displayName: "Number of points",
-    value: 7
-  });
-
 
   improvement = new formattingSettings.ColorPicker({
     name: "improvement",
@@ -153,7 +168,7 @@ class MarkerOptions extends SimpleCard {
 
   name: string = "markerOptions";
   displayName?: string = "Marker Options";
-  slices: Array<FormattingSettingsSlice> = [this.showOutlier, this.outlier, this.runNumber, this.showTrend, this.run, this.improvement, this.deterioration];
+  slices: Array<FormattingSettingsSlice> = [this.showOutlier, this.outlier, this.showCC, this.commonCause, this.improvement, this.deterioration];
 }
 
 class SPC extends CompCard {
@@ -181,7 +196,7 @@ class dataManipulator extends SimpleCard {
   });
 
   name: string = "dataManipulator";
-  displayName: string = "Data Manipulator";
+  displayName: string = "Advanced Settings";
   slices: Array<FormattingSettingsSlice> = [this.fillMissing0];
 
 }/**

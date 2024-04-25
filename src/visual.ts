@@ -315,17 +315,17 @@ export class SPCChart implements IVisual {
     if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == -1) {
       logoX = SPCChart.Config.chartWidth.start
     } if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 0) {
-      logoX = (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) / 2 + SPCChart.Config.chartWidth.start - 50
+      logoX = (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) / 2 + SPCChart.Config.chartWidth.start - this.formattingSettings.SPCSettings.logoOptions.size.value
     } if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 1) {
-      logoX = SPCChart.Config.chartWidth.end - 100
+      logoX = SPCChart.Config.chartWidth.end - this.formattingSettings.SPCSettings.logoOptions.size.value*2
     }
 
     const logo = logoSelector(this.data, "variation")
     if (this.formattingSettings.SPCSettings.logoOptions.show.value && this.data.n > 1) {
       this.logo
         .attr('href', logo)
-        .attr('width', 50)
-        .attr('height', 50)
+        .attr('width', this.formattingSettings.SPCSettings.logoOptions.size.value)
+        .attr('height', this.formattingSettings.SPCSettings.logoOptions.size.value)
         .attr('x', logoX)
         .attr('y', 0)
     } else {
@@ -337,9 +337,9 @@ export class SPCChart implements IVisual {
     if (this.formattingSettings.SPCSettings.logoOptions.show.value && this.data.target && this.data.n > 1) {
       this.logoTarget
         .attr('href', logoTarget)
-        .attr('width', 50)
-        .attr('height', 50)
-        .attr('x', logoX + 50)
+        .attr('width', this.formattingSettings.SPCSettings.logoOptions.size.value)
+        .attr('height', this.formattingSettings.SPCSettings.logoOptions.size.value)
+        .attr('x', logoX + this.formattingSettings.SPCSettings.logoOptions.size.value)
         .attr('y', 0)
     } else {
       this.logoTarget

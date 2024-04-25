@@ -294,7 +294,7 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSet
           latest3.forEach(d => d.twoInThree = -1)
         }
       }
-      const p = formatSettings.SPCSettings.markerOptions.runNumber.value
+      const p = formatSettings.SPCSettings.spcSetUp.runNumber.value
       if (i > p) { //p defaults to 7
         const latest7 = data.slice(i - p + 1, i + 1)
         //run of 7

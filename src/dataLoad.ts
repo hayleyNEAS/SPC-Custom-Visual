@@ -190,10 +190,13 @@ export function dataSet(host: IVisualHost, options: VisualUpdateOptions, levelOf
     const selectionID: ISelectionId = host.createSelectionIdBuilder()
       .withCategory(dates_input_column, i)
       .createSelectionId();
+    
+    const color = formatSettings.SPCSettings.markerOptions.commonCause.value.value
+    const markerSize = Number(formatSettings.SPCSettings.markerOptions.showCC.value)*3
 
     SPCChartDataPoints.push({
-      color: 'steelblue',
-      markerSize: 0,
+      color,
+      markerSize,
 
       value,
       category: category as string,
@@ -241,7 +244,7 @@ export function fullData(host: IVisualHost, options: VisualUpdateOptions, format
     target,
 
     strokeWidth: 2,
-    strokeColor: 'steelblue',
+    strokeColor: formatSettings.SPCSettings.lineOptions.dataColor.value.value,
     markerSize: 3,
 
     measureName,
