@@ -91,8 +91,9 @@ export function getDayDiff(startDate: Date, endDate: Date): number {
   );
 }
 
-export function parseDateLabel(label: string, levelOfDateHeirarchy: string, datelimits: Date[]) { //TODO if data is sparce and no infered as 0 then diff need to be data.length
+export function parseDateLabel(label: string, levelOfDateHeirarchy: string, datelimits: Date[], n_xTicks) { //TODO if data is sparce and no infered as 0 then diff need to be data.length
   const diff = getDayDiff(datelimits[0], datelimits[1])
+  //console.log(n_xTicks, diff)
 
   const formatter = d3.timeParse('%a %b %d %Y');
   const parsed = formatter(label);
@@ -105,9 +106,19 @@ export function parseDateLabel(label: string, levelOfDateHeirarchy: string, date
 
     } else if (diff > 365) {
       //else if you have less than that but more than 1 year then just so the first of the quarters
-      if ((parsed.getDate() == 1 && (parsed.getMonth() == 0 || parsed.getMonth() == 3 || parsed.getMonth() == 6 || parsed.getMonth() == 9)) || (levelOfDateHeirarchy == "Quarter")) {
-        return parsed.toLocaleDateString('default', { month: "short", year: "numeric" })
-      } else { return '' }
+      if (n_xTicks == 1) {
+        if ((parsed.getDate() == 1 && (parsed.getMonth() == 0 || parsed.getMonth() == 3 || parsed.getMonth() == 6 || parsed.getMonth() == 9)) || (levelOfDateHeirarchy == "Quarter")) {
+          return parsed.toLocaleDateString('default', { month: "short", year: "numeric" })
+        } else { return '' }
+      } else if (n_xTicks == 2){
+        if ((parsed.getDate() == 1 && (parsed.getMonth() == 0 || parsed.getMonth() == 6 )) || (levelOfDateHeirarchy == "Quarter")) {
+          return parsed.toLocaleDateString('default', { month: "short", year: "numeric" })
+        } else { return '' }
+      } else if (n_xTicks == 3){
+        if ((parsed.getDate() == 1 && (parsed.getMonth() == 0  )) || (levelOfDateHeirarchy == "Quarter")) {
+          return parsed.toLocaleDateString('default', { month: "short", year: "numeric" })
+        } else { return '' }
+      }
 
     } else if (diff > 2 * 30) {
       //else if you have less than that but more than 4 months then just so the first of the months

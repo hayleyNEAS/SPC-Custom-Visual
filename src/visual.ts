@@ -569,10 +569,28 @@ export class SPCChart implements IVisual {
     if (this.formattingSettings.dataLabels.show.value) {
       this.svg.selectAll('.datalabels')
         .data(this.dataPoints)
-        .enter().append("text")
+        .enter()
+        .append("text")
         .attr("class", "datalabels")
-        .attr("text-anchor", "middle")
-        .attr("x", function (d) { return xScale(d.category) })
+        .attr("text-anchor", ((self) => function(d,i) { 
+          if(i == 0){
+            return "start"
+          } else if(i = self.data.n -1){
+            return "end"
+          } else {
+            return "middle" 
+          }
+        })(this))
+        .attr("x", 
+          ((self) => function(d,i) { 
+          if(i == 0){
+            return xScale(d.category) +2.5
+          } else if(i = self.data.n -1){
+            return xScale(d.category) -2.5
+          } else {
+            return xScale(d.category) 
+          }
+        })(this))
         .attr("y", function (d) { return yScale(<number>d.value + 2.5) })
         .text(((self) => function (d, i) { 
           if(i < self.data.n-1){
@@ -588,7 +606,6 @@ export class SPCChart implements IVisual {
         .attr("font-size", 11)
         .attr("fill", ((self) => function () { return self.formattingSettings.dataLabels.fill.value.value })(this))
         ;
-
     }
   }
 
@@ -596,6 +613,7 @@ export class SPCChart implements IVisual {
     let xScale = scalePoint();
     let maxW_xAxis = 0;
     let total_label_coverage = 0;
+    let n_xTicks = 1;
 
     for (let i = 0; i < 2; i++) { //should only run twice to "fit" the chart to size
       let inner_chartMargin = SPCChart.Config.chartWidth.width - SPCChart.Config.chartWidth.end
@@ -609,7 +627,7 @@ export class SPCChart implements IVisual {
 
       const span = [0, -1].map(i => new Date(this.data.dataPoints.at(i).category));
       const xAxis = axisBottom(xScale)
-        .tickFormat(d => parseDateLabel(d, this.data.levelOfDateHeirarchy, span));
+        .tickFormat(d => parseDateLabel(d, this.data.levelOfDateHeirarchy, span, n_xTicks));
 
       const xAxisObject = this.xAxis
         .attr('transform', 'translate(0, ' + (SPCChart.Config.chartWidth.height + 2) + ')')
@@ -629,31 +647,25 @@ export class SPCChart implements IVisual {
 
       //XAxis label reducer  
       
+      total_label_coverage = 0;
       this.xAxis
         .selectAll("text")
         .each(((self) => function (this: SVGGraphicsElement, d, i) {
-          total_label_coverage += this.getBBox().width
+          total_label_coverage += parseDateLabel(<string>d, self.data.levelOfDateHeirarchy, span, n_xTicks) == '' ? 0 : this.getBBox().width
           if (this.getBBox().width > maxW_xAxis) maxW_xAxis = this.getBBox().width;
-          if (i == self.dataPoints.length - 1) inner_chartMargin = this.getBBox().width / 2.;
+          if (i == self.dataPoints.length - 1) {
+            inner_chartMargin = this.getBBox().width / 2. ;
+          }
         })(this));
       if (inner_chartMargin == 0) { inner_chartMargin = 0.02 * SPCChart.Config.chartWidth.width }//if there is no final tick label then we need the margin to be 2% of the chart width
       if (SPCChart.Config.chartWidth.end + inner_chartMargin > SPCChart.Config.chartWidth.width) {
         SPCChart.Config.chartWidth.end -= inner_chartMargin
         SPCChart.Config.chartWidth.start += inner_chartMargin
       } else { break }//catch run away loops
-    }
+    
 
-    if (this.data.n > 1) {
-      const n_xTicks = Math.ceil(total_label_coverage * 1.2 / (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start))
-      if (false){//(total_label_coverage / (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) > 1) {
-        this.xAxis
-          .selectAll(`.tick`)
-          .attr('display', 'none')
-        this.xAxis
-          .selectAll(`.tick:nth-child(${n_xTicks}n + ${Math.floor(n_xTicks / 2)})`)
-          .attr('display', 'block')
-      }
-
+    n_xTicks = Math.ceil(total_label_coverage/SPCChart.Config.chartWidth.width)
+    console.log(total_label_coverage, SPCChart.Config.chartWidth.width, Math.ceil(total_label_coverage/SPCChart.Config.chartWidth.width), n_xTicks)
     }
 
     return xScale
