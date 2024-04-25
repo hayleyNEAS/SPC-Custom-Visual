@@ -695,7 +695,7 @@ export class SPCChart implements IVisual {
 
     //Set up the Y Axis
     const yScale = scaleLinear()
-      .domain(yAxisDomain(data))
+      .domain(yAxisDomain(data, this.formattingSettings))
       .range([SPCChart.Config.chartWidth.height, 5]);
 
     let yAxis = axisLeft(yScale)

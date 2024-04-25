@@ -5,10 +5,11 @@ import Fill = powerbi.Fill;
 
 import { getValue } from "./objectEnumerationUtility";
 import { SPCChartData } from "./dataStructure"
+import { VisualSettingsModel } from "./visualSettingsModel";
 
 
 
-export function yAxisDomain(data: SPCChartData) {
+export function yAxisDomain(data: SPCChartData, formating: VisualSettingsModel) {
   const dataPoints = data.dataPoints.filter(d => d.value !== null)
   const yData = dataPoints.map(d => <number>d.value)
   const UCLData = dataPoints.map(d => <number>d.UCLValue)
@@ -25,7 +26,8 @@ export function yAxisDomain(data: SPCChartData) {
   if (data.target > -Infinity) {
     yScale_minData = Math.min(minData, minLCL, data.target)
   }
-
+  console.log(formating.enableYAxis.formatter.min0.value)
+  if (formating.enableYAxis.formatter.min0.value) yScale_minData = 0
 
   const yScale_increase_window = yScale_maxData * 1.1 - yScale_maxData
   return [yScale_minData - yScale_increase_window, yScale_maxData + yScale_increase_window]

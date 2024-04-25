@@ -265,6 +265,11 @@
                     "type": {
                         "bool": true
                     }
+                },
+                "min0": {
+                    "type": {
+                        "bool": true
+                    }
                 }
             }
         },

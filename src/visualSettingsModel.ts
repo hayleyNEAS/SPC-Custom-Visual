@@ -257,9 +257,16 @@ class YAxisFormatter extends SimpleCard {
     value: false
   });
 
+  // Option for minimum y value
+  min0 = new formattingSettings.ToggleSwitch({
+    name: "min0",
+    displayName: "Force Minimum Value to 0",
+    value: false
+  });
+
   name: string = "YAxisFormatter";
   displayName: string = "Y-Axis Formatter";
-  slices: Array<FormattingSettingsSlice> = [this.fill, this.time, this.percentage];
+  slices: Array<FormattingSettingsSlice> = [this.fill, this.time, this.percentage, this.min0];
 }
 
 class EnableYAxisCardSettings extends CompCard {
