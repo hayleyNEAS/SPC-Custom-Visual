@@ -616,9 +616,10 @@ export class SPCChart implements IVisual {
 
     for (let i = 0; i < 2; i++) { //should only run twice to "fit" the chart to size
       let inner_chartMargin = SPCChart.Config.chartWidth.width - SPCChart.Config.chartWidth.end
+      let inner_chartWidth = SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start
       SPCChart.Config.bandwidth = this.data.n == 1
-        ? (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start)
-        : (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) / (this.data.n - 1); //each datapoint takes up one "bandwidth" of the chart area
+        ? (inner_chartWidth)
+        : (inner_chartWidth) / (this.data.n - 1); //each datapoint takes up one "bandwidth" of the chart area
 
       xScale = scalePoint()
         .domain(this.data.dataPoints.map(d => d.category))
@@ -663,7 +664,8 @@ export class SPCChart implements IVisual {
       } else { break }//catch run away loops
 
 
-      n_xTicks = Math.ceil(total_label_coverage / SPCChart.Config.chartWidth.width)
+      inner_chartWidth = SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start
+      n_xTicks = Math.ceil(total_label_coverage / inner_chartWidth)
     }
 
     return xScale
