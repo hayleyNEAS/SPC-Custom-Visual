@@ -17,6 +17,7 @@ import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import ISelectionManager = powerbi.extensibility.ISelectionManager;
 import ISelectionId = powerbi.visuals.ISelectionId;
+import IVisualEventService = powerbi.extensibility.IVisualEventService;
 
 import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
 import { createTooltipServiceWrapper, ITooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
@@ -41,6 +42,7 @@ export class SPCChart implements IVisual {
   private tooltipServiceWrapper: ITooltipServiceWrapper;  //ToolTips
   private selectionManager: ISelectionManager;            //Right click menu
   private locale: string;                                 //Locale of user
+  private events: IVisualEventService;                    //VisualEvents
 
   //The logos
   private logo: Selection<any>;
@@ -102,6 +104,8 @@ export class SPCChart implements IVisual {
   //This initialises the chart - only ran once
   //Basically a load of empty objects waiting to be filled
   constructor(options: VisualConstructorOptions) {
+    this.events = options.host.eventService;
+
     this.host = options.host;
     const localizationManager = this.host.createLocalizationManager();
     this.formattingSettingsService = new FormattingSettingsService(localizationManager);
@@ -317,7 +321,7 @@ export class SPCChart implements IVisual {
     } if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 0) {
       logoX = (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) / 2 + SPCChart.Config.chartWidth.start - this.formattingSettings.SPCSettings.logoOptions.size.value
     } if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 1) {
-      logoX = SPCChart.Config.chartWidth.end - this.formattingSettings.SPCSettings.logoOptions.size.value*2
+      logoX = SPCChart.Config.chartWidth.end - this.formattingSettings.SPCSettings.logoOptions.size.value * 2
     }
 
     const logo = logoSelector(this.data, "variation")
@@ -567,24 +571,29 @@ export class SPCChart implements IVisual {
         .data(this.dataPoints).enter()
         .append("text")
         .attr("class", "datalabels")
-        .attr("text-anchor", ((self) => function(d,i) { 
-          if(i == 0){return "start"
-          } else if(i == self.data.n -1){return "end"
-          } else {return "middle" 
-          }})(this))
-        .attr("x", 
-          ((self) => function(d,i) { 
-          if(i == 0){
-            return xScale(d.category) +2.5
-          } else if(i == self.data.n -1){
-            return xScale(d.category) -2.5
+        .attr("text-anchor", ((self) => function (d, i) {
+          if (i == 0) {
+            return "start"
+          } else if (i == self.data.n - 1) {
+            return "end"
           } else {
-            return xScale(d.category) 
-          }})(this))
+            return "middle"
+          }
+        })(this))
+        .attr("x",
+          ((self) => function (d, i) {
+            if (i == 0) {
+              return xScale(d.category) + 2.5
+            } else if (i == self.data.n - 1) {
+              return xScale(d.category) - 2.5
+            } else {
+              return xScale(d.category)
+            }
+          })(this))
         .attr("y", function (d) { return yScale(<number>d.value + 2.5) })
-        .text(((self) => function (d, i) { 
-          if(i < self.data.n-1){
-            if(self.formattingSettings.dataLabels.last.value){
+        .text(((self) => function (d, i) {
+          if (i < self.data.n - 1) {
+            if (self.formattingSettings.dataLabels.last.value) {
               return ''
             } else {
               return parseYLabels(<number>d.value, self.formattingSettings.enableYAxis.formatter.time.value, self.data.decimalPlaces, self.data.measureFormat)
@@ -623,7 +632,7 @@ export class SPCChart implements IVisual {
         .attr('transform', 'translate(0, ' + (SPCChart.Config.chartWidth.height + 2) + ')')
         .style("font-size", 11)
         .call(xAxis)
-        .transition().duration(500)
+        //.transition().duration(500)
         .attr("color", getFillColor(
           options,
           'enableAxis',
@@ -636,7 +645,7 @@ export class SPCChart implements IVisual {
         .attr('opacity', 0);
 
       //XAxis label reducer  
-      
+
       total_label_coverage = 0;
       this.xAxis
         .selectAll("text")
@@ -644,7 +653,7 @@ export class SPCChart implements IVisual {
           total_label_coverage += parseDateLabel(<string>d, self.data.levelOfDateHeirarchy, span, n_xTicks) == '' ? 0 : this.getBBox().width
           if (this.getBBox().width > maxW_xAxis) maxW_xAxis = this.getBBox().width;
           if (i == self.dataPoints.length - 1) {
-            inner_chartMargin = this.getBBox().width / 2. ;
+            inner_chartMargin = this.getBBox().width / 2.;
           }
         })(this));
       if (inner_chartMargin == 0) { inner_chartMargin = 0.02 * SPCChart.Config.chartWidth.width }//if there is no final tick label then we need the margin to be 2% of the chart width
@@ -652,9 +661,9 @@ export class SPCChart implements IVisual {
         SPCChart.Config.chartWidth.end -= inner_chartMargin
         SPCChart.Config.chartWidth.start += inner_chartMargin
       } else { break }//catch run away loops
-    
 
-    n_xTicks = Math.ceil(total_label_coverage/SPCChart.Config.chartWidth.width)
+
+      n_xTicks = Math.ceil(total_label_coverage / SPCChart.Config.chartWidth.width)
     }
 
     return xScale
@@ -663,6 +672,8 @@ export class SPCChart implements IVisual {
   //////////////////////////////////////////////////////////////////////////////////////////////
   //This updates the chart - ran each time anything changes in the visual (ie filters, mouse moves, drilling up/down)
   public update(options: VisualUpdateOptions) {
+    this.events.renderingStarted(options);
+
     //Set up the charting object 
     this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualSettingsModel, options.dataViews[0]);
 
@@ -701,7 +712,7 @@ export class SPCChart implements IVisual {
 
     const yAxisObject = this.yAxis
       .call(yAxis)
-      .transition().duration(500)
+      //.transition().duration(500)
       .attr("color", getYAxisTextFillColor(
         options,
         this.host.colorPalette,
@@ -753,6 +764,8 @@ export class SPCChart implements IVisual {
         this.svg.selectAll('rect.markers'),
         (d: SPCChartDataPoint) => getTooltipData(d, data, this.formattingSettings)
       );
+
+    this.events.renderingFinished(options);
   }
 }
 
