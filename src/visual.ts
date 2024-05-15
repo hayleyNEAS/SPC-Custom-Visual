@@ -646,7 +646,6 @@ export class SPCChart implements IVisual {
         .attr('opacity', 0);
 
       //XAxis label reducer  
-
       total_label_coverage = 0;
       this.xAxis
         .selectAll("text")

@@ -90,45 +90,91 @@ export function getDayDiff(startDate: Date, endDate: Date): number {
     Math.abs(Number(endDate) - Number(startDate)) / msInDay
   );
 }
+export function fact(x: number) {
+  if (x == 0) {
+    return 1;
+  }
+  if (x < 0) {
+    return undefined;
+  }
+  for (var i = x; --i;) {
+    x *= i;
+  }
+  return x;
+}
+
+export function dayOfYear(date: Date) {
+  return (Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) - Date.UTC(date.getFullYear(), 0, 0)) / 24 / 60 / 60 / 1000;
+}
+
+export function weekOfYear(date: Date) {
+  return dayOfYear(date) / 7;
+}
+
+export function getQuarter(date: Date) {
+  return Math.ceil((date.getMonth() + 1) / 3);
+}
 
 export function parseDateLabel(label: string, levelOfDateHeirarchy: string, datelimits: Date[], n_xTicks) { //TODO if data is sparce and no infered as 0 then diff need to be data.length
   const diff = getDayDiff(datelimits[0], datelimits[1])
-  //console.log(n_xTicks, diff)
 
   const formatter = d3.timeParse('%a %b %d %Y');
   const parsed = formatter(label);
+
+
   if (parsed) {
     if (diff >= 365 * 3) {
       //if you have more than 3 years worth of data then just show the 1st jan
       if ((parsed.getMonth() == 0 && parsed.getDate() == 1) || levelOfDateHeirarchy == "Year") {
-        return parsed.getFullYear().toString()
+        if (parsed.getFullYear() % n_xTicks == 0) {
+          return parsed.getFullYear().toString()
+        } else { return '' }
       } else { return '' }
 
     } else if (diff > 365) {
-      //else if you have less than that but more than 1 year then just so the first of the quarters
-      if (n_xTicks == 1) {
-        if ((parsed.getDate() == 1 && (parsed.getMonth() == 0 || parsed.getMonth() == 3 || parsed.getMonth() == 6 || parsed.getMonth() == 9)) || (levelOfDateHeirarchy == "Quarter")) {
+      //else if you have less than that but more than 1 year then just so the first of the quarters (if quarter overlap take jan/jul or just jan)
+      if (levelOfDateHeirarchy == "Year") {
+        if (parsed.getFullYear() % n_xTicks == 0) { return parsed.toLocaleDateString('default', { month: "short", year: "numeric" }) }
+        else { return '' }
+      } else if (levelOfDateHeirarchy == "Quarter") {
+        if (getQuarter(parsed) % n_xTicks == 0) { return parsed.toLocaleDateString('default', { month: "short", year: "numeric" }) }
+        else { return '' }
+      } else if ((parsed.getDate() == 1 && (parsed.getMonth() % (3 * fact(n_xTicks)) == 0))) {
+        if ((n_xTicks > 3)) {
+          if (parsed.getDate() == 1 && (parsed.getFullYear() % (n_xTicks - 2)) == 0) {
+            return parsed.toLocaleDateString('default', { month: "short", year: "numeric" })
+          } else { return '' }
+        } else {
           return parsed.toLocaleDateString('default', { month: "short", year: "numeric" })
-        } else { return '' }
-      } else if (n_xTicks == 2){
-        if ((parsed.getDate() == 1 && (parsed.getMonth() == 0 || parsed.getMonth() == 6 )) || (levelOfDateHeirarchy == "Quarter")) {
-          return parsed.toLocaleDateString('default', { month: "short", year: "numeric" })
-        } else { return '' }
-      } else if (n_xTicks == 3){
-        if ((parsed.getDate() == 1 && (parsed.getMonth() == 0  )) || (levelOfDateHeirarchy == "Quarter")) {
-          return parsed.toLocaleDateString('default', { month: "short", year: "numeric" })
-        } else { return '' }
-      }
+        }
+      } else { return '' }
 
     } else if (diff > 2 * 30) {
-      //else if you have less than that but more than 4 months then just so the first of the months
-      if (parsed.getDate() == 1 || (levelOfDateHeirarchy == "Month" || levelOfDateHeirarchy == "Quarter" || levelOfDateHeirarchy == "Year")) {
+      //else if you have less than that but more than 12 months then just so the first of the months
+      if (levelOfDateHeirarchy == "Month") {
+        if (n_xTicks > 6) {
+          if (parsed.getMonth() % n_xTicks == 0 && parsed.getFullYear() % (n_xTicks - 5)) { return parsed.toLocaleDateString('default', { month: "short", year: "numeric" }) }
+          else { return '' }
+        } else {
+          if (parsed.getMonth() % n_xTicks == 0) { return parsed.toLocaleDateString('default', { month: "short", year: "numeric" }) }
+          else { return '' }
+        }
+
+      } else if (levelOfDateHeirarchy == "Quarter") {
+        if (getQuarter(parsed) % n_xTicks == 0) { return parsed.toLocaleDateString('default', { month: "short", year: "numeric" }) }
+        else { return '' }
+      } else if ((parsed.getDate() == 1 && parsed.getMonth() % n_xTicks == 0) || levelOfDateHeirarchy == "Year") {
         return parsed.toLocaleDateString('default', { month: "short", year: "numeric" })
       } else { return '' }
 
     } else if (diff > 30) {
       //else if you have less than that but more than 1 month //DEFAULT has every other week start  changes to this at 7 weeks 
-      if ((parsed.getDay() == 0) || (levelOfDateHeirarchy == "Month" || levelOfDateHeirarchy == "Quarter" || levelOfDateHeirarchy == "Year")) {
+      if ((parsed.getDay() == 0 && weekOfYear(parsed) % n_xTicks == 0) ||
+        (
+          (levelOfDateHeirarchy == "Month" && parsed.getMonth() % n_xTicks == 0) ||
+          levelOfDateHeirarchy == "Quarter" ||
+          levelOfDateHeirarchy == "Year"
+        )) {
         return parsed.toLocaleDateString('default', { day: "2-digit", month: "short" })
       } else { return '' }
 
@@ -141,11 +187,13 @@ export function parseDateLabel(label: string, levelOfDateHeirarchy: string, date
       } else if (levelOfDateHeirarchy == "Month") {
         return parsed.toLocaleDateString('default', { month: "short", year: "numeric" })
       } else if (levelOfDateHeirarchy == "Day") {
-        if (parsed.getDate() % 2 == 1) {
+        if (parsed.getDate() % n_xTicks == 0) {
           return parsed.toLocaleDateString('default', { day: "2-digit", month: "short" })
         } else { return '' }
       } else {
-        return parsed.toLocaleDateString('default', { day: "2-digit", month: "short" })
+        if (parsed.getDate() % n_xTicks == 0) {
+          return parsed.toLocaleDateString('default', { day: "2-digit", month: "short" })
+        } else { return '' }
       }
     }
   }
