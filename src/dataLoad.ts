@@ -150,7 +150,7 @@ export function dataLoad(options: VisualUpdateOptions): [DataViewCategoryColumn,
     breakPoint_parsed.splice(i, 1)
     tooltip_input.forEach((t) => t.values.splice(i, 1))
   }
-
+  
   return [dates_input_parsed, value_input_parsed, target_input, direction_input, breakPoint_parsed, tooltip_input]
 }
 
@@ -249,7 +249,7 @@ export function fullData(host: IVisualHost, options: VisualUpdateOptions, format
   const [data, target_input, direction_input] = dataSet(host, options, levelOfDateHeirarchy, formatSettings)
   const target = getTarget(target_input, formatSettings)
   const direction = getDirection(direction_input, formatSettings)
-
+  
   const numberOfTimePeriods = data
     .map((d) => <number>d.breakP)
     .reduce((a, b) => Math.max(a, b), 0)

@@ -390,7 +390,7 @@ export class SPCChart implements IVisual {
   }
 
   public controlLimitDisplayer(xScale: d3.ScalePoint<string>, yScale: d3.ScaleLinear<number, number, never>) {
-    if (this.formattingSettings.SPCSettings.lineOptions.showControl.value) {
+    if (this.formattingSettings.SPCSettings.lineOptions.showControl.value && SPCChart.Config.chartWidth.height > 0) {
       this.lineUCL
         .datum(this.dataPoints)
         .attr("class", "ControlLimit")
@@ -613,60 +613,61 @@ export class SPCChart implements IVisual {
     let maxW_xAxis = 0;
     let total_label_coverage = 0;
     let n_xTicks = 1;
+    
+    if (this.data.n > 0) {
+      for (let i = 0; i < 2; i++) { //should only run twice to "fit" the chart to size
+        let inner_chartMargin = SPCChart.Config.chartWidth.width - SPCChart.Config.chartWidth.end
+        let inner_chartWidth = SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start
+        SPCChart.Config.bandwidth = this.data.n == 1
+          ? (inner_chartWidth)
+          : (inner_chartWidth) / (this.data.n - 1); //each datapoint takes up one "bandwidth" of the chart area
 
-    for (let i = 0; i < 2; i++) { //should only run twice to "fit" the chart to size
-      let inner_chartMargin = SPCChart.Config.chartWidth.width - SPCChart.Config.chartWidth.end
-      let inner_chartWidth = SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start
-      SPCChart.Config.bandwidth = this.data.n == 1
-        ? (inner_chartWidth)
-        : (inner_chartWidth) / (this.data.n - 1); //each datapoint takes up one "bandwidth" of the chart area
+        xScale = scalePoint()
+          .domain(this.data.dataPoints.map(d => d.category))
+          .range([SPCChart.Config.chartWidth.start, SPCChart.Config.chartWidth.end]);
 
-      xScale = scalePoint()
-        .domain(this.data.dataPoints.map(d => d.category))
-        .range([SPCChart.Config.chartWidth.start, SPCChart.Config.chartWidth.end]);
+        const span = [0, -1].map(i => new Date(this.data.dataPoints.at(i).category));
+        const xAxis = axisBottom(xScale)
+          .tickFormat(d => parseDateLabel(d, this.data.levelOfDateHeirarchy, span, n_xTicks));
 
-      const span = [0, -1].map(i => new Date(this.data.dataPoints.at(i).category));
-      const xAxis = axisBottom(xScale)
-        .tickFormat(d => parseDateLabel(d, this.data.levelOfDateHeirarchy, span, n_xTicks));
+        const xAxisObject = this.xAxis
+          .attr('transform', 'translate(0, ' + (SPCChart.Config.chartWidth.height + 2) + ')')
+          .style("font-size", 11)
+          .call(xAxis)
+          //.transition().duration(500)
+          .attr("color", getFillColor(
+            options,
+            'enableAxis',
+            'fill',
+            this.host.colorPalette,
+            this.formattingSettings.enableAxis.formatter.fill.value.value
+          ));
 
-      const xAxisObject = this.xAxis
-        .attr('transform', 'translate(0, ' + (SPCChart.Config.chartWidth.height + 2) + ')')
-        .style("font-size", 11)
-        .call(xAxis)
-        //.transition().duration(500)
-        .attr("color", getFillColor(
-          options,
-          'enableAxis',
-          'fill',
-          this.host.colorPalette,
-          this.formattingSettings.enableAxis.formatter.fill.value.value
-        ));
+        xAxisObject.selectAll('.xAxis path, line')
+          .attr('opacity', 0);
 
-      xAxisObject.selectAll('.xAxis path, line')
-        .attr('opacity', 0);
-
-      //XAxis label reducer  
-      total_label_coverage = 0;
-      this.xAxis
-        .selectAll("text")
-        .each(((self) => function (this: SVGGraphicsElement, d, i) {
-          total_label_coverage += parseDateLabel(<string>d, self.data.levelOfDateHeirarchy, span, n_xTicks) == '' ? 0 : this.getBBox().width
-          if (this.getBBox().width > maxW_xAxis) maxW_xAxis = this.getBBox().width;
-          if (i == self.dataPoints.length - 1) {
-            inner_chartMargin = this.getBBox().width / 2.;
-          }
-        })(this));
-      if (inner_chartMargin == 0) { inner_chartMargin = 0.02 * SPCChart.Config.chartWidth.width }//if there is no final tick label then we need the margin to be 2% of the chart width
-      if (SPCChart.Config.chartWidth.end + inner_chartMargin > SPCChart.Config.chartWidth.width) {
-        SPCChart.Config.chartWidth.end -= inner_chartMargin
-        SPCChart.Config.chartWidth.start += inner_chartMargin
-      } else { break }//catch run away loops
+        //XAxis label reducer  
+        total_label_coverage = 0;
+        this.xAxis
+          .selectAll("text")
+          .each(((self) => function (this: SVGGraphicsElement, d, i) {
+            total_label_coverage += parseDateLabel(<string>d, self.data.levelOfDateHeirarchy, span, n_xTicks) == '' ? 0 : this.getBBox().width
+            if (this.getBBox().width > maxW_xAxis) maxW_xAxis = this.getBBox().width;
+            if (i == self.dataPoints.length - 1) {
+              inner_chartMargin = this.getBBox().width / 2.;
+            }
+          })(this));
+        if (inner_chartMargin == 0) { inner_chartMargin = 0.02 * SPCChart.Config.chartWidth.width }//if there is no final tick label then we need the margin to be 2% of the chart width
+        if (SPCChart.Config.chartWidth.end + inner_chartMargin > SPCChart.Config.chartWidth.width) {
+          SPCChart.Config.chartWidth.end -= inner_chartMargin
+          SPCChart.Config.chartWidth.start += inner_chartMargin
+        } else { break }//catch run away loops
 
 
-      inner_chartWidth = SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start
-      n_xTicks = Math.ceil(total_label_coverage / inner_chartWidth)
+        inner_chartWidth = SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start
+        n_xTicks = Math.ceil(total_label_coverage / inner_chartWidth)
+      }
     }
-
     return xScale
   }
 
@@ -682,7 +683,11 @@ export class SPCChart implements IVisual {
     const data = this.data
     this.dataPoints = data.dataPoints.filter(d => d.value !== null);
 
-    if (this.dataPoints.length > 0) { //Define the chart size
+    const dataExists = !isNaN(this.dataPoints.map(d => <number>d.value).reduce((a, b) => a+b,0))
+    if(!dataExists){ //if you removed the measure then yeet the chart
+      SPCChart.Config.chartWidth.height = 0;
+      SPCChart.Config.chartWidth.width = 0;
+    } else if (this.dataPoints.length > 0 ) { //Define the chart size
       SPCChart.Config.chartWidth.height = options.viewport.height;
       SPCChart.Config.chartWidth.width = options.viewport.width;
     }

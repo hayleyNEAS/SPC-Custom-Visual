@@ -15,12 +15,12 @@ export function yAxisDomain(data: SPCChartData, formating: VisualSettingsModel) 
   const UCLData = dataPoints.map(d => <number>d.UCLValue)
   const LCLData = dataPoints.map(d => <number>d.LCLValue)
 
-  const maxData = yData.reduce((a, b) => Math.max(a, b), -Infinity)
-  const maxUCL = data.n > 1 ? UCLData.reduce((a, b) => Math.max(a, b), -Infinity) : -Infinity
-  const yScale_maxData = Math.max(maxData, maxUCL, data.target)
+  const maxData = isNaN(yData.reduce((a, b) => a+b,0)) ? -Infinity : yData.reduce((a, b) => Math.max(a, b), -Infinity) 
+  const maxUCL = isNaN(yData.reduce((a, b) => a+b,0)) ? - Infinity : (data.n > 1 ? UCLData.reduce((a, b) => Math.max(a, b), -Infinity) : -Infinity)
+  let  yScale_maxData = Math.max(maxData, maxUCL, data.target)
 
-  const minData = yData.reduce((a, b) => Math.min(a, b), Infinity)
-  const minLCL = data.n > 1 ? LCLData.reduce((a, b) => Math.min(a, b), Infinity) : Infinity
+  const minData = isNaN(yData.reduce((a, b) => a+b,0)) ? Infinity : yData.reduce((a, b) => Math.min(a, b), Infinity)
+  const minLCL = isNaN(yData.reduce((a, b) => a+b,0)) ? Infinity : (data.n > 1 ? LCLData.reduce((a, b) => Math.min(a, b), Infinity) : Infinity)
 
   let yScale_minData = Math.min(minData, minLCL) //If a target is removed it get assigned the value -inf, so initially we calculate the min of a data without it 
   if (data.target > -Infinity) {
