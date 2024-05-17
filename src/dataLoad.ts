@@ -51,9 +51,26 @@ export function getTarget(target_input: any[], formatSettings: VisualSettingsMod
   return target
 }
 
-export function dataLoad(options: VisualUpdateOptions): [DataViewCategoryColumn, any[], any[], any[], additionalKeyValue[]] {
+export function getDirection(direction_input: any[], formatSettings: VisualSettingsModel): number {
+  let direction_parsed: number 
+  if(direction_input[0] == '-1' || direction_input[0] == '0' || direction_input[0] == '1' ){
+    direction_parsed = Number(direction_input[0])
+  } else if (direction_input[0] == 'Up' || direction_input[0] == 'up') {
+    direction_parsed = 1
+  } else if (direction_input[0] == 'Down' || direction_input[0] == 'down') {
+    direction_parsed = -1
+  } else {
+    direction_parsed = 0
+  }
+
+  direction_parsed = direction_input[0] ? direction_parsed : <number>formatSettings.SPCSettings.spcSetUp.direction.value.value //if direction is supplied as a measure then use that else use it from settings
+
+  return direction_parsed
+}
+export function dataLoad(options: VisualUpdateOptions): [DataViewCategoryColumn, any[], any[], any[], any[], additionalKeyValue[]] {
   let value_input: PrimitiveValue[] = [];
   let target_input = [];
+  let direction_input = [];
   const breakPoint_input: additionalKeyValue[] = [];
   const tooltip_input: additionalKeyValue[] = [];
 
@@ -65,7 +82,7 @@ export function dataLoad(options: VisualUpdateOptions): [DataViewCategoryColumn,
     || !dataViews[0].categorical.categories[0].source
     || !dataViews[0].categorical.values
   ) {
-    return [undefined, [], [], [], []];
+    return [undefined, [], [], [], [], []];
   }
 
   for (let i = 0, len = options.dataViews[0].categorical.values.length; i < len; i++) {
@@ -73,6 +90,8 @@ export function dataLoad(options: VisualUpdateOptions): [DataViewCategoryColumn,
       value_input = options.dataViews[0].categorical.values[i].values
     } else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'target_measure') {
       target_input = options.dataViews[0].categorical.values[i].values
+    } else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'direction_measure') {
+      direction_input = options.dataViews[0].categorical.values[i].values
     } else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'break_points') {
       breakPoint_input.push({
         name: options.dataViews[0].categorical.values[i].source.displayName,
@@ -107,7 +126,7 @@ export function dataLoad(options: VisualUpdateOptions): [DataViewCategoryColumn,
       })
     }
   }
-
+  //break points
   let breakPoint_parsed = []
   const n = value_input.length
   breakPoint_parsed = new Array(n); for (let i = 0; i < n; ++i) breakPoint_parsed[i] = 0;
@@ -116,13 +135,13 @@ export function dataLoad(options: VisualUpdateOptions): [DataViewCategoryColumn,
     breakPoint_parsed = breakPoint_parsed.map((d, i) => d + breakPoint_input[j].values[i])
 
   }
+  //dates
   const dates_input = dataViews[0].categorical.categories[0];
   const dates_input_parsed = dates_input;
   dates_input_parsed.values = dates_input.values.map(d => parseDates(<string>d))
 
-
   const indx = value_input.map((e, i) => typeof e != "number" ? i : "").filter(String) as number[]
-
+  //values
   const value_input_parsed = [...value_input]
   for (const i of indx.reverse()) {
     dates_input_parsed.values.splice(i, 1)
@@ -132,11 +151,11 @@ export function dataLoad(options: VisualUpdateOptions): [DataViewCategoryColumn,
     tooltip_input.forEach((t) => t.values.splice(i, 1))
   }
 
-  return [dates_input_parsed, value_input_parsed, target_input, breakPoint_parsed, tooltip_input]
+  return [dates_input_parsed, value_input_parsed, target_input, direction_input, breakPoint_parsed, tooltip_input]
 }
 
-export function dataSet(host: IVisualHost, options: VisualUpdateOptions, levelOfDateHeirarchy: string, formatSettings: VisualSettingsModel): [SPCChartDataPoint[], any[]] {
-  const [dates_input_column, value_input, target_input, breakPoint_input, tooltip_input] = dataLoad(options)
+export function dataSet(host: IVisualHost, options: VisualUpdateOptions, levelOfDateHeirarchy: string, formatSettings: VisualSettingsModel): [SPCChartDataPoint[], any[], any[]] {
+  const [dates_input_column, value_input, target_input, direction_input, breakPoint_input, tooltip_input] = dataLoad(options)
   const dates_input = dates_input_column.values
   const SPCChartDataPoints: SPCChartDataPoint[] = []
 
@@ -222,14 +241,14 @@ export function dataSet(host: IVisualHost, options: VisualUpdateOptions, levelOf
       selectionID
     });
   }
-  return [SPCChartDataPoints, target_input];
+  return [SPCChartDataPoints, target_input, direction_input];
 }
 
 export function fullData(host: IVisualHost, options: VisualUpdateOptions, formatSettings: VisualSettingsModel): SPCChartData {
-  //let [dates_input, value_input, target_input, breakPoint_input, tooltip_input] = dataLoad(options)
   const [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = PBIformatingKeeper(options)
-  const [data, target_input] = dataSet(host, options, levelOfDateHeirarchy, formatSettings)
+  const [data, target_input, direction_input] = dataSet(host, options, levelOfDateHeirarchy, formatSettings)
   const target = getTarget(target_input, formatSettings)
+  const direction = getDirection(direction_input, formatSettings)
 
   const numberOfTimePeriods = data
     .map((d) => <number>d.breakP)
@@ -240,7 +259,7 @@ export function fullData(host: IVisualHost, options: VisualUpdateOptions, format
 
     n: data.length,
     numberOfTimePeriods,
-    direction: <number>formatSettings.SPCSettings.spcSetUp.direction.value.value,
+    direction: direction,
     target,
 
     strokeWidth: 2,

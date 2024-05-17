@@ -25,7 +25,7 @@ const none = require("./../assets/no_image.png")
 
 export function identifyOutliers(dataset: SPCChartData, formatSettings: VisualSettingsModel) {
   const data = dataset.dataPoints
-  let [up_color, down_color] = directionColors(formatSettings)
+  let [up_color, down_color] = directionColors(dataset, formatSettings)
 
   const outlierColor = formatSettings.SPCSettings.markerOptions.outlier.value.value
   let outlierShow = Number(formatSettings.SPCSettings.markerOptions.showOutlier.value)
@@ -157,8 +157,8 @@ export function logoSelector(data: SPCChartData, option): any {
 
 }
 
-export function directionColors(formatSettings: VisualSettingsModel): [string, string] {
-  const direction = <number>formatSettings.SPCSettings.spcSetUp.direction.value.value
+export function directionColors(dataset: SPCChartData, formatSettings: VisualSettingsModel): [string, string] {
+  const direction = dataset.direction
   let up_color = ""
   let down_color = ""
   if (direction == 1) {
@@ -171,7 +171,6 @@ export function directionColors(formatSettings: VisualSettingsModel): [string, s
     up_color = formatSettings.SPCSettings.markerOptions.improvement.value.value
     down_color = formatSettings.SPCSettings.markerOptions.deterioration.value.value
   }
-  //return [direction, up_color, down_color]
   return [up_color, down_color]
 }
 
@@ -273,7 +272,7 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSet
     return dataset;
   } else {
     const data = dataset.dataPoints
-    const [up_color, down_color] = directionColors(formatSettings)
+    const [up_color, down_color] = directionColors(dataset, formatSettings)
 
     for (let i = 0; i < dataset.n; i++) {
       if (i > 3) { //two in three rules 

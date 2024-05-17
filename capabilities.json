@@ -1,10 +1,11 @@
 {
     "dataRoles": [
-        {"displayName": "Time Hierarchy",           "name": "category",         "kind": "Grouping"},
-        {"displayName": "Measure Data",             "name": "measure",          "kind": "Measure"},
-        {"displayName": "Target (optional)",        "name": "target_measure",   "kind": "Measure"},
-        {"displayName": "Break Points (optional)",  "name": "break_points",     "kind": "Measure"},
-        {"displayName": "Additional ToolTips",      "name": "tooltip_extra",    "kind": "Measure"}
+        {"displayName": "Time Hierarchy",                       "name": "category",         "kind": "Grouping"},
+        {"displayName": "Measure Data",                         "name": "measure",          "kind": "Measure"},
+        {"displayName": "Target (optional)",                    "name": "target_measure",   "kind": "Measure"},
+        {"displayName": "Direction of Improvement (optional)",  "name": "direction_measure","kind": "Measure"},
+        {"displayName": "Break Points (optional)",              "name": "break_points",     "kind": "Measure"},
+        {"displayName": "Additional ToolTips",                  "name": "tooltip_extra",    "kind": "Measure"}
     ],
     "dataViewMappings": [
         {
@@ -17,6 +18,9 @@
                         "max": 1
                     },
                     "target_measure": {
+                        "max": 1
+                    },
+                    "direction_measure": {
                         "max": 1
                     }
                 }
@@ -36,6 +40,7 @@
                     "select": [
                         {"bind": {"to": "measure"}},
                         {"bind": {"to": "target_measure"}},
+                        {"bind": {"to": "direction_measure"}},
                         {"bind": {"to": "break_points"}},
                         {"bind": {"to": "tooltip_extra"}}
                     ]
