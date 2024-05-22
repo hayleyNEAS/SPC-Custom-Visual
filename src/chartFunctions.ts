@@ -17,7 +17,7 @@ export function yAxisDomain(data: SPCChartData, formating: VisualSettingsModel) 
 
   const maxData = isNaN(yData.reduce((a, b) => a+b,0)) ? -Infinity : yData.reduce((a, b) => Math.max(a, b), -Infinity) 
   const maxUCL = isNaN(yData.reduce((a, b) => a+b,0)) ? - Infinity : (data.n > 1 ? UCLData.reduce((a, b) => Math.max(a, b), -Infinity) : -Infinity)
-  let  yScale_maxData = Math.max(maxData, maxUCL, data.target)
+  const  yScale_maxData = Math.max(maxData, maxUCL, data.target)
 
   const minData = isNaN(yData.reduce((a, b) => a+b,0)) ? Infinity : yData.reduce((a, b) => Math.min(a, b), Infinity)
   const minLCL = isNaN(yData.reduce((a, b) => a+b,0)) ? Infinity : (data.n > 1 ? LCLData.reduce((a, b) => Math.min(a, b), Infinity) : Infinity)

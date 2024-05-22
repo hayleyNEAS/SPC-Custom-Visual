@@ -97,7 +97,7 @@ export function fact(x: number) {
   if (x < 0) {
     return undefined;
   }
-  for (var i = x; --i;) {
+  for (let i = x; --i;) {
     x *= i;
   }
   return x;

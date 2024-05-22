@@ -507,7 +507,6 @@ export class SPCChart implements IVisual {
       )
 
     this.svg.selectAll('.markers').remove();
-
     const circlemarkers = this.dataMarkers
       .data(this.dataPoints).enter()
       .append("circle")
@@ -538,7 +537,6 @@ export class SPCChart implements IVisual {
       .attr("fill", function (d) { return d.color }); //invisable rectangles 
 
     this.syncSelectionState(invisibleBars, circlemarkers, <ISelectionId[]>this.selectionManager.getSelectionIds());
-
     this.tooltipMarkers
       .data(this.dataPoints).enter()
       .append("rect")
@@ -557,14 +555,12 @@ export class SPCChart implements IVisual {
           .select(datum.selectionID, isCtrlPressed)
           .then((ids: ISelectionId[]) => { this.syncSelectionState(invisibleBars, circlemarkers, ids); });
         (<Event>event).stopPropagation();
-      }
-    });
+    }});
 
     this.dataMarkers
       .exit()
       .remove();
     this.handleClick(invisibleBars, circlemarkers);
-
     this.svg.selectAll('.datalabels').remove();
     if (this.formattingSettings.dataLabels.show.value) {
       this.svg.selectAll('.datalabels')
@@ -572,23 +568,15 @@ export class SPCChart implements IVisual {
         .append("text")
         .attr("class", "datalabels")
         .attr("text-anchor", ((self) => function (d, i) {
-          if (i == 0) {
-            return "start"
-          } else if (i == self.data.n - 1) {
-            return "end"
-          } else {
-            return "middle"
-          }
+          if (i == 0) {return "start"
+          } else if (i == self.data.n - 1) {return "end"
+          } else {return "middle"}
         })(this))
         .attr("x",
           ((self) => function (d, i) {
-            if (i == 0) {
-              return xScale(d.category) + 2.5
-            } else if (i == self.data.n - 1) {
-              return xScale(d.category) - 2.5
-            } else {
-              return xScale(d.category)
-            }
+            if (i == 0) {return xScale(d.category) + 2.5
+            } else if (i == self.data.n - 1) {return xScale(d.category) - 2.5
+            } else {return xScale(d.category)}
           })(this))
         .attr("y", function (d) { return yScale(<number>d.value + 2.5) })
         .text(((self) => function (d, i) {
