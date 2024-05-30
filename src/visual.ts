@@ -355,7 +355,7 @@ export class SPCChart implements IVisual {
   public meanDisplayer(xScale: d3.ScalePoint<string>, yScale: d3.ScaleLinear<number, number, never>) {
     if (this.formattingSettings.SPCSettings.lineOptions.showMean.value) {
       this.lineMean
-        .datum(this.dataPoints)
+        .datum(this.dataPoints.filter(d => !isNaN(d.mean)))
         .attr("class", "mean")
         .attr("fill", "none")
         .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.meanColor.value.value)
@@ -392,7 +392,7 @@ export class SPCChart implements IVisual {
   public controlLimitDisplayer(xScale: d3.ScalePoint<string>, yScale: d3.ScaleLinear<number, number, never>) {
     if (this.formattingSettings.SPCSettings.lineOptions.showControl.value && SPCChart.Config.chartWidth.height > 0) {
       this.lineUCL
-        .datum(this.dataPoints)
+        .datum(this.dataPoints.filter(d => !isNaN(d.UCLValue)))
         .attr("class", "ControlLimit")
         .attr("fill", "none")
         .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value)
@@ -405,7 +405,7 @@ export class SPCChart implements IVisual {
         );
 
       this.lineLCL
-        .datum(this.dataPoints)
+        .datum(this.dataPoints.filter(d => !isNaN(d.LCLValue)))
         .attr("class", "ControlLimit")
         .attr("fill", "none")
         .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.lowerCL.value.value)
@@ -428,7 +428,7 @@ export class SPCChart implements IVisual {
   public controlSubLimitDisplayer(xScale: d3.ScalePoint<string>, yScale: d3.ScaleLinear<number, number, never>) {
     if (this.formattingSettings.SPCSettings.lineOptions.showSubControl.value) {
       this.lineUpperZoneA
-        .datum(this.dataPoints)
+        .datum(this.dataPoints.filter(d => !isNaN(d.Upper_Zone_A)))
         .style("stroke-dasharray", ("5,5"))
         .style("stroke-linecap", "round")
         .attr("class", "subControl")
@@ -441,7 +441,7 @@ export class SPCChart implements IVisual {
         );
 
       this.lineUpperZoneB
-        .datum(this.dataPoints)
+        .datum(this.dataPoints.filter(d => !isNaN(d.Upper_Zone_B)))
         .style("stroke-dasharray", ("5,5"))
         .style("stroke-linecap", "round")
         .attr("class", "subControl")
@@ -454,7 +454,7 @@ export class SPCChart implements IVisual {
         );
 
       this.lineLowerZoneA
-        .datum(this.dataPoints)
+        .datum(this.dataPoints.filter(d => !isNaN(d.Lower_Zone_A)))
         .style("stroke-dasharray", ("5,5"))
         .style("stroke-linecap", "round")
         .attr("class", "subControl")
@@ -467,7 +467,7 @@ export class SPCChart implements IVisual {
         );
 
       this.lineLowerZoneB
-        .datum(this.dataPoints)
+        .datum(this.dataPoints.filter(d => !isNaN(d.Lower_Zone_B)))
         .style("stroke-dasharray", ("5,5"))
         .style("stroke-linecap", "round")
         .attr("class", "subControl")
@@ -741,12 +741,14 @@ export class SPCChart implements IVisual {
     const xScale = this.fitX(options)
 
     //Create data line
-    this.dataDisplayer(xScale, yScale)
-    this.controlLimitDisplayer(xScale, yScale)      //Create limit lines 
-    this.meanDisplayer(xScale, yScale)              //Create mean line
-    this.targetDisplayer(yScale)                    //Create target line  
-    this.controlSubLimitDisplayer(xScale, yScale)   //Create Zone lines 
-    this.logoDisplayer()                            // Move logo 
+    if(dataExists){
+      this.dataDisplayer(xScale, yScale)
+      this.controlLimitDisplayer(xScale, yScale)      //Create limit lines 
+      this.meanDisplayer(xScale, yScale)              //Create mean line
+      this.targetDisplayer(yScale)                    //Create target line  
+      this.controlSubLimitDisplayer(xScale, yScale)   //Create Zone lines 
+      this.logoDisplayer()                            // Move logo
+    } 
 
     //ToolTips
     this.svg

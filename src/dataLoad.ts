@@ -156,6 +156,17 @@ export function dataLoad(options: VisualUpdateOptions): [DataViewCategoryColumn,
 
 export function dataSet(host: IVisualHost, options: VisualUpdateOptions, levelOfDateHeirarchy: string, formatSettings: VisualSettingsModel): [SPCChartDataPoint[], any[], any[]] {
   const [dates_input_column, value_input, target_input, direction_input, breakPoint_input, tooltip_input] = dataLoad(options)
+  const dataViews = options.dataViews;
+  if (!dataViews //checks data exists
+    || !dataViews[0]
+    || !dataViews[0].categorical
+    || !dataViews[0].categorical.categories
+    || !dataViews[0].categorical.categories[0].source
+    || !dataViews[0].categorical.values
+  ) {
+    return [[], target_input, direction_input];
+  }
+  
   const dates_input = dates_input_column.values
   const SPCChartDataPoints: SPCChartDataPoint[] = []
 
