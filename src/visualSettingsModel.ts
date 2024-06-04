@@ -52,7 +52,13 @@ class LogoOptions extends SimpleCard {
   size = new formattingSettings.NumUpDown({
     name: "size",
     displayName: "Size of Logo (px)",
-    value: 50
+    value: 50,
+    options: {
+        minValue: {
+        type: powerbi.visuals.ValidatorType.Min,
+        value: 0
+        }
+     }
   });
 
   name: string = "logoOptions";

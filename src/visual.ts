@@ -316,20 +316,21 @@ export class SPCChart implements IVisual {
   public logoDisplayer() {
 
     let logoX = SPCChart.Config.chartWidth.start
+    const size = this.formattingSettings.SPCSettings.logoOptions.size.value < 0 ? 0 : this.formattingSettings.SPCSettings.logoOptions.size.value
+
     if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == -1) {
       logoX = SPCChart.Config.chartWidth.start
     } if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 0) {
-      logoX = (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) / 2 + SPCChart.Config.chartWidth.start - this.formattingSettings.SPCSettings.logoOptions.size.value
+      logoX = (SPCChart.Config.chartWidth.end - SPCChart.Config.chartWidth.start) / 2 + SPCChart.Config.chartWidth.start - size
     } if (this.formattingSettings.SPCSettings.logoOptions.location.value.value == 1) {
-      logoX = SPCChart.Config.chartWidth.end - this.formattingSettings.SPCSettings.logoOptions.size.value * 2
+      logoX = SPCChart.Config.chartWidth.end - size * 2
     }
-
     const logo = logoSelector(this.data, "variation")
     if (this.formattingSettings.SPCSettings.logoOptions.show.value && this.data.n > 1) {
       this.logo
         .attr('href', logo)
-        .attr('width', this.formattingSettings.SPCSettings.logoOptions.size.value)
-        .attr('height', this.formattingSettings.SPCSettings.logoOptions.size.value)
+        .attr('width', size)
+        .attr('height', size)
         .attr('x', logoX)
         .attr('y', 0)
     } else {
@@ -341,9 +342,9 @@ export class SPCChart implements IVisual {
     if (this.formattingSettings.SPCSettings.logoOptions.show.value && this.data.target && this.data.n > 1) {
       this.logoTarget
         .attr('href', logoTarget)
-        .attr('width', this.formattingSettings.SPCSettings.logoOptions.size.value)
-        .attr('height', this.formattingSettings.SPCSettings.logoOptions.size.value)
-        .attr('x', logoX + this.formattingSettings.SPCSettings.logoOptions.size.value)
+        .attr('width', size)
+        .attr('height', size)
+        .attr('x', logoX + size)
         .attr('y', 0)
     } else {
       this.logoTarget
@@ -747,7 +748,7 @@ export class SPCChart implements IVisual {
       this.meanDisplayer(xScale, yScale)              //Create mean line
       this.targetDisplayer(yScale)                    //Create target line  
       this.controlSubLimitDisplayer(xScale, yScale)   //Create Zone lines 
-      this.logoDisplayer()                            // Move logo
+      this.logoDisplayer()                            //Move logo
     } 
 
     //ToolTips
