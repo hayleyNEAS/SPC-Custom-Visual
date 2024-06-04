@@ -682,8 +682,8 @@ export class SPCChart implements IVisual {
     }
 
     this.svg //Give the chart image a width and a height based on the size of the image in the report. If no data then the chart has no size
-      .attr("width", SPCChart.Config.chartWidth.width)
-      .attr("height", SPCChart.Config.chartWidth.height);
+      .attr("width", SPCChart.Config.chartWidth.width < 0 ? 0 : SPCChart.Config.chartWidth.width )
+      .attr("height", SPCChart.Config.chartWidth.height < 0 ? 0 :SPCChart.Config.chartWidth.height );
 
     SPCChart.Config.chartWidth.end = options.viewport.width;
     SPCChart.Config.chartWidth.height -= this.formattingSettings.enableAxis.show.value ? SPCChart.Config.margins.bottom : 0
