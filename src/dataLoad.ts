@@ -47,7 +47,8 @@ export function getTarget(target_input: any[], formatSettings: VisualSettingsMod
   } else {
     target = -Infinity
   }
-  target = target_input[0] ? target_input[0] : target //if target is supplied as a measure then use that else use it from settings
+  
+  target = typeof target_input[0] === "string" ? target : (target_input[0] ? target_input[0] : target) //if target is supplied as a measure then use that else use it from settings
   return target
 }
 
