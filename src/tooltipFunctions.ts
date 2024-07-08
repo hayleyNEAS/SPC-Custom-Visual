@@ -51,6 +51,23 @@ export function getTooltipData(d: SPCChartDataPoint, data: SPCChartData, formati
 
   }
 
+  
+  //add sub-limits to tooltip
+  if (formating.SPCSettings.lineOptions.showSubControl) {
+    tooltip_data.push({
+      displayName: "Upper Zone A Limit",
+      value: parseYLabels(<number>d.Upper_Zone_A, formating.enableYAxis.formatter.time.value, data.decimalPlaces, data.measureFormat),
+      color: 'Black'
+    });
+
+    tooltip_data.push({
+      displayName: "Lower Zone A Limit",
+      value: parseYLabels(<number>d.Lower_Zone_A, formating.enableYAxis.formatter.time.value, data.decimalPlaces, data.measureFormat),
+      color: 'Black'
+    });
+
+  }
+
   //add additional data to tooltip
   for (let j = 0, len = d.additionalTooltipData.length; j < len; j++) {
     const value = <NumberValue>d.additionalTooltipData[j].values[0];
