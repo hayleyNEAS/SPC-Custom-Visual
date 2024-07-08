@@ -376,17 +376,19 @@ export class SPCChart implements IVisual {
   public targetDisplayer(yScale: d3.ScaleLinear<number, number, never>) {
     if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
       const targetValue = isNaN(yScale(this.data.target)) ? 0 : yScale(this.data.target);
-      this.lineTarget
-        .style("stroke-linecap", "round")
-        .attr("class", "target")
-        .attr("stroke-width", 1.5)
-        .attr("x1", SPCChart.Config.chartWidth.start)
-        .attr("x2", SPCChart.Config.chartWidth.end)
-        .attr("y1", targetValue)
-        .attr("y2", targetValue)
-        .attr("fill", "none")
-        .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.targetColor.value.value)
-        .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' && this.data.target == -Infinity ? 0 : 2)
+      if (this.formattingSettings.enableYAxis.formatter.min0 && this.data.target < 0) { } else {
+        this.lineTarget
+          .style("stroke-linecap", "round")
+          .attr("class", "target")
+          .attr("stroke-width", 1.5)
+          .attr("x1", SPCChart.Config.chartWidth.start)
+          .attr("x2", SPCChart.Config.chartWidth.end)
+          .attr("y1", targetValue)
+          .attr("y2", targetValue)
+          .attr("fill", "none")
+          .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.targetColor.value.value)
+          .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' && this.data.target == -Infinity ? 0 : 2)
+      }
     }
   }
 
