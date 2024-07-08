@@ -28,13 +28,23 @@ export function yAxisDomain(data: SPCChartData, formating: VisualSettingsModel) 
   if (data.target > -Infinity) {
     yScale_minData = Math.min(minData, minLCL, data.target)
   }
-  
+  let return_min = yScale_minData-yScale_increase_window
+  let return_max = yScale_maxData+yScale_increase_window
+
   if (formating.enableYAxis.formatter.min0.value) {
     yScale_minData = 0
-    return [yScale_minData, yScale_maxData + yScale_increase_window]
+    return_min = yScale_minData
   } else {
-    return [yScale_minData - yScale_increase_window, yScale_maxData + yScale_increase_window]
+    if(formating.enableYAxis.limits.minY.value != ''){
+      return_min = Number(formating.enableYAxis.limits.minY.value)
+    }
+    
+    if(formating.enableYAxis.limits.maxY.value != ''){
+      return_max = Number(formating.enableYAxis.limits.maxY.value)
+    }
   }
+  console.log(return_min, return_max)
+  return [return_min, return_max]
 
 }
 

@@ -270,9 +270,41 @@ class YAxisFormatter extends SimpleCard {
     value: false
   });
 
+  minY = new formattingSettings.TextInput({
+    name: "minY",
+    displayName: "Minimum",
+    value: "",
+    placeholder: "Auto"
+  });
+  maxY = new formattingSettings.TextInput({
+    name: "maxY",
+    displayName: "Maximum",
+    value: "",
+    placeholder: "Auto"
+  });
+
   name: string = "YAxisFormatter";
   displayName: string = "Y-Axis Formatter";
   slices: Array<FormattingSettingsSlice> = [this.fill, this.time, this.percentage, this.min0];
+}
+class YAxisLimits extends SimpleCard {
+
+  minY = new formattingSettings.TextInput({
+    name: "minY",
+    displayName: "Minimum",
+    value: "",
+    placeholder: "Auto"
+  });
+  maxY = new formattingSettings.TextInput({
+    name: "maxY",
+    displayName: "Maximum",
+    value: "",
+    placeholder: "Auto"
+  });
+
+  name: string = "YAxisLimits";
+  displayName: string = "Y-Axis Limits";
+  slices: Array<FormattingSettingsSlice> = [this.minY, this.maxY];
 }
 
 class EnableYAxisCardSettings extends CompCard {
@@ -285,10 +317,11 @@ class EnableYAxisCardSettings extends CompCard {
   });
   topLevelSlice = this.show;
   formatter = new YAxisFormatter()
+  limits = new YAxisLimits()
 
   name: string = "enableYAxis";
   displayName: string = "Y-axis";
-  groups = [this.formatter];
+  groups = [this.formatter, this.limits];
 }
 
 /**

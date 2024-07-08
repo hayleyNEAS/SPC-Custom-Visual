@@ -275,6 +275,18 @@
                     "type": {
                         "bool": true
                     }
+                },
+                
+                "minY":{
+                    "type": {
+                        "text": true
+                    }
+                },
+                
+                "maxY":{
+                    "type": {
+                        "text": true
+                    }
                 }
             }
         },
