@@ -6,7 +6,7 @@ import Fill = powerbi.Fill;
 import { getValue } from "./objectEnumerationUtility";
 import { SPCChartData } from "./dataStructure"
 import { VisualSettingsModel } from "./visualSettingsModel";
-
+import * as d3 from "d3";
 
 
 export function yAxisDomain(data: SPCChartData, formating: VisualSettingsModel) {
@@ -16,13 +16,13 @@ export function yAxisDomain(data: SPCChartData, formating: VisualSettingsModel) 
   const LCLData = dataPoints.map(d => <number>d.LCLValue)
 
   const maxData = isNaN(yData.reduce((a, b) => a+b,0)) ? -Infinity : yData.reduce((a, b) => Math.max(a, b), -Infinity) 
-  const maxUCL = isNaN(yData.reduce((a, b) => a+b,0)) ? - Infinity : (data.n > 1 ? UCLData.reduce((a, b) => Math.max(a, b), -Infinity) : -Infinity)
+  const maxUCL = isNaN(yData.reduce((a, b) => a+b,0)) ? - Infinity : (data.n > 1 ? (UCLData.filter(d=>d)).reduce((a, b) => Math.min(a, b), Infinity) : -Infinity)
   const  yScale_maxData = Math.max(maxData, maxUCL, data.target)
 
   const minData = isNaN(yData.reduce((a, b) => a+b,0)) ? Infinity : yData.reduce((a, b) => Math.min(a, b), Infinity)
-  const minLCL = isNaN(yData.reduce((a, b) => a+b,0)) ? Infinity : (data.n > 1 ? LCLData.reduce((a, b) => Math.min(a, b), Infinity) : Infinity)
+  const minLCL = isNaN(yData.reduce((a, b) => a+b,0)) ? Infinity : (data.n > 1 ? (LCLData.filter(d=>d)).reduce((a, b) => Math.min(a, b), Infinity) : Infinity)
 
-  const yScale_increase_window = yScale_maxData * 1.1 - yScale_maxData
+  let yScale_increase_window = yScale_maxData * 1.1 - yScale_maxData
 
   let yScale_minData = Math.min(minData, minLCL) //If a target is removed it get assigned the value -inf, so initially we calculate the min of a data without it 
   if (data.target > -Infinity) {
@@ -31,6 +31,11 @@ export function yAxisDomain(data: SPCChartData, formating: VisualSettingsModel) 
   let return_min = yScale_minData-yScale_increase_window
   let return_max = yScale_maxData+yScale_increase_window
 
+  if(formating.enableYAxis.formatter.percentage.value || maxData < 1){
+    yScale_increase_window = yScale_maxData * 1.01 - yScale_maxData
+    return_min = yScale_minData - yScale_increase_window
+    return_max = yScale_maxData + yScale_increase_window
+  }
   if (formating.enableYAxis.formatter.min0.value) {
     yScale_minData = 0
     return_min = yScale_minData
