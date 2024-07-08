@@ -40,12 +40,13 @@ export function yAxisDomain(data: SPCChartData, formating: VisualSettingsModel) 
     yScale_minData = 0
     return_min = yScale_minData
   } else {
-    if(formating.enableYAxis.limits.minY.value != ''){
+    if(formating.enableYAxis.limits.minY.value != '' && !isNaN(Number(formating.enableYAxis.limits.minY.value))){
       return_min = Number(formating.enableYAxis.limits.minY.value)
     }
     
-    if(formating.enableYAxis.limits.maxY.value != ''){
+    if(formating.enableYAxis.limits.maxY.value != '' && !isNaN(Number(formating.enableYAxis.limits.maxY.value))){
       return_max = Number(formating.enableYAxis.limits.maxY.value)
+      console.log(return_max)
     }
   }
   return [return_min, return_max]
