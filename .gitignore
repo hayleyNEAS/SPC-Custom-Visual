@@ -3,3 +3,4 @@ node_modules
 dist
 webpack.*
 webpack.statistics.dev.html
+webpack.statistics.dev.html
