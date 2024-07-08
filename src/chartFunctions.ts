@@ -43,7 +43,6 @@ export function yAxisDomain(data: SPCChartData, formating: VisualSettingsModel) 
       return_max = Number(formating.enableYAxis.limits.maxY.value)
     }
   }
-  console.log(return_min, return_max)
   return [return_min, return_max]
 
 }

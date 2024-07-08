@@ -395,7 +395,7 @@ export class SPCChart implements IVisual {
   public controlLimitDisplayer(xScale: d3.ScalePoint<string>, yScale: d3.ScaleLinear<number, number, never>) {
     if (this.formattingSettings.SPCSettings.lineOptions.showControl.value && SPCChart.Config.chartWidth.height > 0) {
       this.lineUCL
-        .datum(this.dataPoints.filter(d => !isNaN(d.UCLValue)))
+        .datum(this.dataPoints.filter(d => !isNaN(d.UCLValue)&&d.UCLValue))
         .attr("clip-path", "url(#myClip")
         .attr("class", "ControlLimit")
         .attr("fill", "none")
@@ -409,7 +409,7 @@ export class SPCChart implements IVisual {
         );
 
       this.lineLCL
-        .datum(this.dataPoints.filter(d => !isNaN(d.LCLValue)))
+        .datum(this.dataPoints.filter(d => !isNaN(d.LCLValue)&&d.LCLValue))
         .attr("clip-path", "url(#myClip")
         .attr("class", "ControlLimit")
         .attr("fill", "none")
@@ -433,7 +433,7 @@ export class SPCChart implements IVisual {
   public controlSubLimitDisplayer(xScale: d3.ScalePoint<string>, yScale: d3.ScaleLinear<number, number, never>) {
     if (this.formattingSettings.SPCSettings.lineOptions.showSubControl.value) {
       this.lineUpperZoneA
-        .datum(this.dataPoints.filter(d => !isNaN(d.Upper_Zone_A)))
+        .datum(this.dataPoints.filter(d => !isNaN(d.Upper_Zone_A)&&d.Upper_Zone_A))
         .attr("clip-path", "url(#myClip")
         .style("stroke-dasharray", ("5,5"))
         .style("stroke-linecap", "round")
@@ -447,7 +447,7 @@ export class SPCChart implements IVisual {
         );
 
       this.lineUpperZoneB
-        .datum(this.dataPoints.filter(d => !isNaN(d.Upper_Zone_B)))
+        .datum(this.dataPoints.filter(d => !isNaN(d.Upper_Zone_B)&&d.Upper_Zone_B))
         .attr("clip-path", "url(#myClip")
         .style("stroke-dasharray", ("5,5"))
         .style("stroke-linecap", "round")
@@ -461,7 +461,7 @@ export class SPCChart implements IVisual {
         );
 
       this.lineLowerZoneA
-        .datum(this.dataPoints.filter(d => !isNaN(d.Lower_Zone_A)))
+        .datum(this.dataPoints.filter(d => !isNaN(d.Lower_Zone_A)&&d.Lower_Zone_A))
         .attr("clip-path", "url(#myClip")
         .style("stroke-dasharray", ("5,5"))
         .style("stroke-linecap", "round")
@@ -475,7 +475,7 @@ export class SPCChart implements IVisual {
         );
 
       this.lineLowerZoneB
-        .datum(this.dataPoints.filter(d => !isNaN(d.Lower_Zone_B)))
+        .datum(this.dataPoints.filter(d => !isNaN(d.Lower_Zone_B)&&d.Lower_Zone_B))
         .attr("clip-path", "url(#myClip")
         .style("stroke-dasharray", ("5,5"))
         .style("stroke-linecap", "round")
