@@ -357,6 +357,7 @@ export class SPCChart implements IVisual {
     if (this.formattingSettings.SPCSettings.lineOptions.showMean.value) {
       this.lineMean
         .datum(this.dataPoints.filter(d => !isNaN(d.mean)))
+        .attr("clip-path", "url(#myClip")
         .attr("class", "mean")
         .attr("fill", "none")
         .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.meanColor.value.value)
@@ -374,11 +375,11 @@ export class SPCChart implements IVisual {
   }
 
   public targetDisplayer(yScale: d3.ScaleLinear<number, number, never>) {
-    if (this.formattingSettings.SPCSettings.logoOptions.show.value) {
-      const targetValue = isNaN(yScale(this.data.target)) ? 0 : yScale(this.data.target);
-      if (this.formattingSettings.enableYAxis.formatter.min0 && this.data.target < 0) { } else {
+    if (this.formattingSettings.SPCSettings.lineOptions.showTarget.value) {
+      var targetValue = isNaN(yScale(this.data.target)) ? 0 : yScale(this.data.target);
         this.lineTarget
           .style("stroke-linecap", "round")
+          .attr("clip-path", "url(#myClip")
           .attr("class", "target")
           .attr("stroke-width", 1.5)
           .attr("x1", SPCChart.Config.chartWidth.start)
@@ -388,7 +389,6 @@ export class SPCChart implements IVisual {
           .attr("fill", "none")
           .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.targetColor.value.value)
           .attr("stroke-width", this.formattingSettings.SPCSettings.spcSetUp.target.value == '' && this.data.target == -Infinity ? 0 : 2)
-      }
     }
   }
 
@@ -396,6 +396,7 @@ export class SPCChart implements IVisual {
     if (this.formattingSettings.SPCSettings.lineOptions.showControl.value && SPCChart.Config.chartWidth.height > 0) {
       this.lineUCL
         .datum(this.dataPoints.filter(d => !isNaN(d.UCLValue)))
+        .attr("clip-path", "url(#myClip")
         .attr("class", "ControlLimit")
         .attr("fill", "none")
         .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.upperCL.value.value)
@@ -409,6 +410,7 @@ export class SPCChart implements IVisual {
 
       this.lineLCL
         .datum(this.dataPoints.filter(d => !isNaN(d.LCLValue)))
+        .attr("clip-path", "url(#myClip")
         .attr("class", "ControlLimit")
         .attr("fill", "none")
         .attr("stroke", this.formattingSettings.SPCSettings.lineOptions.lowerCL.value.value)
@@ -432,6 +434,7 @@ export class SPCChart implements IVisual {
     if (this.formattingSettings.SPCSettings.lineOptions.showSubControl.value) {
       this.lineUpperZoneA
         .datum(this.dataPoints.filter(d => !isNaN(d.Upper_Zone_A)))
+        .attr("clip-path", "url(#myClip")
         .style("stroke-dasharray", ("5,5"))
         .style("stroke-linecap", "round")
         .attr("class", "subControl")
@@ -445,6 +448,7 @@ export class SPCChart implements IVisual {
 
       this.lineUpperZoneB
         .datum(this.dataPoints.filter(d => !isNaN(d.Upper_Zone_B)))
+        .attr("clip-path", "url(#myClip")
         .style("stroke-dasharray", ("5,5"))
         .style("stroke-linecap", "round")
         .attr("class", "subControl")
@@ -458,6 +462,7 @@ export class SPCChart implements IVisual {
 
       this.lineLowerZoneA
         .datum(this.dataPoints.filter(d => !isNaN(d.Lower_Zone_A)))
+        .attr("clip-path", "url(#myClip")
         .style("stroke-dasharray", ("5,5"))
         .style("stroke-linecap", "round")
         .attr("class", "subControl")
@@ -471,6 +476,7 @@ export class SPCChart implements IVisual {
 
       this.lineLowerZoneB
         .datum(this.dataPoints.filter(d => !isNaN(d.Lower_Zone_B)))
+        .attr("clip-path", "url(#myClip")
         .style("stroke-dasharray", ("5,5"))
         .style("stroke-linecap", "round")
         .attr("class", "subControl")
@@ -499,6 +505,7 @@ export class SPCChart implements IVisual {
   public dataDisplayer(xScale: d3.ScalePoint<string>, yScale: d3.ScaleLinear<number, number, never>) {
     this.lineData
       .datum(this.dataPoints)
+      .attr("clip-path", "url(#myClip")
       .style("stroke-linecap", "round")
       .attr("fill", "none")
       .attr("stroke", ((self) => function () { return self.data.strokeColor })(this))
@@ -686,10 +693,10 @@ export class SPCChart implements IVisual {
     this.svg //Give the chart image a width and a height based on the size of the image in the report. If no data then the chart has no size
       .attr("width", SPCChart.Config.chartWidth.width < 0 ? 0 : SPCChart.Config.chartWidth.width )
       .attr("height", SPCChart.Config.chartWidth.height < 0 ? 0 :SPCChart.Config.chartWidth.height );
-
+    
     SPCChart.Config.chartWidth.end = options.viewport.width;
     SPCChart.Config.chartWidth.height -= this.formattingSettings.enableAxis.show.value ? SPCChart.Config.margins.bottom : 0
-
+    
     //Set up the Y Axis
     const yScale = scaleLinear()
       .domain(yAxisDomain(data, this.formattingSettings))
@@ -742,6 +749,15 @@ export class SPCChart implements IVisual {
     SPCChart.Config.chartWidth.start = yShift
 
     const xScale = this.fitX(options)
+
+    var rectMask = this.svg.append('defs')
+    rectMask.append("clipPath")
+      .attr("id", "myClip")
+      .append("rect")
+      .attr("width",  SPCChart.Config.chartWidth.width)
+      .attr("height", SPCChart.Config.chartWidth.height)
+      .attr("x", SPCChart.Config.chartWidth.start)
+      .attr("y", 0)
 
     //Create data line
     if(dataExists){

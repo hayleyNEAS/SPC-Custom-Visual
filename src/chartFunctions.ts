@@ -22,15 +22,19 @@ export function yAxisDomain(data: SPCChartData, formating: VisualSettingsModel) 
   const minData = isNaN(yData.reduce((a, b) => a+b,0)) ? Infinity : yData.reduce((a, b) => Math.min(a, b), Infinity)
   const minLCL = isNaN(yData.reduce((a, b) => a+b,0)) ? Infinity : (data.n > 1 ? LCLData.reduce((a, b) => Math.min(a, b), Infinity) : Infinity)
 
+  const yScale_increase_window = yScale_maxData * 1.1 - yScale_maxData
+
   let yScale_minData = Math.min(minData, minLCL) //If a target is removed it get assigned the value -inf, so initially we calculate the min of a data without it 
   if (data.target > -Infinity) {
     yScale_minData = Math.min(minData, minLCL, data.target)
   }
   
-  if (formating.enableYAxis.formatter.min0.value) yScale_minData = 0
-
-  const yScale_increase_window = yScale_maxData * 1.1 - yScale_maxData
-  return [yScale_minData - yScale_increase_window, yScale_maxData + yScale_increase_window]
+  if (formating.enableYAxis.formatter.min0.value) {
+    yScale_minData = 0
+    return [yScale_minData, yScale_maxData + yScale_increase_window]
+  } else {
+    return [yScale_minData - yScale_increase_window, yScale_maxData + yScale_increase_window]
+  }
 
 }
 

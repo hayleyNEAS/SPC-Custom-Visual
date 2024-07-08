@@ -202,7 +202,7 @@ class dataManipulator extends SimpleCard {
   });
 
   name: string = "dataManipulator";
-  displayName: string = "Advanced Settings";
+  displayName: string = "Advanced Settings (beta)";
   slices: Array<FormattingSettingsSlice> = [this.fillMissing0];
 
 }/**
