@@ -128,31 +128,33 @@ export function dataLoad(options: VisualUpdateOptions): [DataViewCategoryColumn,
     }
   }
   //break points
-  let breakPoint_parsed = []
+  let breakPoint_input_parsed = []
   const n = value_input.length
-  breakPoint_parsed = new Array(n); for (let i = 0; i < n; ++i) breakPoint_parsed[i] = 0;
+  breakPoint_input_parsed = new Array(n); for (let i = 0; i < n; ++i) breakPoint_input_parsed[i] = 0;
 
   for (let j = 0, len = breakPoint_input.length; j < len; j++) {
-    breakPoint_parsed = breakPoint_parsed.map((d, i) => d + breakPoint_input[j].values[i])
+    breakPoint_input_parsed = breakPoint_input_parsed.map((d, i) => d + breakPoint_input[j].values[i])
 
   }
+  //target
+  const target_input_parsed = [...target_input]
+  const direction_input_parsed = [...direction_input]
   //dates
   const dates_input = dataViews[0].categorical.categories[0];
-  const dates_input_parsed = dates_input;
+  const dates_input_parsed = {...dates_input};
   dates_input_parsed.values = dates_input.values.map(d => parseDates(<string>d))
-
   const indx = value_input.map((e, i) => typeof e != "number" ? i : "").filter(String) as number[]
   //values
   const value_input_parsed = [...value_input]
   for (const i of indx.reverse()) {
     dates_input_parsed.values.splice(i, 1)
     value_input_parsed.splice(i, 1)
-    target_input.splice(i, 1)
-    breakPoint_parsed.splice(i, 1)
+    target_input_parsed.splice(i, 1)
+    breakPoint_input_parsed.splice(i, 1)
     tooltip_input.forEach((t) => t.values.splice(i, 1))
   }
   
-  return [dates_input_parsed, value_input_parsed, target_input, direction_input, breakPoint_parsed, tooltip_input]
+  return [dates_input_parsed, value_input_parsed, target_input_parsed, direction_input_parsed, breakPoint_input_parsed, tooltip_input]
 }
 
 export function dataSet(host: IVisualHost, options: VisualUpdateOptions, levelOfDateHeirarchy: string, formatSettings: VisualSettingsModel): [SPCChartDataPoint[], any[], any[]] {
@@ -210,7 +212,7 @@ export function dataSet(host: IVisualHost, options: VisualUpdateOptions, levelOf
 
     let difference = null
     const previous_not_null_values = SPCChartDataPoints.filter(d => d.value !== null)
-    if (i > 0 && breakPoint_input[i] == breakPoint_input[i-1]) {
+    if (i > 0) {
       if (value !== null && previous_not_null_values.length > 0) {
         difference = <number>value - <number>previous_not_null_values.at(-1).value
       }
