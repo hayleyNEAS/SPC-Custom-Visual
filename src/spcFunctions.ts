@@ -273,7 +273,6 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSet
   } else {
     const data = dataset.dataPoints
     const [up_color, down_color] = directionColors(dataset, formatSettings)
-
     for (let i = 0; i < dataset.n; i++) {
       if (i > 3) { //two in three rules 
         const latest3 = data.slice(i - 3 + 1, i + 1)

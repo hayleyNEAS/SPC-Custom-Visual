@@ -212,7 +212,7 @@ export function dataSet(host: IVisualHost, options: VisualUpdateOptions, levelOf
 
     let difference = null
     const previous_not_null_values = SPCChartDataPoints.filter(d => d.value !== null)
-    if (i > 0) {
+    if (i > 0 && breakPoint_input[i] == breakPoint_input[i-1]) {
       if (value !== null && previous_not_null_values.length > 0) {
         difference = <number>value - <number>previous_not_null_values.at(-1).value
       }
