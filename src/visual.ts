@@ -376,7 +376,7 @@ export class SPCChart implements IVisual {
 
   public targetDisplayer(yScale: d3.ScaleLinear<number, number, never>) {
     if (this.formattingSettings.SPCSettings.lineOptions.showTarget.value) {
-      var targetValue = isNaN(yScale(this.data.target)) ? 0 : yScale(this.data.target);
+      const targetValue = isNaN(yScale(this.data.target)) ? 0 : yScale(this.data.target);
         this.lineTarget
           .style("stroke-linecap", "round")
           .attr("clip-path", "url(#myClip")
@@ -750,7 +750,7 @@ export class SPCChart implements IVisual {
 
     const xScale = this.fitX(options)
 
-    var rectMask = this.svg.append('defs')
+    const rectMask = this.svg.append('defs')
     rectMask.append("clipPath")
       .attr("id", "myClip")
       .append("rect")

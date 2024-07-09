@@ -4,9 +4,8 @@ import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import Fill = powerbi.Fill;
 
 import { getValue } from "./objectEnumerationUtility";
-import { SPCChartData } from "./dataStructure"
+import { SPCChartData } from "./dataStructure";
 import { VisualSettingsModel } from "./visualSettingsModel";
-import * as d3 from "d3";
 
 
 export function yAxisDomain(data: SPCChartData, formating: VisualSettingsModel) {
