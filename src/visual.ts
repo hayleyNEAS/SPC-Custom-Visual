@@ -754,8 +754,8 @@ export class SPCChart implements IVisual {
     rectMask.append("clipPath")
       .attr("id", "myClip")
       .append("rect")
-      .attr("width",  SPCChart.Config.chartWidth.width)
-      .attr("height", SPCChart.Config.chartWidth.height)
+      .attr("width",  SPCChart.Config.chartWidth.width < 0 ? 0 :SPCChart.Config.chartWidth.width)
+      .attr("height",  SPCChart.Config.chartWidth.height < 0 ? 0 :SPCChart.Config.chartWidth.height )
       .attr("x", SPCChart.Config.chartWidth.start)
       .attr("y", 0)
 
