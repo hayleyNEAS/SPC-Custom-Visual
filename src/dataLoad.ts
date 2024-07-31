@@ -94,12 +94,14 @@ export function dataLoad(options: VisualUpdateOptions): [DataViewCategoryColumn,
     } else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'direction_measure') {
       direction_input = options.dataViews[0].categorical.values[i].values
     } else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'break_points') {
-      breakPoint_input.push({
-        name: options.dataViews[0].categorical.values[i].source.displayName,
-        values: options.dataViews[0].categorical.values[i].values,
-        format: '',
-        decimalPlaces: 0
-      })
+      if (typeof options.dataViews[0].categorical.values[i].values[0] == "number") {
+        breakPoint_input.push({
+          name: options.dataViews[0].categorical.values[i].source.displayName,
+          values: options.dataViews[0].categorical.values[i].values,
+          format: '',
+          decimalPlaces: 0
+        })
+      }
     } else if (Object.keys(options.dataViews[0].categorical.values[i].source.roles)[0] == 'tooltip_extra') {
       let format = 's'
       let decimalPlaces = 0
