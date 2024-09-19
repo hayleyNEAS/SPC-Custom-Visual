@@ -26,7 +26,7 @@ export function getTooltipData(d: SPCChartDataPoint, data: SPCChartData, formati
   }
 
   //add target to tooltip
-  if (data.target != -Infinity && formating.SPCSettings.lineOptions.showTarget) {
+  if (data.target != -Infinity && formating.SPCSettings.lineOptions.showTarget.value) {
     const target = {
       displayName: "Target",
       value: parseYLabels(data.target, formating.enableYAxis.formatter.time.value, data.decimalPlaces, data.measureFormat),
@@ -36,7 +36,7 @@ export function getTooltipData(d: SPCChartDataPoint, data: SPCChartData, formati
   }
 
   //add limits to tooltip
-  if (formating.SPCSettings.lineOptions.showControl) {
+  if (formating.SPCSettings.lineOptions.showControl.value) {
     tooltip_data.push({
       displayName: "Upper Control Limit",
       value: parseYLabels(<number>d.UCLValue, formating.enableYAxis.formatter.time.value, data.decimalPlaces, data.measureFormat),
@@ -53,7 +53,7 @@ export function getTooltipData(d: SPCChartDataPoint, data: SPCChartData, formati
 
   
   //add sub-limits to tooltip
-  if (formating.SPCSettings.lineOptions.showSubControl) {
+  if (formating.SPCSettings.lineOptions.showSubControl.value) {
     tooltip_data.push({
       displayName: "Upper Zone A Limit",
       value: parseYLabels(<number>d.Upper_Zone_A, formating.enableYAxis.formatter.time.value, data.decimalPlaces, data.measureFormat),
