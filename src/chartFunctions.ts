@@ -45,7 +45,6 @@ export function yAxisDomain(data: SPCChartData, formating: VisualSettingsModel) 
     
     if(formating.enableYAxis.limits.maxY.value != '' && !isNaN(Number(formating.enableYAxis.limits.maxY.value))){
       return_max = Number(formating.enableYAxis.limits.maxY.value)
-      console.log(return_max)
     }
   }
   return [return_min, return_max]
