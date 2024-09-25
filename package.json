@@ -28,7 +28,7 @@
     "powerbi-visuals-utils-formattingutils": "^6.0.1",
     "powerbi-visuals-utils-interactivityutils": "^6.0.2",
     "powerbi-visuals-utils-tooltiputils": "^6.0.1",
-    "typescript": "^5.2.2"
+    "typescript": "~5.2.2"
   },
   "dependencies": {
     "d3": "^7.8.5",
