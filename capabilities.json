@@ -312,6 +312,15 @@
                     }
                 }
             }
+        },
+        "tooltipFormatting":{
+            "properties": {
+                "SPCDecimal": {
+                    "type": {
+                        "numeric": true
+                    }
+                }
+            }
         }
     },
     "tooltips": {

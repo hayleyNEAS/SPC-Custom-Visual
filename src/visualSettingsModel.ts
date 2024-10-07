@@ -270,19 +270,6 @@ class YAxisFormatter extends SimpleCard {
     value: false
   });
 
-  minY = new formattingSettings.TextInput({
-    name: "minY",
-    displayName: "Minimum",
-    value: "",
-    placeholder: "Auto"
-  });
-  maxY = new formattingSettings.TextInput({
-    name: "maxY",
-    displayName: "Maximum",
-    value: "",
-    placeholder: "Auto"
-  });
-
   name: string = "YAxisFormatter";
   displayName: string = "Y-Axis Formatter";
   slices: Array<FormattingSettingsSlice> = [this.fill, this.time, this.percentage, this.min0];
@@ -325,7 +312,7 @@ class EnableYAxisCardSettings extends CompCard {
 }
 
 /**
- * Enable y-Axis Formatting Card
+ * Enable data labels Formatting Card
  */
 class dataLabelsCard extends SimpleCard {
   show = new formattingSettings.ToggleSwitch({
@@ -354,6 +341,36 @@ class dataLabelsCard extends SimpleCard {
   slices: Array<FormattingSettingsSlice> = [this.fill, this.last];
 }
 
+
+/**
+ * Tooltip Formatting Card
+ */
+class tooltipFormattingCard extends SimpleCard {
+  /*show = new formattingSettings.ToggleSwitch({
+    name: "show",
+    displayName: undefined,
+    value: false,
+  });
+  topLevelSlice = this.show;*/
+
+  // Formatting property `fill` color picker (formatting simple slice)
+  SPCDecimal = new formattingSettings.NumUpDown({
+    name: "SPCDecimal",
+    displayName: "SPC Decimal places",
+    value: 2,
+    options: {
+        minValue: {
+        type: powerbi.visuals.ValidatorType.Min,
+        value: 0
+        }
+     }
+  });
+  name: string = "tooltipFormatting";
+  displayName: string = "Tooltip Settings";
+  slices: Array<FormattingSettingsSlice> = [this.SPCDecimal];
+}
+
+
 /**
 * BarChart settings model class
 *
@@ -366,8 +383,9 @@ export class VisualSettingsModel extends FormattingSettingsModel {
   enableAxis = new EnableAxisCardSettings();
   enableYAxis = new EnableYAxisCardSettings();
   dataLabels = new dataLabelsCard();
+  tooltipFormatting = new tooltipFormattingCard();
   //colorSelector = new ColorSelectorCardSettings();
-  cards = [this.SPCSettings, this.dataManipulator, this.enableAxis, this.enableYAxis, this.dataLabels];
+  cards = [this.SPCSettings, this.dataManipulator, this.enableAxis, this.enableYAxis, this.dataLabels, this.tooltipFormatting];
 
 
   /**
