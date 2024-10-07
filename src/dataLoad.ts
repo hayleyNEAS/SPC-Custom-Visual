@@ -283,7 +283,7 @@ export function fullData(host: IVisualHost, options: VisualUpdateOptions, format
     markerSize: 3,
 
     measureName,
-    measureFormat: formatSettings.enableYAxis.formatter.percentage.value ? '%' : measureFormat,
+    measureFormat: formatSettings.enableYAxis.formatter.format.value.value == 'percent' ? '%' : measureFormat,
     decimalPlaces,
     levelOfDateHeirarchy,
 

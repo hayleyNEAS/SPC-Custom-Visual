@@ -602,9 +602,9 @@ export class SPCChart implements IVisual {
         .text(((self) => function (d, i) {
           if (i < self.data.n - 1) {
             if (self.formattingSettings.dataLabels.last.value) {return ''
-            } else {return parseYLabels(<number>d.value, self.formattingSettings.enableYAxis.formatter.time.value, self.data.decimalPlaces, self.data.measureFormat)
+            } else {return parseYLabels(<number>d.value, self.formattingSettings.enableYAxis.formatter.format.value.value == "time", self.data.decimalPlaces, self.data.measureFormat)
             }
-          } else {return parseYLabels(<number>d.value, self.formattingSettings.enableYAxis.formatter.time.value, self.data.decimalPlaces, self.data.measureFormat)
+          } else {return parseYLabels(<number>d.value, self.formattingSettings.enableYAxis.formatter.format.value.value == "time", self.data.decimalPlaces, self.data.measureFormat)
           }
         })(this))
         .attr("font-size", 11)
@@ -712,7 +712,7 @@ export class SPCChart implements IVisual {
     let yAxis = axisLeft(yScale)
       .tickSizeInner(-SPCChart.Config.chartWidth.end);
 
-    if (this.formattingSettings.enableYAxis.formatter.time.value) {
+    if (this.formattingSettings.enableYAxis.formatter.format.value.value == "time") {
       yAxis = yAxis
         .ticks(SPCChart.Config.yTicks)
         .tickFormat(d => parseinHMS(d));
@@ -745,7 +745,7 @@ export class SPCChart implements IVisual {
         if (this.getBBox().width > maxW) maxW = this.getBBox().width;
       });
 
-    if (this.formattingSettings.enableYAxis.show.value || this.formattingSettings.enableYAxis.formatter.time.value) { yShift = maxW + 10; }//longest "word" plus 10 pixels
+    if (this.formattingSettings.enableYAxis.show.value || this.formattingSettings.enableYAxis.formatter.format.value.value == "time") { yShift = maxW + 10; }//longest "word" plus 10 pixels
 
     this.yAxis
       .style('font-family', 'inherit')

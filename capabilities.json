@@ -261,14 +261,11 @@
                         }
                     }
                 },
-                "time": {
+                "format": {
                     "type": {
-                        "bool": true
-                    }
-                },
-                "percentage": {
-                    "type": {
-                        "bool": true
+                        "enumeration" : [{"value": "standard",  "displayName": "Standard"}, 
+                                         {"value":  "time",     "displayName": "HH:mm:ss"}, 
+                                         {"value":  "percent",  "displayName": "Percentage"}]
                     }
                 },
                 

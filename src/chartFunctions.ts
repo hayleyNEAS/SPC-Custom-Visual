@@ -30,7 +30,7 @@ export function yAxisDomain(data: SPCChartData, formating: VisualSettingsModel) 
   let return_min = yScale_minData-yScale_increase_window
   let return_max = yScale_maxData+yScale_increase_window
 
-  if(formating.enableYAxis.formatter.percentage.value || maxData < 1){
+  if(formating.enableYAxis.formatter.format.value.value == 'perentage' || maxData < 1){
     yScale_increase_window = yScale_maxData * 1.01 - yScale_maxData
     return_min = yScale_minData - yScale_increase_window
     return_max = yScale_maxData + yScale_increase_window

@@ -249,23 +249,18 @@ class YAxisFormatter extends SimpleCard {
     value: { value: "#777777" }
   });
 
-  // Option for formatting y axis as time
-  time = new formattingSettings.ToggleSwitch({
-    name: "time",
-    displayName: "Format as HH:mm:ss",
-    value: false
-  });
+  // Option for formatting y axis as time or percentage
 
-  // Option for formatting y axis as percentage
-  percentage = new formattingSettings.ToggleSwitch({
-    name: "percentage",
-    displayName: "Format as %",
-    value: false
-  });
+  format = new formattingSettings.ItemDropdown({
+    items: [{ value: "standard", displayName: "Standard" }, { value: "time", displayName: "HH:mm:ss" }, { value: "percent", displayName: "Percentage" }],
+    name: "format",
+    displayName: "Format of y-axis",
+    value: { value: "standard", displayName: "Standard" }
+  })
 
   name: string = "YAxisFormatter";
   displayName: string = "Y-Axis Formatter";
-  slices: Array<FormattingSettingsSlice> = [this.fill, this.time, this.percentage];
+  slices: Array<FormattingSettingsSlice> = [this.fill, this.format];
 }
 class YAxisLimits extends SimpleCard {
 
