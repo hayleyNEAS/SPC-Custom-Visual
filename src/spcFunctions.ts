@@ -331,13 +331,13 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSet
           .map((d) => Math.sign(d.difference))
           .reduce((a, b) => a + b, 0)
         if (runOfNumbers == (p - 1)) {
-          latest7.forEach(d => d.color = up_color)
-          latest7.forEach(d => d.markerSize = dataset.markerSize)
-          latest7.forEach(d => d.run = 1)
+          latest7.slice(0, p).forEach(d => d.color = up_color)
+          latest7.slice(0, p).forEach(d => d.markerSize = dataset.markerSize)
+          latest7.slice(0, p).forEach(d => d.run = 1)
         } if (runOfNumbers == -1 * (p - 1)) {
-          latest7.forEach(d => d.color = down_color)
-          latest7.forEach(d => d.markerSize = dataset.markerSize)
-          latest7.forEach(d => d.run = -1)
+          latest7.slice(0, p).forEach(d => d.color = down_color)
+          latest7.slice(0, p).forEach(d => d.markerSize = dataset.markerSize)
+          latest7.slice(0, p).forEach(d => d.run = -1)
         }
 
       }
