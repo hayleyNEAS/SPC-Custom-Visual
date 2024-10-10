@@ -594,11 +594,13 @@ export class SPCChart implements IVisual {
         })(this))
         .attr("x",
           ((self) => function (d, i) {
-            if (i == 0) {return xScale(d.category) + 2.5
-            } else if (i == self.data.n - 1) {return xScale(d.category) - 2.5
+            if (i == 0) {return xScale(d.category)
+            } else if (i == self.data.n - 1) {return xScale(d.category)
             } else {return xScale(d.category)}
           })(this))
-        .attr("y", function (d) { return yScale(<number>d.value + 2.5) })
+        .attr("y", function (d, i) { const n = i%2 
+          console.log(n)
+          return yScale(<number>d.value)  + 20*n - 5})
         .text(((self) => function (d, i) {
           if (i < self.data.n - 1) {
             if (self.formattingSettings.dataLabels.last.value) {return ''
@@ -707,7 +709,7 @@ export class SPCChart implements IVisual {
     //Set up the Y Axis
     const yScale = scaleLinear()
       .domain(yAxisDomain(data, this.formattingSettings))
-      .range([SPCChart.Config.chartWidth.height, 5]);
+      .range([SPCChart.Config.chartWidth.height, 20]);
 
     let yAxis = axisLeft(yScale)
       .tickSizeInner(-SPCChart.Config.chartWidth.end);
