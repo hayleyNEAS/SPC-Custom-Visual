@@ -302,8 +302,8 @@ export function createDataset(options: VisualUpdateOptions, host: IVisualHost, f
   allData = getControlLimits(allData)
 
   //SPC Marker Colors Rules 
-  allData = getMarkerColors(allData, formatSettings)
   allData = identifyOutliers(allData, formatSettings)
+  allData = getMarkerColors(allData, formatSettings)
 
   if (allData.n == 0) {
     return allData

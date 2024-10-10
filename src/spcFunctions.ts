@@ -288,7 +288,6 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSet
         if (twoInThreeCheck_sum >= 2 || (twoInThreeCheck_sum == 1 && twoInThreeCheck_magnitude == 3)) {
           for (let j = 0; j < 3; j++) {
             if (twoInThreeCheck.at(j) != 0) {
-              console.log(j)
               latest3.at(j).color = up_color
               latest3.at(j).markerSize = dataset.markerSize
               latest3.at(j).twoInThree = 1
@@ -297,7 +296,6 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSet
         } else if (twoInThreeCheck_sum <= -2 || (twoInThreeCheck_sum == -1 && twoInThreeCheck_magnitude == 3)) {
           for (let j = 0; j < 3; j++) {
             if (twoInThreeCheck.at(j) != 0) {
-              console.log(j)
               latest3.at(j).color = down_color
               latest3.at(j).markerSize = dataset.markerSize
               latest3.at(j).twoInThree = 1
@@ -311,7 +309,7 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSet
 
         //oneside of mean 
         const shift7 = latest7
-          .slice(0, p - 1)
+          .slice(0, p)
           .map((d) => Math.sign(<number>d.value - d.mean))
           .reduce((a, b) => a + b, 0)
         if (shift7 == p) {
