@@ -293,23 +293,13 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSet
         }
       }
       const p = formatSettings.SPCSettings.spcSetUp.runNumber.value
-      if (i > p) { //p defaults to 7
-        const latest7 = data.slice(i - p + 1, i + 1)
-        //run of 7
-        const runOfNumbers = latest7
-          .map((d) => Math.sign(d.difference))
-          .reduce((a, b) => a + b, 0)
-        if (runOfNumbers == p) {
-          latest7.forEach(d => d.color = up_color)
-          latest7.forEach(d => d.markerSize = dataset.markerSize)
-          latest7.forEach(d => d.run = 1)
-        } if (runOfNumbers == -1 * p) {
-          latest7.forEach(d => d.color = down_color)
-          latest7.forEach(d => d.markerSize = dataset.markerSize)
-          latest7.forEach(d => d.run = -1)
-        }
+      console.log(i, i-p+1)
+      if (i >= (p-1)) { //p defaults to 7
+        const latest7 = data.slice(i - p + 1, i+2)
+
         //oneside of mean 
         const shift7 = latest7
+          .slice(0,p-1)
           .map((d) => Math.sign(<number>d.value - d.mean))
           .reduce((a, b) => a + b, 0)
         if (shift7 == p) {
@@ -321,6 +311,24 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSet
           latest7.forEach(d => d.markerSize = dataset.markerSize)
           latest7.forEach(d => d.shift = -1)
         }
+
+        
+        //run of 7 (6 differences)
+        const runOfNumbers = latest7
+          .slice(1, p)
+          .map((d) => Math.sign(d.difference))
+          .reduce((a, b) => a + b, 0)
+        console.log(i, i-p+1, data.at(i).value, runOfNumbers, latest7.slice(1,p).map(d => d.difference))
+        if (runOfNumbers == (p-1)) {
+          latest7.forEach(d => d.color = up_color)
+          latest7.forEach(d => d.markerSize = dataset.markerSize)
+          latest7.forEach(d => d.run = 1)
+        } if (runOfNumbers == -1 * (p-1)) {
+          latest7.forEach(d => d.color = down_color)
+          latest7.forEach(d => d.markerSize = dataset.markerSize)
+          latest7.forEach(d => d.run = -1)
+        }
+        
       }
       /* if (i > 15) {
           let latest15 = data.slice(i - 15 + 1, i + 1)
