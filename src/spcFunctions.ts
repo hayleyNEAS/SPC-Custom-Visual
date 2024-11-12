@@ -95,7 +95,6 @@ export function twoInThreeRule(value, Upper_Zone_A, Lower_Zone_A) {
 export function logoSelector(data: SPCChartData, option): any {
   if (option == "variation") {
     //let dataPoints = data.dataPoints
-    console.log(data.direction, data.outlier, data.twoInThree, data.shift)
     if (data.direction > 0) {
       if (data.outlier == 1 || data.run == 1 || data.shift == 1 || data.twoInThree == 1) {
         return variation_ciHigh
