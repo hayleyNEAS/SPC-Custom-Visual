@@ -599,7 +599,6 @@ export class SPCChart implements IVisual {
             } else {return xScale(d.category)}
           })(this))
         .attr("y", function (d, i) { const n = i%2 
-          console.log(n)
           return yScale(<number>d.value)  + 20*n - 5})
         .text(((self) => function (d, i) {
           if (i < self.data.n - 1) {
@@ -768,7 +767,7 @@ export class SPCChart implements IVisual {
       this.controlSubLimitDisplayer(xScale, yScale)   //Create Zone lines 
       this.logoDisplayer()                            //Move logo
     } 
-
+    
     //ToolTips
     this.svg
       .on('mousemove', this.tooltipMouseMove(xScale, this.svg, this.dataPoints))
