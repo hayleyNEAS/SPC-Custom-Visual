@@ -350,7 +350,11 @@ class tooltipFormattingCard extends SimpleCard {
         minValue: {
         type: powerbi.visuals.ValidatorType.Min,
         value: 0
-        }
+        },
+        maxValue: {
+          type: powerbi.visuals.ValidatorType.Max,
+          value: 10
+          }
      }
   });
   name: string = "tooltipFormatting";
