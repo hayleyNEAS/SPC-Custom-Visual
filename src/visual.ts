@@ -551,7 +551,7 @@ export class SPCChart implements IVisual {
       .append("rect")
       .attr("class", "markers")
       .attr("width", SPCChart.Config.bandwidth)
-      .attr("height", SPCChart.Config.chartWidth.height)
+      .attr("height", h)
       .attr("x", function (d) { return xScale(d.category) - SPCChart.Config.bandwidth / 2 })
       .attr("y", 0)
       .attr("fill", function (d) { return d.color }); //invisable rectangles 
@@ -562,7 +562,7 @@ export class SPCChart implements IVisual {
       .append("rect")
       .attr("class", "markers tooltip")
       .attr("width", 0.05)
-      .attr("height", SPCChart.Config.chartWidth.height)
+      .attr("height", h)
       .attr("x", function (d) { return xScale(d.category) })
       .attr("y", 0)
       .attr("stroke", "#777777")
@@ -627,6 +627,7 @@ export class SPCChart implements IVisual {
         SPCChart.Config.bandwidth = this.data.n == 1
           ? (inner_chartWidth)
           : (inner_chartWidth) / (this.data.n - 1); //each datapoint takes up one "bandwidth" of the chart area
+        SPCChart.Config.bandwidth = SPCChart.Config.bandwidth < 0 ? 0 : SPCChart.Config.bandwidth
 
         xScale = scalePoint()
           .domain(this.data.dataPoints.map(d => d.category))
