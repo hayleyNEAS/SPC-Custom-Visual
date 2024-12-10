@@ -16,7 +16,7 @@ export function getTooltipData(d: SPCChartDataPoint, data: SPCChartData, formati
   };
   tooltip_data = [header]
 
-  //add mean to tooltip
+  //add mean to tooltip #JB this is where the mean tooltip is located. I see what the issue is 🤦‍♀️
   if (formating.SPCSettings.lineOptions.showMean) {
     tooltip_data.push({
       displayName: "Mean",
