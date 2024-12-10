@@ -298,7 +298,7 @@ export function getMarkerColors(dataset: SPCChartData, formatSettings: VisualSet
             if (twoInThreeCheck.at(j) != 0) {
               latest3.at(j).color = down_color
               latest3.at(j).markerSize = dataset.markerSize
-              latest3.at(j).twoInThree = -1 //Jake this was a 1
+              latest3.at(j).twoInThree = -1 //Jake this was a 1 #seen
             }
           }
         }
