@@ -129,7 +129,7 @@ export function dataLoad(options: VisualUpdateOptions): [DataViewCategoryColumn,
       })
     }
   }
-  //break points
+  //break points  //RJB adding a comment to prove push works
   let breakPoint_input_parsed = []
   const n = value_input.length
   breakPoint_input_parsed = new Array(n); for (let i = 0; i < n; ++i) breakPoint_input_parsed[i] = 0;
