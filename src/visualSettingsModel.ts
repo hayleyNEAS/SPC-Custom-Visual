@@ -250,7 +250,7 @@ class YAxisFormatter extends SimpleCard {
   });
 
   // Option for formatting y axis as time or percentage
-
+  // JB next task is to add currency/pounds here. not this week though  
   format = new formattingSettings.ItemDropdown({
     items: [{ value: "standard", displayName: "Standard" }, { value: "time", displayName: "HH:mm:ss" }, { value: "percent", displayName: "Percentage" }],
     name: "format",
