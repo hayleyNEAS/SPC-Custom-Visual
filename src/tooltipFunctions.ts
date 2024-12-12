@@ -16,8 +16,8 @@ export function getTooltipData(d: SPCChartDataPoint, data: SPCChartData, formati
   };
   tooltip_data = [header]
 
-  //add mean to tooltip #JB this is where the mean tooltip is located. I see what the issue is 🤦‍♀️
-  if (formating.SPCSettings.lineOptions.showMean) {
+  //add mean to tooltip
+  if (formating.SPCSettings.lineOptions.showMean.value) {
     tooltip_data.push({
       displayName: "Mean",
       value: parseYLabels(d.mean, formating.enableYAxis.formatter.format.value.value == "time", formating.tooltipFormatting.SPCDecimal.value, data.measureFormat),
