@@ -261,7 +261,7 @@ export function dataSet(host: IVisualHost, options: VisualUpdateOptions, levelOf
 }
 
 export function fullData(host: IVisualHost, options: VisualUpdateOptions, formatSettings: VisualSettingsModel): SPCChartData {
-  var [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = PBIformatingKeeper(options)
+  let [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = PBIformatingKeeper(options)
   const [data, target_input, direction_input] = dataSet(host, options, levelOfDateHeirarchy, formatSettings)
   const target = getTarget(target_input, formatSettings)
   const direction = getDirection(direction_input, formatSettings)
