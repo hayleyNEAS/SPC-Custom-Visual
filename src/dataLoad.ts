@@ -261,7 +261,7 @@ export function dataSet(host: IVisualHost, options: VisualUpdateOptions, levelOf
 }
 
 export function fullData(host: IVisualHost, options: VisualUpdateOptions, formatSettings: VisualSettingsModel): SPCChartData {
-  let [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = PBIformatingKeeper(options)
+  const [measureName, measureFormat, decimalPlaces, levelOfDateHeirarchy] = PBIformatingKeeper(options)
   const [data, target_input, direction_input] = dataSet(host, options, levelOfDateHeirarchy, formatSettings)
   const target = getTarget(target_input, formatSettings)
   const direction = getDirection(direction_input, formatSettings)
@@ -270,11 +270,12 @@ export function fullData(host: IVisualHost, options: VisualUpdateOptions, format
     .map((d) => <number>d.breakP)
     .reduce((a, b) => Math.max(a, b), 0)
 
+    let measureFormat_Return = measureFormat
     if(formatSettings.enableYAxis.formatter.format.value.value == 'percent'){
-      measureFormat ='%'
+      measureFormat_Return ='%'
     } else if (formatSettings.enableYAxis.formatter.format.value.value == 'currency'){
-      measureFormat = '£'
-    }
+      measureFormat_Return = '£'
+    } else {measureFormat_Return = measureFormat}
 
   return {
     dataPoints: data,
@@ -289,7 +290,7 @@ export function fullData(host: IVisualHost, options: VisualUpdateOptions, format
     markerSize: 3,
 
     measureName,
-    measureFormat,
+    measureFormat: measureFormat_Return,
     decimalPlaces,
     levelOfDateHeirarchy,
 
