@@ -690,6 +690,7 @@ export class SPCChart implements IVisual {
     const data = this.data
     this.dataPoints = data.dataPoints.filter(d => d.value !== null);
 
+
     const dataExists = !isNaN(this.dataPoints.map(d => <number>d.value).reduce((a, b) => a+b,0))
     if(!dataExists){ //if you removed the measure then yeet the chart
       SPCChart.Config.chartWidth.height = 0;
@@ -714,11 +715,16 @@ export class SPCChart implements IVisual {
     let yAxis = axisLeft(yScale)
       .tickSizeInner(-SPCChart.Config.chartWidth.end);
 
+
     if (this.formattingSettings.enableYAxis.formatter.format.value.value == "time") {
       yAxis = yAxis
         .ticks(SPCChart.Config.yTicks)
         .tickFormat(d => parseinHMS(d));
-    } else {
+    } else if (this.formattingSettings.enableYAxis.formatter.format.value.value == "currency"){
+      yAxis = yAxis
+      .ticks(SPCChart.Config.yTicks)
+      .tickFormat(d => parseYLabels(d, false, 2, "£"))
+    } else { 
       yAxis = yAxis
         .ticks(SPCChart.Config.yTicks, data.measureFormat); //format n=yTicks ticks into SI units
     }

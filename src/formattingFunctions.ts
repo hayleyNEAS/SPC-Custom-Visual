@@ -230,6 +230,9 @@ export function parseYLabels(d: d3.NumberValue, hms: boolean, digits: number, fo
     } else if (format == '%') {
       const perc = <number>d * 100
       return perc.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits }) + '%'
+    } else if (format == '£') {
+      const curr = <number>d
+      return '£' + curr.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits }) 
     } else {
       return d.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits })
     }
